@@ -3,13 +3,13 @@ id: P061
 title: "Rainbow Unicorn"
 category: framed
 themes: [animals, nursery]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P061/main.jpg
   angles:

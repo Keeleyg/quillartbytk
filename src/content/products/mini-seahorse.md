@@ -3,13 +3,13 @@ id: P126
 title: "Mini Quilled Seahorse (Cute Style)"
 category: framed
 themes: [nautical]
-status: draft
+status: available
 collection: mini-sea-creatures
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P126/main.jpg
   angles: []

@@ -3,13 +3,13 @@ id: P029
 title: "Rainbow Tree of Life"
 category: framed
 themes: [trees]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: ["rainbow", "autumn"]
 frame_options: ["white", "oak", "black"]
-price: null
+price: 50
 images:
   main: ../../../images/P029/main.jpg
   angles:

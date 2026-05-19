@@ -3,13 +3,13 @@ id: P059
 title: "Mini Sunflower Canvas"
 category: canvas
 themes: [flowers]
-status: draft
+status: available
 collection: mini-canvases
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P059/main.jpg
   angles: []

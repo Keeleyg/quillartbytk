@@ -3,13 +3,13 @@ id: P097
 title: "\"You Won My Heart\" Tic-Tac-Toe Card"
 category: cards
 themes: [patterns]
-status: draft
+status: available
 collection: valentines-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P097/main.jpg
   angles: []

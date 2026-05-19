@@ -3,13 +3,13 @@ id: P013
 title: "Boho Rainbow, Sun and Clouds Triptych"
 category: framed
 themes: [nursery]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P013/main.jpg
   angles:

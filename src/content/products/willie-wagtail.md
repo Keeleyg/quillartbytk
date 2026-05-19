@@ -3,13 +3,13 @@ id: P123
 title: "Willie Wagtail"
 category: framed
 themes: [birds, australiana]
-status: draft
+status: available
 collection: aussie-birds
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P123/main.jpg
   angles:

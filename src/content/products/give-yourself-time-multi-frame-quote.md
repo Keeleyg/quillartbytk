@@ -3,13 +3,13 @@ id: P051
 title: "Give Yourself Time — Multi-Frame Quote"
 category: framed
 themes: [insects, patterns]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: true
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P051/main.jpg
   angles:

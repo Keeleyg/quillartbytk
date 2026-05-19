@@ -3,13 +3,13 @@ id: P079
 title: "Native Australian Botanicals Triptych"
 category: framed
 themes: [flowers, australiana]
-status: draft
+status: available
 collection: native-botanicals
 commission_example: false
 multi_frame: true
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P079/main.jpg
   angles: []

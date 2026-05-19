@@ -3,13 +3,13 @@ id: P076
 title: "\"Love\" Arrow Card"
 category: cards
 themes: [patterns]
-status: draft
+status: available
 collection: valentines-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P076/main.jpg
   angles: []

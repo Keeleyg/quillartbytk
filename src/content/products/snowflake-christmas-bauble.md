@@ -3,13 +3,13 @@ id: P069
 title: "Quilled Snowflake Christmas Bauble"
 category: homewares
 themes: [patterns, seasonal]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: ["pink-and-mauve", "white-and-silver"]
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P069/main.jpg
   angles:

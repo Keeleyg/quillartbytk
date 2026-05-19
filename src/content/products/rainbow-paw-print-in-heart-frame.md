@@ -3,13 +3,13 @@ id: P066
 title: "Rainbow Paw Print in Heart Frame"
 category: framed
 themes: [animals, pets]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P066/main.jpg
   angles:

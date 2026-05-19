@@ -1,6 +1,10 @@
 # quillartbytk — Catalog Status
 
+Site live at https://quillartbytk.com as of 2026-05-19.
+
 Hand-off document for continuing the catalog work in a fresh chat thread.
+
+> **All prices currently set to $50 AUD as launch placeholder.** Tracey to review and set real prices product-by-product.
 
 ## Where we are
 
@@ -9,10 +13,36 @@ Hand-off document for continuing the catalog work in a fresh chat thread.
 - **128 original clusters** (P001–P130, with intentional gaps at P105/P106)
 - **Source of truth**: markdown-per-product with YAML frontmatter (CSV archived)
 - **Next product ID: P131**
-- **Phase 1 (repo prep)**: Complete — markdown-per-product, image folders, collections
-- **Phase 2 (Astro scaffold)**: Complete — 153 static pages, Tailwind v4, content collections, GitHub Pages deploy, Worker stub
-- **Phase 3 (inquiry backend)**: Complete — Resend integration, admin notification + auto-reply, honeypot spam filter, form refinements. Requires Resend account setup + DNS verification before going live.
-- Remaining work: Phase 4 — pricing, status review (drafts → available), real about/commissions copy, OG default image, analytics, P103/P104 standalone photos, pre-launch polish.
+- **114 products `available`**, 5 commissions `order`
+
+## Done
+
+- **Phase 1 (repo prep)**: markdown-per-product, image folders, collections
+- **Phase 2 (Astro scaffold)**: 153 static pages, Tailwind v4, content collections, GitHub Pages deploy, Worker stub
+- **Phase 3 (inquiry backend)**: Resend integration, admin notification + auto-reply, honeypot spam filter, form refinements
+- **Phase 4 (launch prep)**: All prices set to $50, drafts → available, P037 hero, process section, OG default image, Cloudflare Web Analytics snippet
+
+## Known placeholders to revisit
+
+- All prices currently $50 AUD — Tracey to set real prices per product
+- About page copy is Phase 2 placeholder (TODO comments in source)
+- Commissions page copy is Phase 2 placeholder (TODO comments in source)
+- OG default image is P037 main as-is, not a custom 1200×630 composite
+- P103 / P104 (Giraffe and Lion with Balloons) still need standalone photos before product pages can be created
+- Cloudflare Web Analytics token is a placeholder — replace after enabling in dashboard
+- "How it's made" hours range (10–40 hours) is placeholder — Tracey to confirm
+
+## Post-launch backlog
+
+- Set real per-product prices
+- Write real About page copy
+- Write real Commissions page copy + pricing details
+- Custom 1200×630 OG default image
+- Testimonials section (when Tracey has quotes)
+- Blog / journal (if Tracey wants to share process stories)
+- Cart / checkout integration (if sales volume grows beyond email inquiries)
+- Google Search Console submission
+- Favicon (currently missing — add a proper one)
 
 ## ⚠️ CRITICAL: filename verification process
 

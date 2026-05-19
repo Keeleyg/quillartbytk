@@ -3,13 +3,13 @@ id: P033
 title: "Framed Quilled Nautical Initial"
 category: framed
 themes: [nautical]
-status: draft
+status: available
 collection: nautical
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P033/main.jpg
   angles:

@@ -3,13 +3,13 @@ id: P044
 title: "Pink Panda with Balloons (Framed Nursery Art)"
 category: framed
 themes: [animals, nursery]
-status: draft
+status: available
 collection: nursery-animals
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P044/main.jpg
   angles:

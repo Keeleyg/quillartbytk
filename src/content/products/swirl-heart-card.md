@@ -3,13 +3,13 @@ id: P021
 title: "Swirl Heart Card"
 category: cards
 themes: [patterns]
-status: draft
+status: available
 collection: valentines-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P021/main.jpg
   angles:

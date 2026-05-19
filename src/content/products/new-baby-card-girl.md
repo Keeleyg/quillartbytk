@@ -3,13 +3,13 @@ id: P026
 title: "New Baby Card - Girl"
 category: cards
 themes: [nursery]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P026/main.jpg
   angles: []

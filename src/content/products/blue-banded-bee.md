@@ -3,13 +3,13 @@ id: P014
 title: "Blue Banded Bee"
 category: framed
 themes: [insects, australiana]
-status: draft
+status: available
 collection: native-bees
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P014/main.jpg
   angles:

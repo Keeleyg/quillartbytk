@@ -3,13 +3,13 @@ id: P017
 title: "Praying Mantis"
 category: framed
 themes: [insects]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P017/main.jpg
   angles: []

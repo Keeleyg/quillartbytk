@@ -3,13 +3,13 @@ id: P053
 title: "Single-Bloom Vase Series"
 category: framed
 themes: [flowers]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: ["blue", "magenta-purple", "red", "yellow"]
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P053/main.jpg
   angles:

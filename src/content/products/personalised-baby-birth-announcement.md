@@ -9,7 +9,7 @@ commission_example: true
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P070/main.jpg
   angles: []

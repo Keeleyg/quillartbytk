@@ -3,13 +3,13 @@ id: P048
 title: "Mini Quilled Mandala Canvas"
 category: canvas
 themes: [flowers]
-status: draft
+status: available
 collection: mini-canvases
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P048/main.jpg
   angles:

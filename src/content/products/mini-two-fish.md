@@ -3,13 +3,13 @@ id: P127
 title: "Mini Quilled Two Fish"
 category: framed
 themes: [nautical]
-status: draft
+status: available
 collection: mini-sea-creatures
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P127/main.jpg
   angles: []

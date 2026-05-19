@@ -3,13 +3,13 @@ id: P039
 title: "Three-Flower Mother's Day Card"
 category: cards
 themes: [flowers]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P039/main.jpg
   angles: []

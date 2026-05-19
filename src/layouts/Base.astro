@@ -40,5 +40,12 @@ const { title, description, ogImage } = Astro.props;
     </main>
 
     <Footer />
+
+    {/* Cloudflare Web Analytics — privacy-respecting, no cookies, no banner needed.
+        TODO: Replace the token below with the real one from Cloudflare dashboard →
+        Analytics & Logs → Web Analytics → Add site → Manual setup. */}
+    {import.meta.env.PROD && (
+      <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "REPLACE_WITH_YOUR_CF_ANALYTICS_TOKEN"}'></script>
+    )}
   </body>
 </html>

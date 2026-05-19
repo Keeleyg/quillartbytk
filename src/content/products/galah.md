@@ -3,13 +3,13 @@ id: P083
 title: "Galah"
 category: framed
 themes: [birds, australiana]
-status: draft
+status: available
 collection: aussie-birds
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P083/main.jpg
   angles:

@@ -3,13 +3,13 @@ id: P089
 title: "Merry Christmas — White & Gold Angel Card"
 category: cards
 themes: [seasonal]
-status: draft
+status: available
 collection: christmas-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P089/main.jpg
   angles: []

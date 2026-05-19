@@ -3,13 +3,13 @@ id: P054
 title: "Mini Rainbow Butterfly Canvas"
 category: canvas
 themes: [insects]
-status: draft
+status: available
 collection: mini-canvases
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P054/main.jpg
   angles: []

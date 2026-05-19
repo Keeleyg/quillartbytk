@@ -3,13 +3,13 @@ id: P117
 title: "Rainbow Hearts in a Heart"
 category: framed
 themes: [patterns]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P117/main.jpg
   angles: []

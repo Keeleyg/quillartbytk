@@ -3,13 +3,13 @@ id: P005
 title: "Rainbow Pencil Clock"
 category: clocks
 themes: [nursery, patterns]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P005/main.jpg
   angles: []

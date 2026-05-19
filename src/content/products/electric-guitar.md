@@ -3,13 +3,13 @@ id: P050
 title: "Framed Quilled Electric Guitar"
 category: framed
 themes: [patterns]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: ["warm-fire", "monochrome"]
 frame_options: ["white", "black"]
-price: null
+price: 50
 images:
   main: ../../../images/P050/main.jpg
   angles:

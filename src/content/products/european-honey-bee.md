@@ -3,13 +3,13 @@ id: P124
 title: "European Honey Bee (Apis mellifera)"
 category: framed
 themes: [insects]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: ["white", "black"]
-price: null
+price: 50
 images:
   main: ../../../images/P124/main.jpg
   angles:

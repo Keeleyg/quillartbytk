@@ -3,13 +3,13 @@ id: P107
 title: "Merry Christmas — Rudolph Reindeer Card"
 category: cards
 themes: [seasonal, animals]
-status: draft
+status: available
 collection: christmas-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P107/main.jpg
   angles: []

@@ -3,13 +3,13 @@ id: P031
 title: "Framed Quilled Lighthouse"
 category: framed
 themes: [nautical]
-status: draft
+status: available
 collection: nautical
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P031/main.jpg
   angles:

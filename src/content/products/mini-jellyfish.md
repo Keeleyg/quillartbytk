@@ -3,13 +3,13 @@ id: P125
 title: "Mini Quilled Jellyfish"
 category: framed
 themes: [nautical]
-status: draft
+status: available
 collection: mini-sea-creatures
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P125/main.jpg
   angles: []

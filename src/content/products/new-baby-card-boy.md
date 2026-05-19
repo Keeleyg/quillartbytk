@@ -3,13 +3,13 @@ id: P025
 title: "New Baby Card - Boy"
 category: cards
 themes: [nursery]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P025/main.jpg
   angles: []

@@ -3,13 +3,13 @@ id: P065
 title: "Merry Christmas — Cream Snowflake Card"
 category: cards
 themes: [patterns, seasonal]
-status: draft
+status: available
 collection: christmas-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P065/main.jpg
   angles: []

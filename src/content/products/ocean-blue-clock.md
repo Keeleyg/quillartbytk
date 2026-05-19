@@ -3,13 +3,13 @@ id: P003
 title: "Ocean Blue Clock"
 category: clocks
 themes: [patterns]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P003/main.jpg
   angles:

@@ -3,13 +3,13 @@ id: P074
 title: "\"Bee Mine\" Valentine's Card"
 category: cards
 themes: [insects, patterns]
-status: draft
+status: available
 collection: valentines-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P074/main.jpg
   angles: []

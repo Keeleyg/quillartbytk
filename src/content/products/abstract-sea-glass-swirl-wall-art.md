@@ -3,13 +3,13 @@ id: P047
 title: "Abstract Sea-Glass Swirl Wall Art"
 category: framed
 themes: [patterns]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P047/main.jpg
   angles:

@@ -3,13 +3,13 @@ id: P024
 title: "Lavender Bouquet Get Well Card"
 category: cards
 themes: [flowers]
-status: draft
+status: available
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
+price: 50
 images:
   main: ../../../images/P024/main.jpg
   angles:
