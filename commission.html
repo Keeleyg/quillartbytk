@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commission a Custom Piece — Quill Art by TK</title>
+  <meta name="description" content="Commission a custom quilled paper artwork by TK. Any subject, size, or colour palette — handmade to your brief.">
+  <link rel="canonical" href="https://quillartbytk.com/commission">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Commission a Custom Piece — Quill Art by TK">
+  <meta property="og:description" content="Commission a custom quilled paper artwork by TK. Any subject, size, or colour palette — handmade to your brief.">
+  <meta property="og:image" content="https://quillartbytk.com/images/piece-001.jpg">
+  <meta property="og:url" content="https://quillartbytk.com/commission">
+  <meta property="og:site_name" content="Quill Art by TK">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Commission a Custom Piece — Quill Art by TK">
+  <meta name="twitter:description" content="Commission a custom quilled paper artwork by TK.">
+  <meta name="twitter:image" content="https://quillartbytk.com/images/piece-001.jpg">
+
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+
+  <script type="application/ld+json" id="commission-jsonld"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="site-brand">
+        <h1 class="site-title">Quill Art by TK</h1>
+      </a>
+      <p class="site-tagline">Handmade quilled paper artworks — unique pieces crafted with care</p>
+      <nav class="site-nav">
+        <a href="/" class="nav-link">Gallery</a>
+        <a href="commission.html" class="nav-link active">Commission</a>
+        <a href="about.html" class="nav-link">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="commission-page">
+    <section class="commission-content">
+      <h2>Commission a custom piece</h2>
+      <p id="commission-intro"></p>
+
+      <p class="pricing-aside">Prices shown in the gallery are a guide for that style — the final quote depends on size, materials, and any variations you'd like. In-stock pieces are the only firm prices.</p>
+
+      <h3>How it works</h3>
+      <ol class="commission-steps">
+        <li>
+          <strong>Send your brief</strong> — describe what you'd like and attach any reference photos or inspiration.
+        </li>
+        <li>
+          <strong>We discuss and quote</strong> — I'll come back to you within a few days with a quote and timeline.
+        </li>
+        <li>
+          <strong><span id="deposit-pct"></span> deposit confirms</strong> — once you're happy, a deposit locks in your spot. Typical turnaround is <span id="lead-time"></span>, though larger or more intricate work may take longer. <span id="lead-disclaimer"></span>
+        </li>
+        <li>
+          <strong>Balance on completion</strong> — I'll send a Zeller Invoice for the remainder when your piece is finished, then ship it to you.
+        </li>
+      </ol>
+
+      <h3>What to include in your brief</h3>
+      <ul class="brief-checklist">
+        <li>Description or subject — what should the piece depict?</li>
+        <li>Preferred size (e.g. small ~A4, medium ~A3, large ~A2, or specific dimensions)</li>
+        <li>Colour preferences — any palette in mind? Colours to avoid?</li>
+        <li>Format / medium (framed under glass, canvas, clock face, card, other?)</li>
+        <li>Personalisation — names, dates, or words to include?</li>
+        <li>Reference photos — inspiration pieces, photos of the subject, your space</li>
+        <li>Budget range (optional, but helps me suggest options that fit)</li>
+        <li>Deadline or occasion (optional)</li>
+      </ul>
+
+      <div class="commission-cta">
+        <a href="#" id="commission-mailto" class="btn btn-primary btn-lg">Start your commission</a>
+        <p class="commission-note">Prefer to chat first? Just email <a href="" id="commission-email-link"></a> with any questions.</p>
+      </div>
+
+      <p class="commission-gallery-link">
+        <a href="/">See styles for inspiration</a> in the gallery.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="https://www.facebook.com/quillartbytk" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a href="commission.html">Commission a custom piece</a>
+        <a href="mailto:hello@quillartbytk.com">hello@quillartbytk.com</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 Quill Art by TK</p>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    // Populate from config
+    document.getElementById("commission-intro").textContent = CONFIG.commission.introBlurb;
+    document.getElementById("deposit-pct").textContent = Math.round(CONFIG.deposit * 100) + "%";
+    document.getElementById("lead-time").textContent = CONFIG.customCommissionLeadTime;
+    document.getElementById("lead-disclaimer").textContent = CONFIG.commission.leadTimeDisclaimer;
+
+    var emailLink = document.getElementById("commission-email-link");
+    emailLink.href = "mailto:" + CONFIG.email;
+    emailLink.textContent = CONFIG.email;
+
+    // Build commission mailto
+    var subject = "Custom commission enquiry";
+    var body =
+      "Hi,\n\n" +
+      "I'd like to commission a custom piece. Here's what I'm thinking:\n\n" +
+      "Description / subject:\n" +
+      "(What should the piece depict?)\n\n" +
+      "Preferred size:\n" +
+      "(e.g. small ~A4, medium ~A3, large ~A2, or specific dimensions)\n\n" +
+      "Colour preferences:\n" +
+      "(Any palette in mind? Colours to avoid?)\n\n" +
+      "Format / medium:\n" +
+      "(Framed under glass, canvas, clock face, card, other?)\n\n" +
+      "Personalisation:\n" +
+      "(Names, dates, words to include?)\n\n" +
+      "Reference photos:\n" +
+      "(Please attach any reference images to this email - inspiration pieces, photos of the subject, your space, etc.)\n\n" +
+      "Pricing is quoted per commission - the budget range below helps me suggest options that fit.\n\n" +
+      "Budget range (optional):\n\n" +
+      "Deadline / occasion (optional):\n" +
+      "Custom pieces typically take " + CONFIG.customCommissionLeadTime + "; larger or more intricate work may take longer.\n\n" +
+      "Shipping address (we can confirm later):\n";
+
+    document.getElementById("commission-mailto").href =
+      "mailto:" + CONFIG.email +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(body);
+
+    // Inject JSON-LD
+    var ld = {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Custom Quilled Paper Art Commissions",
+      "serviceType": "Custom artwork commission",
+      "provider": {
+        "@type": "Person",
+        "name": "TK",
+        "url": CONFIG.baseUrl + "/"
+      },
+      "areaServed": { "@type": "Country", "name": "Australia" },
+      "description": CONFIG.commission.introBlurb,
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "AUD",
+        "priceSpecification": {
+          "@type": "PriceSpecification",
+          "description": "Quoted per commission"
+        }
+      }
+    };
+    document.getElementById("commission-jsonld").textContent = JSON.stringify(ld);
+  })();
+  </script>
+</body>
+</html>

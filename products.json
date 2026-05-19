@@ -7,7 +7,8 @@
     "medium": "Quilled paper on canvas",
     "price": 250,
     "currency": "AUD",
-    "status": "available",
+    "status": "order",
+    "leadTimeWeeks": 3,
     "image": "images/piece-001.jpg",
     "dateAdded": "2026-05-19"
   },

@@ -174,8 +174,33 @@ img {
 .gallery-empty {
   text-align: center;
   color: var(--color-text-muted);
-  padding: 3rem 1rem;
+  padding: 1rem 1rem 0.75rem;
+}
+
+.gallery-empty-cta {
   grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.gallery-empty-cta .btn {
+  margin-top: 1rem;
+}
+
+/* Gallery CTA banner */
+.gallery-cta-banner {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem 1rem;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  border: 1px dashed var(--color-border);
+}
+
+.gallery-cta-banner p {
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
 }
 
 /* Card */
@@ -258,6 +283,20 @@ img {
   margin-bottom: 0.75rem;
 }
 
+/* "from" prefix for guide prices */
+.price-from {
+  font-size: 0.8em;
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.price-note {
+  font-family: var(--font-ui);
+  font-size: 0.7em;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
 .btn {
   display: inline-block;
   font-family: var(--font-ui);
@@ -288,6 +327,11 @@ img {
 .btn-primary:hover {
   background: var(--color-accent-hover);
   color: #fff;
+}
+
+.btn-lg {
+  font-size: 1rem;
+  padding: 0.8rem 2rem;
 }
 
 .btn-enquire {
@@ -422,6 +466,13 @@ img {
   margin-bottom: 1rem;
 }
 
+.lightbox-reserved-text {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  color: var(--color-badge-reserved-text);
+  margin-bottom: 1rem;
+}
+
 .lightbox-description {
   font-size: 1rem;
   line-height: 1.7;
@@ -431,6 +482,99 @@ img {
 
 .lightbox-enquire {
   margin-top: 0.5rem;
+}
+
+/* Commission page */
+.commission-page {
+  flex: 1;
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.commission-content h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.commission-content h3 {
+  font-size: 1.25rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.commission-content p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+}
+
+.pricing-aside {
+  font-style: italic;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.commission-steps {
+  list-style: none;
+  counter-reset: steps;
+  padding: 0;
+}
+
+.commission-steps li {
+  counter-increment: steps;
+  position: relative;
+  padding-left: 2.5rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.7;
+}
+
+.commission-steps li::before {
+  content: counter(steps);
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brief-checklist {
+  padding-left: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.brief-checklist li {
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+}
+
+.commission-cta {
+  text-align: center;
+  padding: 2rem 0;
+  margin: 1rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.commission-note {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+.commission-gallery-link {
+  text-align: center;
+  margin-top: 1.5rem;
 }
 
 /* About page */
@@ -483,6 +627,11 @@ img {
   margin-bottom: 1.5rem;
 }
 
+.error-commission-link {
+  font-size: 0.95rem;
+  margin-top: 1rem;
+}
+
 /* Footer */
 .site-footer {
   margin-top: auto;
@@ -503,6 +652,7 @@ img {
   align-items: center;
   gap: 1.25rem;
   margin-bottom: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .footer-links a {
