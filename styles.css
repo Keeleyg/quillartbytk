@@ -71,6 +71,9 @@ img {
 }
 
 .site-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   text-decoration: none;
   color: inherit;
 }
@@ -78,6 +81,12 @@ img {
 .site-brand:hover {
   text-decoration: none;
   color: inherit;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+  border-radius: 4px;
 }
 
 .site-title {
@@ -119,6 +128,31 @@ img {
 .nav-link.active {
   color: var(--color-text);
   border-bottom-color: var(--color-accent);
+}
+
+/* Hero section (index only) */
+.hero {
+  text-align: center;
+  padding: 2.5rem 1rem 1rem;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.hero-logo {
+  max-width: 320px;
+  height: auto;
+  margin: 0 auto 1rem;
+  border-radius: var(--radius);
+}
+
+.hero-tagline {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
 /* Filters */
@@ -577,6 +611,38 @@ img {
   margin-top: 1.5rem;
 }
 
+/* Markets section on commission page */
+.markets-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.markets-section h3 {
+  margin-top: 0;
+}
+
+.markets-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 0.75rem;
+}
+
+.markets-list li {
+  padding: 0.4rem 0;
+  line-height: 1.6;
+}
+
+.markets-list li a {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+}
+
+.markets-link {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+}
+
 /* About page */
 .about-page {
   flex: 1;
@@ -599,6 +665,127 @@ img {
 .about-content p {
   margin-bottom: 1rem;
   line-height: 1.8;
+}
+
+/* Events page */
+.events-page {
+  flex: 1;
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.events-content h2 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.events-content h3 {
+  font-size: 1.25rem;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.events-content > p {
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.event-card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--color-accent);
+}
+
+.event-card--cancelled {
+  opacity: 0.6;
+  border-left-color: var(--color-text-muted);
+}
+
+.event-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.event-badge {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.event-badge--cancelled {
+  background: var(--color-badge-sold);
+  color: var(--color-badge-sold-text);
+}
+
+.event-badge--tentative {
+  background: var(--color-badge-reserved);
+  color: var(--color-badge-reserved-text);
+}
+
+.event-date {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: 0.25rem;
+}
+
+.event-venue {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.event-stall {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.event-description {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.event-link {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 0.25rem;
+}
+
+.events-list--past .event-card {
+  border-left-color: var(--color-border);
+  opacity: 0.7;
+}
+
+.events-empty p {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 2rem 0;
 }
 
 /* Error page */
@@ -685,6 +872,18 @@ img {
 
   .site-title {
     font-size: 2rem;
+  }
+
+  .header-logo {
+    height: 48px;
+  }
+
+  .hero-logo {
+    max-width: 400px;
+  }
+
+  .hero-tagline {
+    font-size: 1.25rem;
   }
 
   .lightbox-body {

@@ -1,13 +1,14 @@
 (function () {
   "use strict";
 
-  let products = [];
-  const gallery = document.getElementById("gallery");
-  const lightbox = document.getElementById("lightbox");
-  const lightboxImage = document.getElementById("lightbox-image");
-  const lightboxDetails = document.getElementById("lightbox-details");
-  const filterChips = document.querySelectorAll(".filter-chip");
-  const originalTitle = document.title;
+  var BRAND = "Quillart by TK";
+  var products = [];
+  var gallery = document.getElementById("gallery");
+  var lightbox = document.getElementById("lightbox");
+  var lightboxImage = document.getElementById("lightbox-image");
+  var lightboxDetails = document.getElementById("lightbox-details");
+  var filterChips = document.querySelectorAll(".filter-chip");
+  var originalTitle = document.title;
 
   // --- Helpers ---
 
@@ -114,7 +115,6 @@
     if (item.status === "reserved") {
       return '<p class="lightbox-price"><span class="price-from">From </span>' + price + ' <span class="price-note">— currently reserved</span></p>';
     }
-    // sold
     return '<p class="lightbox-price">' + price + "</p>";
   }
 
@@ -198,11 +198,10 @@
       gallery.appendChild(createCard(item));
     });
 
-    // Append commission CTA banner at end of gallery
     var cta = document.createElement("div");
     cta.className = "gallery-cta-banner";
     cta.innerHTML =
-      '<p>Don\'t see what you\'re looking for?</p>' +
+      "<p>Don't see what you're looking for?</p>" +
       '<a href="commission.html" class="btn btn-primary">Commission a custom piece</a>';
     gallery.appendChild(cta);
   }
@@ -252,7 +251,7 @@
     var params = parseHash();
     params.item = item.id;
     setHash(params);
-    document.title = item.title + " — Quill Art by TK";
+    document.title = item.title + " — " + BRAND;
 
     injectProductJsonLd(item);
 
@@ -313,7 +312,7 @@
       url: CONFIG.baseUrl + "/#item=" + item.id,
       brand: {
         "@type": "Brand",
-        name: "Quill Art by TK"
+        name: BRAND
       },
       offers: offers,
       material: item.medium
@@ -339,12 +338,22 @@
     var ld = {
       "@context": "https://schema.org",
       "@type": "ItemList",
-      name: "Quill Art by TK — Artworks",
+      name: BRAND + " — Artworks",
       numberOfItems: products.length,
       itemListElement: items
     };
     var el = document.getElementById("itemlist-jsonld");
     if (el) el.textContent = JSON.stringify(ld);
+  }
+
+  function injectSiteCopyrightYear() {
+    var el = document.getElementById("site-jsonld");
+    if (!el) return;
+    try {
+      var ld = JSON.parse(el.textContent);
+      ld.copyrightYear = new Date().getFullYear();
+      el.textContent = JSON.stringify(ld);
+    } catch (e) { /* ignore */ }
   }
 
   // --- Filters ---
@@ -368,6 +377,8 @@
   // --- Init ---
 
   function init() {
+    injectSiteCopyrightYear();
+
     fetch("products.json")
       .then(function (res) {
         if (!res.ok) throw new Error("Failed to load products");

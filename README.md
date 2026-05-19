@@ -1,19 +1,22 @@
-# Quill Art by TK — Product Catalog
+# Quillart by TK — Product Catalog
 
 Static product catalog and commission portal for [quillartbytk.com](https://quillartbytk.com), hosted on GitHub Pages with a custom domain via Cloudflare DNS.
+
+> **Spelling note:** The brand is **Quillart** (one word, no space) — not "Quill Art". Use "Quillart by TK" everywhere.
 
 ## Quick Start
 
 1. Clone this repo
 2. Open `index.html` in a browser (or use a local server like `npx serve`)
 3. Edit `products.json` to add/update artworks
-4. Commit and push — GitHub Pages deploys automatically
+4. Edit `events.json` to manage upcoming markets and events
+5. Commit and push — GitHub Pages deploys automatically
 
 ## How the site works
 
 The gallery is primarily a **portfolio of commissionable styles**. Most items have `"status": "order"` — visitors can commission that style (as-is or with variations) via a mailto button. The rare in-stock piece has `"status": "available"` and gets a firm price with a "Purchase" button.
 
-There's also a dedicated [commission page](commission.html) for fully bespoke briefs where the customer describes what they want from scratch.
+There's also a dedicated [commission page](commission.html) for fully bespoke briefs where the customer describes what they want from scratch, and an [events page](events.html) listing upcoming markets where customers can see pieces in person.
 
 All enquiries go through mailto links — no form backend, no payment integration. You create Zeller Invoices manually after discussing with the customer.
 
@@ -59,6 +62,51 @@ By default, `available` items have firm prices and everything else is a guide. T
 
 Per-item lead time for commission pieces. If omitted, falls back to `config.defaultLeadTimeWeeks` (currently 3 weeks). Only relevant for `order` status items.
 
+## Managing Events
+
+Edit `events.json` to add, update, or mark events. The events page and the commission page's "Meet us in person" section both read from this file.
+
+### Event schema
+
+```json
+{
+  "id": "market-001",
+  "name": "Sunrise Markets",
+  "date": "2026-07-12",
+  "venue": "Main Street Hall, Springfield",
+  "stallNumber": "Stall 14",
+  "url": "https://example.com/sunrise-markets",
+  "status": "confirmed",
+  "description": "Come see the full range in person."
+}
+```
+
+| Field         | Required | Notes |
+|---------------|----------|-------|
+| `id`          | Yes      | Unique ID. Used for deep-link anchors (`events.html#event-{id}`) |
+| `name`        | Yes      | Event / market name |
+| `date`        | Yes      | `YYYY-MM-DD` format. Used to sort and split upcoming vs past |
+| `venue`       | Yes      | Location description |
+| `stallNumber` | No       | Stall or site number if known |
+| `url`         | No       | External link to the event's own page |
+| `status`      | Yes      | `confirmed`, `tentative`, or `cancelled` |
+| `description` | No       | Short description shown on the event card |
+
+### Event statuses
+
+- **`confirmed`** — shows normally
+- **`tentative`** — shows with a "Date to be confirmed" badge
+- **`cancelled`** — shows greyed out with a "Cancelled" badge; excluded from the commission page markets list
+
+### Where events appear
+
+- **events.html** — all events, split into upcoming and past sections
+- **commission.html** — "Meet us in person" section shows up to 3 upcoming non-cancelled events. Section hides automatically when there are none.
+
+### Past events
+
+Events with dates before today automatically move to the "Past events" section on the events page. No manual cleanup needed — just leave old entries in the file as a record.
+
 ## Site Configuration
 
 Edit `config.js` to change:
@@ -70,11 +118,13 @@ Edit `config.js` to change:
 | `email` | All mailto enquiry links |
 | `baseUrl` | Canonical URLs and JSON-LD |
 | `social.facebook` | Footer Facebook link |
+| `defaultOgImage` | Default Open Graph image path |
 | `defaultLeadTimeWeeks` | Fallback lead time for gallery commissions (number, e.g. `3`) |
-| `customCommissionLeadTime` | Lead time shown on the custom commission page and mailto (free-text string, e.g. `"4-8 weeks"`, `"currently 6+ weeks"`) |
+| `customCommissionLeadTime` | Lead time shown on the custom commission page and mailto (free-text string) |
 | `deposit` | Deposit fraction mentioned on commission page (e.g. `0.5` = 50%) |
-| `commission.introBlurb` | Intro paragraph on commission.html — edit this to change the commission page intro without touching HTML |
+| `commission.introBlurb` | Intro paragraph on commission.html |
 | `commission.leadTimeDisclaimer` | Disclaimer shown after the lead time on commission page |
+| `commission.marketsBlurb` | Intro text for the markets section on commission page |
 
 ### Lead time fields
 
@@ -87,21 +137,47 @@ Edit `config.js` to change:
 - **"$X AUD"** (no "from") is shown for available/in-stock items. This is the firm, pay-this-now price.
 - The commission page includes a note explaining that gallery prices are guides and in-stock pieces are the only firm prices.
 
+## Logo
+
+The site logo lives at `images/logo.jpg`. It appears in:
+
+- The header on every page (inline with the wordmark)
+- The hero section on the gallery (index) page
+- Open Graph / Twitter Card image meta tags
+
+When a higher-resolution version is available, consider:
+
+- Adding a `logo-og.jpg` at 1200x630 for better social sharing previews
+- Providing a PNG or SVG version for crisper rendering at small sizes
+- Regenerating `favicon.svg` to match the logo
+
+## Copyright
+
+The footer displays: **© {year} Quillart by TK. All rights reserved. E&OE.**
+
+- The year updates automatically via JavaScript in `config.js` (targets `.copyright-year` elements)
+- Each HTML file has a hardcoded fallback year (currently 2026) for no-JS scenarios
+- JSON-LD `copyrightHolder` is the **Organization** "Quillart by TK" (not the individual artist name)
+- The artist's legal name "Tracey Keeley" (alternateName "TK") appears only in JSON-LD `Person` entities (e.g. the `provider` on the commission page Service schema)
+
 ## File Structure
 
 ```
-├── index.html         Main gallery page
-├── commission.html    Custom commission landing page
+├── index.html         Main gallery page with hero section
+├── commission.html    Custom commission landing page (includes markets)
+├── events.html        Upcoming markets and events listing
 ├── about.html         About the artist
 ├── 404.html           Custom error page
 ├── styles.css         All styles
 ├── script.js          Gallery, lightbox, filters, SEO
 ├── config.js          Site settings (edit for config)
 ├── products.json      Product data (edit regularly)
-├── images/            Product photos
+├── events.json        Event/market data (edit regularly)
+├── images/            Product photos and logo
+│   ├── logo.jpg       Site logo
 │   └── README.md      Image naming and specs
 ├── robots.txt         Search engine crawling rules
-├── sitemap.xml        Static sitemap (/, /commission, /about)
+├── sitemap.xml        Static sitemap
 ├── favicon.svg        Monogram favicon
 └── README.md          This file
 ```
@@ -109,8 +185,10 @@ Edit `config.js` to change:
 ## SEO
 
 - Each product is deep-linkable via URL hash (e.g., `quillartbytk.com/#item=001`)
+- Each event is deep-linkable via anchor (e.g., `quillartbytk.com/events#event-market-001`)
 - JSON-LD structured data: site-wide `WebSite`, per-page `ItemList`, per-item `Product`, and `Service` on the commission page
 - `order` items use `schema.org/MadeToOrder` availability and include a `priceSpecification` noting the price is a guide
+- `copyrightYear` is injected dynamically into the WebSite JSON-LD
 - Open Graph and Twitter Card tags on all pages
 - Products are indexed via JSON-LD on the index page rather than separate URLs
 

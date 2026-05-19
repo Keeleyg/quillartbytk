@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Commission a Custom Piece — Quill Art by TK</title>
+  <title>Commission a Custom Piece — Quillart by TK</title>
   <meta name="description" content="Commission a custom quilled paper artwork by TK. Any subject, size, or colour palette — handmade to your brief.">
   <link rel="canonical" href="https://quillartbytk.com/commission">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Commission a Custom Piece — Quill Art by TK">
+  <meta property="og:title" content="Commission a Custom Piece — Quillart by TK">
   <meta property="og:description" content="Commission a custom quilled paper artwork by TK. Any subject, size, or colour palette — handmade to your brief.">
-  <meta property="og:image" content="https://quillartbytk.com/images/piece-001.jpg">
+  <meta property="og:image" content="https://quillartbytk.com/images/logo.jpg">
   <meta property="og:url" content="https://quillartbytk.com/commission">
-  <meta property="og:site_name" content="Quill Art by TK">
+  <meta property="og:site_name" content="Quillart by TK">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Commission a Custom Piece — Quill Art by TK">
+  <meta name="twitter:title" content="Commission a Custom Piece — Quillart by TK">
   <meta name="twitter:description" content="Commission a custom quilled paper artwork by TK.">
-  <meta name="twitter:image" content="https://quillartbytk.com/images/piece-001.jpg">
+  <meta name="twitter:image" content="https://quillartbytk.com/images/logo.jpg">
 
   <link rel="stylesheet" href="styles.css">
   <script src="config.js"></script>
@@ -29,12 +29,13 @@
   <header class="site-header">
     <div class="header-inner">
       <a href="/" class="site-brand">
-        <h1 class="site-title">Quill Art by TK</h1>
+        <img src="images/logo.jpg" alt="Quillart by TK" class="header-logo" width="160" height="48">
+        <span class="site-title">Quillart by TK</span>
       </a>
-      <p class="site-tagline">Handmade quilled paper artworks — unique pieces crafted with care</p>
       <nav class="site-nav">
         <a href="/" class="nav-link">Gallery</a>
         <a href="commission.html" class="nav-link active">Commission</a>
+        <a href="events.html" class="nav-link">Events</a>
         <a href="about.html" class="nav-link">About</a>
       </nav>
     </div>
@@ -62,6 +63,14 @@
           <strong>Balance on completion</strong> — I'll send a Zeller Invoice for the remainder when your piece is finished, then ship it to you.
         </li>
       </ol>
+
+      <!-- Markets section — hidden if no upcoming events -->
+      <section id="markets-section" class="markets-section" hidden>
+        <h3>Meet us in person</h3>
+        <p id="markets-blurb"></p>
+        <ul id="markets-list" class="markets-list"></ul>
+        <p class="markets-link"><a href="events.html">See all upcoming markets &rarr;</a></p>
+      </section>
 
       <h3>What to include in your brief</h3>
       <ul class="brief-checklist">
@@ -95,7 +104,7 @@
         <a href="commission.html">Commission a custom piece</a>
         <a href="mailto:hello@quillartbytk.com">hello@quillartbytk.com</a>
       </div>
-      <p class="footer-copy">&copy; 2026 Quill Art by TK</p>
+      <p class="footer-copy">&copy; <span class="copyright-year">2026</span> Quillart by TK. All rights reserved. E&amp;OE.</p>
     </div>
   </footer>
 
@@ -115,6 +124,7 @@
     var subject = "Custom commission enquiry";
     var body =
       "Hi,\n\n" +
+      "If you'd prefer to chat in person first, we're often at local markets - see https://quillartbytk.com/events for upcoming dates.\n\n" +
       "I'd like to commission a custom piece. Here's what I'm thinking:\n\n" +
       "Description / subject:\n" +
       "(What should the piece depict?)\n\n" +
@@ -147,7 +157,8 @@
       "serviceType": "Custom artwork commission",
       "provider": {
         "@type": "Person",
-        "name": "TK",
+        "name": "Tracey Keeley",
+        "alternateName": "TK",
         "url": CONFIG.baseUrl + "/"
       },
       "areaServed": { "@type": "Country", "name": "Australia" },
@@ -162,6 +173,51 @@
       }
     };
     document.getElementById("commission-jsonld").textContent = JSON.stringify(ld);
+
+    // Load upcoming events for markets section
+    fetch("events.json")
+      .then(function (res) {
+        if (!res.ok) throw new Error("No events");
+        return res.json();
+      })
+      .then(function (events) {
+        var today = new Date().toISOString().slice(0, 10);
+        var upcoming = events.filter(function (e) {
+          return e.date >= today && e.status !== "cancelled";
+        });
+        upcoming.sort(function (a, b) {
+          return a.date < b.date ? -1 : 1;
+        });
+        var show = upcoming.slice(0, 3);
+        if (show.length === 0) return;
+
+        document.getElementById("markets-blurb").textContent = CONFIG.commission.marketsBlurb;
+        var list = document.getElementById("markets-list");
+
+        show.forEach(function (evt) {
+          var li = document.createElement("li");
+          var d = new Date(evt.date + "T00:00:00");
+          var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+          var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          var dateStr = days[d.getDay()] + " " + d.getDate() + " " + months[d.getMonth()];
+
+          var text = dateStr;
+          if (evt.status === "tentative") text += " (date to be confirmed)";
+          text += " · " + evt.venue;
+          if (evt.stallNumber) text += " · " + evt.stallNumber;
+
+          var link = evt.url || ("events.html#event-" + evt.id);
+          li.innerHTML = '<a href="' + link + '"' +
+            (evt.url ? ' target="_blank" rel="noopener noreferrer"' : '') +
+            '>' + text + '</a>';
+          list.appendChild(li);
+        });
+
+        document.getElementById("markets-section").hidden = false;
+      })
+      .catch(function () {
+        // No events or fetch failed — section stays hidden
+      });
   })();
   </script>
 </body>
