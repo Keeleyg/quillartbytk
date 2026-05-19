@@ -1,4 +1,5 @@
 ---
+import { url } from '@/lib/images';
 const year = new Date().getFullYear();
 ---
 
@@ -26,7 +27,7 @@ const year = new Date().getFullYear();
 
         <!-- Email -->
         <a
-          href="/contact"
+          href={url('/contact')}
           class="text-muted hover:text-accent transition duration-200 no-underline"
           aria-label="Contact us"
         >

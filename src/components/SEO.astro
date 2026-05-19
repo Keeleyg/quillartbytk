@@ -6,10 +6,12 @@ interface Props {
   canonical?: string;
 }
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 const {
   title,
   description = 'Handmade quilled paper art by Tracey — framed pieces, cards, clocks and custom commissions.',
-  ogImage = '/og-default.jpg',
+  ogImage = `${base}/og-default.jpg`,
   canonical,
 } = Astro.props;
 

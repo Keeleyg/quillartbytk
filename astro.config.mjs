@@ -17,7 +17,13 @@ function imageServer() {
       server.middlewares.use((req, _res, next) => {
         if (!req.url) return next();
 
-        const decoded = decodeURIComponent(req.url.split('?')[0]);
+        let decoded = decodeURIComponent(req.url.split('?')[0]);
+
+        // Strip base path prefix if present (e.g. /quillartbytk/images/... → /images/...)
+        const basePath = '/quillartbytk';
+        if (decoded.startsWith(basePath + '/')) {
+          decoded = decoded.slice(basePath.length);
+        }
 
         // /images/P029/main.jpg  →  <root>/images/P029/main.jpg
         if (decoded.startsWith('/images/')) {
@@ -105,7 +111,8 @@ function copyImages() {
 
 /* ------------------------------------------------------------------ */
 export default defineConfig({
-  site: 'https://quillartbytk.com',
+  site: 'https://keeleyg.github.io',
+  base: '/quillartbytk',
   output: 'static',
   integrations: [sitemap(), copyImages()],
   vite: {

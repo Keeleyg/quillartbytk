@@ -3,7 +3,7 @@ import Base from '@/layouts/Base.astro';
 import ProductGrid from '@/components/ProductGrid.astro';
 import Lightbox from '@/components/Lightbox.astro';
 import { getCollection, render } from 'astro:content';
-import { resolveProductImage, categoryLabel, titleCase } from '@/lib/images';
+import { resolveProductImage, categoryLabel, titleCase, url } from '@/lib/images';
 
 export async function getStaticPaths() {
   const products = await getCollection('products');
@@ -125,14 +125,14 @@ const ogImage = mainSrc;
           <!-- Category + theme pills -->
           <div class="mt-4 flex flex-wrap gap-2">
             <a
-              href={`/gallery/category/${data.category}`}
+              href={url(`/gallery/category/${data.category}`)}
               class="inline-flex items-center px-3 py-1 rounded-full text-xs border border-border text-muted no-underline hover:text-ink hover:border-ink/30 transition duration-200"
             >
               {categoryLabel(data.category)}
             </a>
             {data.themes.map((theme) => (
               <a
-                href={`/gallery/theme/${theme}`}
+                href={url(`/gallery/theme/${theme}`)}
                 class="inline-flex items-center px-3 py-1 rounded-full text-xs border border-border text-muted no-underline hover:text-ink hover:border-ink/30 transition duration-200"
               >
                 {titleCase(theme)}
@@ -183,7 +183,7 @@ const ogImage = mainSrc;
 
           <!-- CTA -->
           <a
-            href={`/contact?ref=${product.id}`}
+            href={url(`/contact?ref=${product.id}`)}
             class="mt-8 inline-flex items-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
           >
             Inquire about this piece
@@ -198,7 +198,7 @@ const ogImage = mainSrc;
           {parentCollection && (
             <p class="mt-6 text-sm text-muted">
               Part of the{' '}
-              <a href={`/collections/${parentCollection.data.slug}`} class="text-accent">
+              <a href={url(`/collections/${parentCollection.data.slug}`)} class="text-accent">
                 {parentCollection.data.title}
               </a>{' '}
               collection.

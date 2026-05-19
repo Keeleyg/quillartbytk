@@ -1,5 +1,6 @@
 ---
 import Base from '@/layouts/Base.astro';
+import { url } from '@/lib/images';
 ---
 
 <Base title="Page not found">
@@ -13,13 +14,13 @@ import Base from '@/layouts/Base.astro';
       </p>
       <div class="mt-8 flex flex-wrap justify-center gap-4">
         <a
-          href="/"
+          href={url('/')}
           class="inline-flex items-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
         >
           Go home
         </a>
         <a
-          href="/gallery"
+          href={url('/gallery')}
           class="inline-flex items-center px-6 py-3 border border-border text-ink text-sm font-medium rounded-lg no-underline hover:bg-ink/5 transition duration-200"
         >
           Browse gallery

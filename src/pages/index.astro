@@ -3,7 +3,7 @@ import Base from '@/layouts/Base.astro';
 import ProductGrid from '@/components/ProductGrid.astro';
 import CollectionCard from '@/components/CollectionCard.astro';
 import { getCollection } from 'astro:content';
-import { resolveProductImage } from '@/lib/images';
+import { resolveProductImage, url } from '@/lib/images';
 
 // Fetch products + collections
 const allProducts = await getCollection('products');
@@ -40,7 +40,8 @@ const topCollections = allCollections
 
 // Hero image — P037 Personalised Floral Name Frame (Heidi)
 const heidi = allProducts.find((p) => p.data.id === 'P037');
-const heroSrc = heidi ? resolveProductImage(heidi.data.images.main) : '/images/P037/main.jpg';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const heroSrc = heidi ? resolveProductImage(heidi.data.images.main) : `${base}/images/P037/main.jpg`;
 
 // Process images for "How it's made" — P037 has 5 process shots, pick 3
 const processImages = heidi
@@ -65,13 +66,13 @@ const processLabels = ['Laying out the letters', 'Building up the details', 'Den
           </p>
           <div class="mt-8 flex flex-wrap gap-4">
             <a
-              href="/gallery"
+              href={url('/gallery')}
               class="inline-flex items-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
             >
               Browse gallery
             </a>
             <a
-              href="/commissions"
+              href={url('/commissions')}
               class="inline-flex items-center px-6 py-3 border border-border text-ink text-sm font-medium rounded-lg no-underline hover:bg-ink/5 transition duration-200"
             >
               Commission a piece
@@ -95,7 +96,7 @@ const processLabels = ['Laying out the letters', 'Building up the details', 'Den
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-end justify-between mb-8">
         <h2 class="text-2xl sm:text-3xl font-serif font-semibold text-ink">Featured pieces</h2>
-        <a href="/gallery" class="text-sm text-accent no-underline hover:underline">View all &rarr;</a>
+        <a href={url('/gallery')} class="text-sm text-accent no-underline hover:underline">View all &rarr;</a>
       </div>
       <ProductGrid products={picked} />
     </div>
@@ -134,7 +135,7 @@ const processLabels = ['Laying out the letters', 'Building up the details', 'Den
         </p>
         <p class="mt-4 text-center">
           <a
-            href="/products/personalised-floral-name-frame"
+            href={url('/products/personalised-floral-name-frame')}
             class="text-sm text-accent no-underline hover:underline"
           >
             See the finished piece &rarr;
@@ -149,7 +150,7 @@ const processLabels = ['Laying out the letters', 'Building up the details', 'Den
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-end justify-between mb-8">
         <h2 class="text-2xl sm:text-3xl font-serif font-semibold text-ink">Collections</h2>
-        <a href="/collections" class="text-sm text-accent no-underline hover:underline">See all &rarr;</a>
+        <a href={url('/collections')} class="text-sm text-accent no-underline hover:underline">See all &rarr;</a>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {topCollections.map((col) => (
@@ -182,7 +183,7 @@ const processLabels = ['Laying out the letters', 'Building up the details', 'Den
           commissions. Every piece is one of a kind.
         </p>
         <a
-          href="/about"
+          href={url('/about')}
           class="inline-block mt-6 text-sm text-accent no-underline hover:underline"
         >
           Read more &rarr;
@@ -200,7 +201,7 @@ const processLabels = ['Laying out the letters', 'Building up the details', 'Den
         colour palettes to match your space.
       </p>
       <a
-        href="/contact"
+        href={url('/contact')}
         class="inline-flex items-center mt-8 px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
       >
         Get in touch

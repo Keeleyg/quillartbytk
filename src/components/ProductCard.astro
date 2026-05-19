@@ -1,5 +1,5 @@
 ---
-import { resolveProductImage, categoryLabel } from '@/lib/images';
+import { resolveProductImage, categoryLabel, url } from '@/lib/images';
 
 interface Props {
   slug: string;
@@ -16,7 +16,7 @@ const priceDisplay = price ? `$${price}` : status === 'order' ? 'Made to order' 
 ---
 
 <a
-  href={`/products/${slug}`}
+  href={url(`/products/${slug}`)}
   class="group block no-underline"
 >
   <div class="aspect-square overflow-hidden rounded-lg bg-border/30">

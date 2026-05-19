@@ -1,10 +1,12 @@
 ---
+import { url } from '@/lib/images';
+
 const navLinks = [
-  { label: 'Gallery', href: '/gallery' },
-  { label: 'Collections', href: '/collections' },
-  { label: 'Commissions', href: '/commissions' },
-  { label: 'About', href: '/about' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Gallery', href: url('/gallery') },
+  { label: 'Collections', href: url('/collections') },
+  { label: 'Commissions', href: url('/commissions') },
+  { label: 'About', href: url('/about') },
+  { label: 'Contact', href: url('/contact') },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -14,7 +16,7 @@ const currentPath = Astro.url.pathname;
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Wordmark -->
-      <a href="/" class="font-serif text-xl font-semibold tracking-tight text-ink no-underline hover:no-underline">
+      <a href={url('/')} class="font-serif text-xl font-semibold tracking-tight text-ink no-underline hover:no-underline">
         Quill Art by TK
       </a>
 

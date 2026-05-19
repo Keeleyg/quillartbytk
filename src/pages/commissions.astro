@@ -2,6 +2,7 @@
 import Base from '@/layouts/Base.astro';
 import ProductGrid from '@/components/ProductGrid.astro';
 import { getCollection } from 'astro:content';
+import { url } from '@/lib/images';
 
 const allProducts = await getCollection('products');
 const commissionExamples = allProducts
@@ -97,7 +98,7 @@ const commissionExamples = allProducts
       <h2 class="text-2xl sm:text-3xl font-serif font-semibold text-ink">Ready to get started?</h2>
       <p class="mt-4 text-muted">Tell Tracey about your idea and she'll be in touch.</p>
       <a
-        href="/contact"
+        href={url('/contact')}
         class="inline-flex items-center mt-8 px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
       >
         Start your commission

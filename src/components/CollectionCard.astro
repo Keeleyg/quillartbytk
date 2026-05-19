@@ -1,5 +1,5 @@
 ---
-import { resolveCollectionImage } from '@/lib/images';
+import { resolveCollectionImage, url } from '@/lib/images';
 
 interface Props {
   slug: string;
@@ -14,7 +14,7 @@ const heroSrc = resolveCollectionImage(hero, slug);
 ---
 
 <a
-  href={`/collections/${slug}`}
+  href={url(`/collections/${slug}`)}
   class="group block no-underline overflow-hidden rounded-lg"
 >
   <div class="aspect-[16/9] overflow-hidden bg-border/30">
