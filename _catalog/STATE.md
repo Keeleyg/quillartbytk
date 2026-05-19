@@ -9,7 +9,10 @@ Hand-off document for continuing the catalog work in a fresh chat thread.
 - **128 original clusters** (P001–P130, with intentional gaps at P105/P106)
 - **Source of truth**: markdown-per-product with YAML frontmatter (CSV archived)
 - **Next product ID: P131**
-- Remaining work: Astro scaffold (Phase 2), pricing, status review, P103/P104 standalone photos.
+- **Phase 1 (repo prep)**: Complete — markdown-per-product, image folders, collections
+- **Phase 2 (Astro scaffold)**: Complete — 153 static pages, Tailwind v4, content collections, GitHub Pages deploy, Worker stub
+- **Phase 3 (inquiry backend)**: Complete — Resend integration, admin notification + auto-reply, honeypot spam filter, form refinements. Requires Resend account setup + DNS verification before going live.
+- Remaining work: Phase 4 — pricing, status review (drafts → available), real about/commissions copy, OG default image, analytics, P103/P104 standalone photos, pre-launch polish.
 
 ## ⚠️ CRITICAL: filename verification process
 

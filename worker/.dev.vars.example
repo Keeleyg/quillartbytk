@@ -1,0 +1,3 @@
+# Copy to .dev.vars and fill in. Used by `wrangler dev` for local testing.
+# Production secrets are set via `wrangler secret put` and live in Cloudflare.
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx

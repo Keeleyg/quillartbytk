@@ -77,6 +77,9 @@ import Base from '@/layouts/Base.astro';
             ></textarea>
           </div>
 
+          <!-- Hidden ref field (populated from ?ref= query param) -->
+          <input type="hidden" name="ref" id="ref-input" />
+
           <!-- Honeypot -->
           <input
             name="company"
@@ -89,7 +92,8 @@ import Base from '@/layouts/Base.astro';
           <!-- Submit -->
           <button
             type="submit"
-            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg hover:bg-ink/90 transition duration-200"
+            id="submit-btn"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg hover:bg-ink/90 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Send message
           </button>
@@ -99,7 +103,7 @@ import Base from '@/layouts/Base.astro';
             <p class="text-sm text-green-800 font-medium">Thanks for your message! Tracey will be in touch soon.</p>
           </div>
           <div id="form-error" class="hidden rounded-lg bg-red-50 border border-red-200 p-4">
-            <p class="text-sm text-red-800 font-medium">Something went wrong. Please try again, or email Tracey directly.</p>
+            <p id="form-error-msg" class="text-sm text-red-800 font-medium">Something went wrong. Please try again, or email Tracey directly.</p>
           </div>
         </form>
 
@@ -110,25 +114,36 @@ import Base from '@/layouts/Base.astro';
 </Base>
 
 <script>
-  // Prefill subject from ?ref= query param
+  // Populate ref and subject from ?ref= query param
   const params = new URLSearchParams(window.location.search);
   const ref = params.get('ref');
   if (ref) {
+    const refInput = document.getElementById('ref-input') as HTMLInputElement | null;
+    if (refInput) refInput.value = ref;
+
     const subjectInput = document.getElementById('subject') as HTMLInputElement | null;
     if (subjectInput && !subjectInput.value) {
-      subjectInput.value = `Inquiry about: ${ref.replace(/-/g, ' ')}`;
+      subjectInput.value =
+        'Inquiry about ' +
+        ref.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
     }
   }
 
-  // Form submission
+  // Form submission with proper error handling
   const form = document.getElementById('inquiry-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
   const successEl = document.getElementById('form-success')!;
   const errorEl = document.getElementById('form-error')!;
+  const errorMsg = document.getElementById('form-error-msg')!;
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     successEl.classList.add('hidden');
     errorEl.classList.add('hidden');
+
+    // Disable button to prevent double-submit
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
 
     try {
       const data = new URLSearchParams(new FormData(form) as any);
@@ -139,14 +154,35 @@ import Base from '@/layouts/Base.astro';
       });
 
       if (res.ok) {
+        // Success — swap form for thank-you message
         form.classList.add('hidden');
         successEl.classList.remove('hidden');
+        return;
+      }
+
+      if (res.status === 400) {
+        // Validation error — show specific message, keep fields populated
+        try {
+          const body = await res.json();
+          errorMsg.textContent = body.error || 'Please check your input and try again.';
+        } catch {
+          errorMsg.textContent = 'Please check your input and try again.';
+        }
+        errorEl.classList.remove('hidden');
       } else {
+        // 502 / server error
+        errorMsg.textContent =
+          'Something went wrong. Please try again, or email Tracey directly at quillartbytk@gmail.com.';
         errorEl.classList.remove('hidden');
       }
     } catch {
-      // Expected to fail in dev (Worker not running). Show error state.
+      // Network error (expected in dev when Worker isn't running)
+      errorMsg.textContent =
+        'Something went wrong. Please try again, or email Tracey directly at quillartbytk@gmail.com.';
       errorEl.classList.remove('hidden');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send message';
     }
   });
 </script>
