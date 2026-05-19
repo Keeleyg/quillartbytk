@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quill Art by TK — Handmade Quilled Paper Artworks</title>
+  <meta name="description" content="Discover unique handmade quilled paper artworks by TK. Each piece is meticulously crafted from delicate paper strips, creating stunning three-dimensional art.">
+  <link rel="canonical" href="https://quillartbytk.com/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Quill Art by TK — Handmade Quilled Paper Artworks">
+  <meta property="og:description" content="Discover unique handmade quilled paper artworks by TK. Each piece is meticulously crafted from delicate paper strips.">
+  <meta property="og:image" content="https://quillartbytk.com/images/piece-001.jpg">
+  <meta property="og:url" content="https://quillartbytk.com/">
+  <meta property="og:site_name" content="Quill Art by TK">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Quill Art by TK — Handmade Quilled Paper Artworks">
+  <meta name="twitter:description" content="Discover unique handmade quilled paper artworks by TK.">
+  <meta name="twitter:image" content="https://quillartbytk.com/images/piece-001.jpg">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Site-level JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Quill Art by TK",
+    "url": "https://quillartbytk.com",
+    "description": "Handmade quilled paper artworks — unique pieces crafted with care"
+  }
+  </script>
+
+  <!-- ItemList JSON-LD (injected by script.js) -->
+  <script id="itemlist-jsonld" type="application/ld+json"></script>
+  <!-- Per-item JSON-LD (injected by script.js on deep link) -->
+  <script id="product-jsonld" type="application/ld+json"></script>
+
+  <script src="config.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="site-brand">
+        <h1 class="site-title">Quill Art by TK</h1>
+      </a>
+      <p class="site-tagline">Handmade quilled paper artworks — unique pieces crafted with care</p>
+      <nav class="site-nav">
+        <a href="/" class="nav-link active">Gallery</a>
+        <a href="about.html" class="nav-link">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="filters" aria-label="Filter artworks">
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="available">Available</button>
+      <button class="filter-chip" data-filter="sold">Sold</button>
+    </section>
+
+    <section class="gallery" id="gallery" aria-label="Artwork gallery">
+      <p class="gallery-loading">Loading artworks…</p>
+    </section>
+  </main>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Artwork detail" hidden>
+    <div class="lightbox-backdrop"></div>
+    <div class="lightbox-content">
+      <button class="lightbox-close" aria-label="Close">&times;</button>
+      <div class="lightbox-body">
+        <div class="lightbox-image-wrap">
+          <img class="lightbox-image" id="lightbox-image" src="" alt="">
+        </div>
+        <div class="lightbox-details" id="lightbox-details"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="https://www.facebook.com/quillartbytk" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a href="mailto:hello@quillartbytk.com">hello@quillartbytk.com</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 Quill Art by TK</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

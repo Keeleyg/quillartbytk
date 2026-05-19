@@ -1,0 +1,38 @@
+[
+  {
+    "id": "001",
+    "title": "Sunset Bloom",
+    "description": "A vibrant quilled floral arrangement inspired by golden hour. Delicate paper strips are hand-rolled into petals and leaves, creating a three-dimensional bouquet that catches the light beautifully. Each petal is individually shaped and layered to give depth and movement to the composition.",
+    "dimensions": "30cm x 40cm",
+    "medium": "Quilled paper on canvas",
+    "price": 250,
+    "currency": "AUD",
+    "status": "available",
+    "image": "images/piece-001.jpg",
+    "dateAdded": "2026-05-19"
+  },
+  {
+    "id": "002",
+    "title": "Ocean Mandala",
+    "description": "A mesmerising mandala pattern in ocean blues and teals. Inspired by the rhythm of waves, this piece features concentric rings of tightly coiled paper that radiate outward in a calming, symmetrical design. Perfect for adding a serene focal point to any room.",
+    "dimensions": "40cm x 40cm",
+    "medium": "Quilled paper on canvas",
+    "price": 320,
+    "currency": "AUD",
+    "status": "available",
+    "image": "images/piece-002.jpg",
+    "dateAdded": "2026-05-19"
+  },
+  {
+    "id": "003",
+    "title": "Eucalyptus Wreath",
+    "description": "A delicate circular wreath of quilled eucalyptus leaves in soft greens and silvers. This Australian-inspired piece brings a touch of native flora indoors, with each leaf carefully shaped to capture the gentle curve and silvery sheen of real eucalyptus foliage.",
+    "dimensions": "35cm x 35cm",
+    "medium": "Quilled paper on wooden frame",
+    "price": 280,
+    "currency": "AUD",
+    "status": "sold",
+    "image": "images/piece-003.jpg",
+    "dateAdded": "2026-05-19"
+  }
+]
