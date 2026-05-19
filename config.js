@@ -11,6 +11,21 @@ var CONFIG = {
   defaultLeadTimeWeeks: 3,
   customCommissionLeadTime: "4-8 weeks",
   deposit: 0.5,
+  categories: [
+    {id: "framed", label: "Framed"},
+    {id: "clocks", label: "Clocks"},
+    {id: "canvas", label: "Canvas"},
+    {id: "cards", label: "Cards"},
+    {id: "homewares", label: "Homewares"}
+  ],
+  themes: [
+    {id: "birds", label: "Birds"},
+    {id: "flowers", label: "Flowers"},
+    {id: "trees", label: "Trees"},
+    {id: "nursery", label: "Nursery"},
+    {id: "names", label: "Names"},
+    {id: "patterns", label: "Patterns"}
+  ],
   commission: {
     introBlurb: "Have something specific in mind? I can create a fully custom quilled artwork to your brief — any subject, size, colour palette, or format. Whether it's a gift, a memorial piece, or something to match your space, I'll work with you to bring your idea to life in paper.",
     leadTimeDisclaimer: "Lead times vary with complexity and current queue.",

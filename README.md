@@ -122,6 +122,8 @@ Edit `config.js` to change:
 | `defaultLeadTimeWeeks` | Fallback lead time for gallery commissions (number, e.g. `3`) |
 | `customCommissionLeadTime` | Lead time shown on the custom commission page and mailto (free-text string) |
 | `deposit` | Deposit fraction mentioned on commission page (e.g. `0.5` = 50%) |
+| `categories` | Array of `{id, label}` objects for product categories (format/medium) |
+| `themes` | Array of `{id, label}` objects for product themes (subject matter) |
 | `commission.introBlurb` | Intro paragraph on commission.html |
 | `commission.leadTimeDisclaimer` | Disclaimer shown after the lead time on commission page |
 | `commission.marketsBlurb` | Intro text for the markets section on commission page |
@@ -136,6 +138,33 @@ Edit `config.js` to change:
 - **"from $X AUD"** is shown for all non-available items. The word "from" signals the price is a guide.
 - **"$X AUD"** (no "from") is shown for available/in-stock items. This is the firm, pay-this-now price.
 - The commission page includes a note explaining that gallery prices are guides and in-stock pieces are the only firm prices.
+
+### Categories & themes
+
+Products can be tagged with a `category` (format/medium) and one or more `theme` values (subject matter). Both lists are defined in `config.js` and drive the filter UI, JSON-LD keywords, and URL hash state.
+
+**Categories** — what the piece physically is:
+
+| ID | Meaning |
+|----|---------|
+| `framed` | Framed under glass |
+| `clocks` | Clock face pieces |
+| `canvas` | Quilled paper on canvas |
+| `cards` | Greeting cards |
+| `homewares` | Sculptural / functional pieces (bowls, vessels, anything 3D and non-wall-mounted) |
+
+**Themes** — what the piece depicts:
+
+| ID | Meaning |
+|----|---------|
+| `birds` | Bird subjects |
+| `flowers` | Floral subjects |
+| `trees` | Tree / branch subjects |
+| `nursery` | Baby / nursery themed |
+| `names` | Name or word art |
+| `patterns` | Abstract or non-representational designs without a clear subject (e.g. pattern-based clocks, mandalas) |
+
+To add a new category or theme, add a `{id, label}` object to the relevant array in `config.js`. The filter UI picks up additions automatically.
 
 ## Logo
 
