@@ -11,6 +11,10 @@ var CONFIG = {
   defaultLeadTimeWeeks: 3,
   customCommissionLeadTime: "4-8 weeks",
   deposit: 0.5,
+  cards: {
+    defaultUnitPrice: 8,
+    suggestBulkAt: 3
+  },
   categories: [
     {id: "framed", label: "Framed"},
     {id: "clocks", label: "Clocks"},

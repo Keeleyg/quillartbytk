@@ -53,6 +53,33 @@
     return item.leadTimeWeeks || CONFIG.defaultLeadTimeWeeks;
   }
 
+  // --- Card helpers ---
+
+  function isCard(item) {
+    return item.category === "cards";
+  }
+
+  function getUnitPrice(item) {
+    if (typeof item.unitPrice === "number") return item.unitPrice;
+    if (CONFIG.cards && typeof CONFIG.cards.defaultUnitPrice === "number") {
+      return CONFIG.cards.defaultUnitPrice;
+    }
+    return item.price;
+  }
+
+  function getImages(item) {
+    if (Array.isArray(item.images) && item.images.length > 0) return item.images;
+    return [item.image];
+  }
+
+  function getVariants(item) {
+    if (Array.isArray(item.variants) && item.variants.length > 0) return item.variants;
+    var imgs = getImages(item);
+    var allIndexes = [];
+    for (var i = 0; i < imgs.length; i++) allIndexes.push(i);
+    return [{ id: null, name: null, description: null, imageIndexes: allIndexes }];
+  }
+
   // --- Mailto builders ---
 
   function buildPurchaseMailto(item) {
@@ -94,9 +121,59 @@
     );
   }
 
+  function buildCardMailto(item) {
+    var up = getUnitPrice(item);
+    var variants = getVariants(item);
+    var subject = "Order enquiry: " + item.title;
+    var body =
+      "Hi,\n\n" +
+      "I'd like to order cards from your \"" + item.title + "\" range.\n\n";
+
+    if (variants.length > 0 && variants[0].id) {
+      body += "Designs available:\n";
+      variants.forEach(function (v) {
+        body += "  " + v.id + " - " + v.name + ": $" + up + " each\n";
+      });
+      body += "\n";
+    }
+
+    if (Array.isArray(item.bulkTiers) && item.bulkTiers.length > 0) {
+      body += "Bulk pricing available: ";
+      body += item.bulkTiers.map(function (t) {
+        return t.quantity + " for $" + t.totalPrice;
+      }).join(", ");
+      body += "\n\n";
+    }
+
+    body +=
+      "Please indicate which design(s) and how many of each:\n" +
+      "  Design ID:        Quantity:\n" +
+      "  Design ID:        Quantity:\n" +
+      "  Design ID:        Quantity:\n\n" +
+      "Personalisation / wording inside the card(s):\n\n\n" +
+      "Shipping address:\n";
+
+    return (
+      "mailto:" + CONFIG.email +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(body)
+    );
+  }
+
   // --- Price display ---
 
   function cardPriceHtml(item) {
+    if (isCard(item)) {
+      var up = getUnitPrice(item);
+      var html = '<p class="card-price"><span class="price-from">From </span>' +
+        formatPrice(up, item.currency) + " each</p>";
+      if (Array.isArray(item.bulkTiers) && item.bulkTiers.length > 0) {
+        var t = item.bulkTiers[0];
+        html += '<p class="card-bulk-hint">or ' + t.quantity + " for " +
+          formatPrice(t.totalPrice, item.currency) + "</p>";
+      }
+      return html;
+    }
     var price = formatPrice(item.price, item.currency);
     if (isPriceFirm(item)) {
       return '<p class="card-price">' + price + "</p>";
@@ -105,6 +182,23 @@
   }
 
   function lightboxPriceHtml(item) {
+    if (isCard(item)) {
+      var up = getUnitPrice(item);
+      var html = '<p class="lightbox-price">' + formatPrice(up, item.currency) + " each</p>";
+      if (Array.isArray(item.bulkTiers) && item.bulkTiers.length > 0) {
+        html += '<div class="lightbox-bulk-tiers">';
+        item.bulkTiers.forEach(function (t) {
+          html += '<span class="bulk-tier">' + t.quantity + " for " +
+            formatPrice(t.totalPrice, item.currency) + "</span>";
+        });
+        html += "</div>";
+      }
+      if (item.status === "order") {
+        var lt = item.leadTimeWeeks ? " · ~" + item.leadTimeWeeks + " weeks" : "";
+        html += '<span class="card-made-to-order-pill">Made to order' + lt + "</span>";
+      }
+      return html;
+    }
     var price = formatPrice(item.price, item.currency);
     if (item.status === "available") {
       return '<p class="lightbox-price">' + price + ' <span class="price-note">— in stock, ready to ship</span></p>';
@@ -134,7 +228,11 @@
     }
 
     var actionHtml = "";
-    if (item.status === "available") {
+    if (isCard(item)) {
+      actionHtml =
+        '<a href="' + buildCardMailto(item) +
+        '" class="btn btn-primary btn-enquire">Order cards</a>';
+    } else if (item.status === "available") {
       actionHtml =
         '<a href="' + buildPurchaseMailto(item) +
         '" class="btn btn-primary btn-enquire">Purchase</a>';
@@ -208,42 +306,165 @@
 
   // --- Lightbox ---
 
+  // --- Card variant selector ---
+
+  function renderVariantSelector(item) {
+    var variants = getVariants(item);
+    var images = getImages(item);
+    if (variants.length <= 1 && !variants[0].id) return "";
+
+    var html = '<div class="variant-selector">';
+    html += '<h3 class="variant-heading">Designs</h3>';
+    html += '<div class="variant-cards">';
+    variants.forEach(function (v, i) {
+      var thumbSrc = images[v.imageIndexes[0]] || images[0];
+      html +=
+        '<div class="variant-card' + (i === 0 ? " active" : "") +
+        '" data-variant-index="' + i + '">' +
+        '<img src="' + escapeHtml(thumbSrc) + '" alt="' + escapeHtml(v.name || "") +
+        '" class="variant-card-thumb" loading="lazy">' +
+        '<div class="variant-card-info">' +
+        '<span class="variant-card-id">' + escapeHtml(v.id || "") + "</span>" +
+        '<span class="variant-card-name">' + escapeHtml(v.name || "") + "</span>" +
+        (v.description ? '<p class="variant-card-desc">' + escapeHtml(v.description) + "</p>" : "") +
+        "</div></div>";
+    });
+    html += "</div>";
+    html += '<button class="variant-show-all" hidden>Show all designs</button>';
+
+    html += '<div class="variant-image-strip">';
+    images.forEach(function (img, i) {
+      html +=
+        '<img src="' + escapeHtml(img) +
+        '" alt="Image ' + (i + 1) +
+        '" class="variant-thumb" data-image-index="' + i + '"' +
+        ' loading="lazy">';
+    });
+    html += "</div></div>";
+    return html;
+  }
+
+  function wireVariantListeners(item) {
+    var variants = getVariants(item);
+    var images = getImages(item);
+    var cardsContainer = lightboxDetails.querySelector(".variant-cards");
+    var stripContainer = lightboxDetails.querySelector(".variant-image-strip");
+    var showAllBtn = lightboxDetails.querySelector(".variant-show-all");
+    if (!cardsContainer) return;
+
+    function selectVariant(idx) {
+      var v = variants[idx];
+      cardsContainer.querySelectorAll(".variant-card").forEach(function (c, i) {
+        c.classList.toggle("active", i === idx);
+      });
+      if (stripContainer) {
+        stripContainer.querySelectorAll(".variant-thumb").forEach(function (t) {
+          var imgIdx = parseInt(t.dataset.imageIndex, 10);
+          t.hidden = v.imageIndexes.indexOf(imgIdx) === -1;
+        });
+      }
+      lightboxImage.src = images[v.imageIndexes[0]];
+      if (showAllBtn) showAllBtn.hidden = false;
+    }
+
+    function showAll() {
+      cardsContainer.querySelectorAll(".variant-card").forEach(function (c) {
+        c.classList.remove("active");
+      });
+      if (stripContainer) {
+        stripContainer.querySelectorAll(".variant-thumb").forEach(function (t) {
+          t.hidden = false;
+        });
+      }
+      if (showAllBtn) showAllBtn.hidden = true;
+    }
+
+    cardsContainer.addEventListener("click", function (e) {
+      var card = e.target.closest(".variant-card");
+      if (!card) return;
+      selectVariant(parseInt(card.dataset.variantIndex, 10));
+    });
+
+    if (showAllBtn) {
+      showAllBtn.addEventListener("click", showAll);
+    }
+
+    if (stripContainer) {
+      stripContainer.addEventListener("click", function (e) {
+        var thumb = e.target.closest(".variant-thumb");
+        if (!thumb) return;
+        lightboxImage.src = images[parseInt(thumb.dataset.imageIndex, 10)];
+        stripContainer.querySelectorAll(".variant-thumb").forEach(function (t) {
+          t.classList.remove("active");
+        });
+        thumb.classList.add("active");
+      });
+    }
+
+    // Default: select first variant
+    selectVariant(0);
+  }
+
+  // --- Lightbox ---
+
   function openLightbox(item) {
-    lightboxImage.src = item.image;
+    var images = getImages(item);
+    lightboxImage.src = isCard(item) ? images[0] : item.image;
     lightboxImage.alt = item.title;
     lightboxImage.style.display = "";
     lightboxImage.onerror = function () {
       this.style.display = "none";
     };
 
-    var statusHtml = "";
-    if (item.status === "sold") {
-      statusHtml = '<span class="lightbox-status-badge card-badge--sold">Sold</span>';
-    } else if (item.status === "reserved") {
-      statusHtml = '<p class="lightbox-reserved-text">Currently reserved</p>';
+    // Preload card images
+    if (isCard(item)) {
+      images.forEach(function (src) { new Image().src = src; });
     }
 
-    var actionHtml = "";
-    if (item.status === "available") {
-      actionHtml =
-        '<a href="' + buildPurchaseMailto(item) +
-        '" class="btn btn-primary lightbox-enquire">Purchase</a>';
-    } else if (item.status === "order") {
-      actionHtml =
-        '<a href="' + buildCommissionMailto(item) +
-        '" class="btn btn-primary lightbox-enquire">Commission this style</a>';
-    }
+    if (isCard(item)) {
+      lightboxDetails.innerHTML =
+        '<h2 class="lightbox-title">' + escapeHtml(item.title) + "</h2>" +
+        '<div class="lightbox-meta">' +
+        "<span>" + escapeHtml(item.dimensions) + "</span>" +
+        "<span>" + escapeHtml(item.medium) + "</span>" +
+        "</div>" +
+        lightboxPriceHtml(item) +
+        '<p class="lightbox-description">' + escapeHtml(item.description) + "</p>" +
+        renderVariantSelector(item) +
+        '<a href="' + buildCardMailto(item) +
+        '" class="btn btn-primary lightbox-enquire">Order cards</a>';
 
-    lightboxDetails.innerHTML =
-      '<h2 class="lightbox-title">' + escapeHtml(item.title) + "</h2>" +
-      '<div class="lightbox-meta">' +
-      "<span>" + escapeHtml(item.dimensions) + "</span>" +
-      "<span>" + escapeHtml(item.medium) + "</span>" +
-      "</div>" +
-      lightboxPriceHtml(item) +
-      statusHtml +
-      '<p class="lightbox-description">' + escapeHtml(item.description) + "</p>" +
-      actionHtml;
+      wireVariantListeners(item);
+    } else {
+      var statusHtml = "";
+      if (item.status === "sold") {
+        statusHtml = '<span class="lightbox-status-badge card-badge--sold">Sold</span>';
+      } else if (item.status === "reserved") {
+        statusHtml = '<p class="lightbox-reserved-text">Currently reserved</p>';
+      }
+
+      var actionHtml = "";
+      if (item.status === "available") {
+        actionHtml =
+          '<a href="' + buildPurchaseMailto(item) +
+          '" class="btn btn-primary lightbox-enquire">Purchase</a>';
+      } else if (item.status === "order") {
+        actionHtml =
+          '<a href="' + buildCommissionMailto(item) +
+          '" class="btn btn-primary lightbox-enquire">Commission this style</a>';
+      }
+
+      lightboxDetails.innerHTML =
+        '<h2 class="lightbox-title">' + escapeHtml(item.title) + "</h2>" +
+        '<div class="lightbox-meta">' +
+        "<span>" + escapeHtml(item.dimensions) + "</span>" +
+        "<span>" + escapeHtml(item.medium) + "</span>" +
+        "</div>" +
+        lightboxPriceHtml(item) +
+        statusHtml +
+        '<p class="lightbox-description">' + escapeHtml(item.description) + "</p>" +
+        actionHtml;
+    }
 
     lightbox.hidden = false;
     document.body.style.overflow = "hidden";
@@ -293,7 +514,20 @@
       url: CONFIG.baseUrl + "/#item=" + item.id
     };
 
-    if (!firm) {
+    if (isCard(item)) {
+      var up = getUnitPrice(item);
+      offers.price = up;
+      offers.priceSpecification = {
+        "@type": "UnitPriceSpecification",
+        price: up,
+        priceCurrency: item.currency || "AUD",
+        referenceQuantity: {
+          "@type": "QuantitativeValue",
+          value: 1,
+          unitCode: "C62"
+        }
+      };
+    } else if (!firm) {
       offers.priceSpecification = {
         "@type": "PriceSpecification",
         price: item.price,
@@ -303,12 +537,16 @@
       };
     }
 
+    var productImage = isCard(item)
+      ? getImages(item).map(function (img) { return CONFIG.baseUrl + "/" + img; })
+      : CONFIG.baseUrl + "/" + item.image;
+
     var ld = {
       "@context": "https://schema.org",
       "@type": "Product",
       name: item.title,
       description: item.description,
-      image: CONFIG.baseUrl + "/" + item.image,
+      image: productImage,
       url: CONFIG.baseUrl + "/#item=" + item.id,
       brand: {
         "@type": "Brand",
@@ -386,6 +624,34 @@
       })
       .then(function (data) {
         products = data;
+
+        // Gentle validation for card products
+        products.forEach(function (p) {
+          if (p.category !== "cards") return;
+          if (typeof p.unitPrice === "undefined") {
+            console.warn("[Quillart] Card product " + p.id + " has no unitPrice — using default (" +
+              (CONFIG.cards ? CONFIG.cards.defaultUnitPrice : "none") + ").");
+          }
+          if (!Array.isArray(p.variants) || p.variants.length === 0) {
+            console.warn("[Quillart] Card product " + p.id + " has no variants — rendering as single design.");
+          } else {
+            var imgs = getImages(p);
+            p.variants.forEach(function (v, vi) {
+              if (!v.id) console.warn("[Quillart] Card " + p.id + ", variant " + vi + ": missing id.");
+              if (!Array.isArray(v.imageIndexes) || v.imageIndexes.length === 0) {
+                console.warn("[Quillart] Card " + p.id + ", variant " + vi + ": missing or empty imageIndexes.");
+              } else {
+                v.imageIndexes.forEach(function (idx) {
+                  if (idx < 0 || idx >= imgs.length) {
+                    console.warn("[Quillart] Card " + p.id + ", variant " + vi + ": imageIndex " + idx +
+                      " out of range (images has " + imgs.length + " entries).");
+                  }
+                });
+              }
+            });
+          }
+        });
+
         injectItemListJsonLd();
 
         var params = parseHash();

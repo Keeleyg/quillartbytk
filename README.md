@@ -20,7 +20,7 @@ There's also a dedicated [commission page](commission.html) for fully bespoke br
 
 All enquiries go through mailto links — no form backend, no payment integration. You create Zeller Invoices manually after discussing with the customer.
 
-## Adding a New Artwork
+## Adding a New Artwork (Non-Cards)
 
 1. **Add the image** to `images/` using the naming convention `piece-{id}.jpg` (see `images/README.md` for specs)
 2. **Add an entry** to `products.json`:
@@ -61,6 +61,93 @@ By default, `available` items have firm prices and everything else is a guide. T
 ### Optional: `leadTimeWeeks`
 
 Per-item lead time for commission pieces. If omitted, falls back to `config.defaultLeadTimeWeeks` (currently 3 weeks). Only relevant for `order` status items.
+
+For adding **greeting card** products, see [Cards (Greeting Cards)](#cards-greeting-cards) below.
+
+## Cards (Greeting Cards)
+
+Cards use a different data shape from regular artworks. One product entry represents a **card occasion** (e.g. "Valentine's Day Cards") containing multiple **design variants** underneath. Each card has per-unit pricing and optional bulk tiers.
+
+These fields are **only meaningful when `category` is `"cards"`**. Non-card products ignore them entirely.
+
+### Card product example
+
+```json
+{
+  "id": "C001",
+  "title": "Valentine's Day Cards",
+  "description": "Handmade quilled Valentine's Day greeting cards...",
+  "dimensions": "A6 (10.5cm x 14.8cm)",
+  "medium": "Quilled paper on premium cardstock",
+  "price": 8,
+  "unitPrice": 8,
+  "currency": "AUD",
+  "status": "order",
+  "category": "cards",
+  "image": "images/card-C001-V1-01.jpg",
+  "images": [
+    "images/card-C001-V1-01.jpg",
+    "images/card-C001-V1-02.jpg",
+    "images/card-C001-V2-01.jpg"
+  ],
+  "variants": [
+    {
+      "id": "V1",
+      "name": "Filigree Heart",
+      "description": "A classic heart shape in graduated reds and pinks.",
+      "imageIndexes": [0, 1]
+    },
+    {
+      "id": "V2",
+      "name": "Rose Bouquet",
+      "description": "Quilled roses with gold accents.",
+      "imageIndexes": [2]
+    }
+  ],
+  "bulkTiers": [
+    {"quantity": 5, "totalPrice": 35},
+    {"quantity": 10, "totalPrice": 65}
+  ],
+  "dateAdded": "2026-05-19"
+}
+```
+
+### Card-specific fields
+
+| Field | Type | Required | Fallback |
+|-------|------|----------|----------|
+| `unitPrice` | number | No | `CONFIG.cards.defaultUnitPrice` (currently $8) |
+| `images` | string[] | No | `[item.image]` (single hero image) |
+| `variants` | object[] | No | Entire `images` array treated as one anonymous design |
+| `bulkTiers` | object[] | No | No bulk pricing shown |
+
+**`price`** and **`unitPrice`** are typically the same number. `price` is kept for JSON-LD crawlers; `unitPrice` is the explicit per-card price the UI reads.
+
+### Adding a variant
+
+1. Add the variant's images to `images/` using `card-{id}-{variantId}-{nn}.jpg` naming
+2. Append the image paths to the product's `images` array
+3. Add a variant object to `variants` with `imageIndexes` pointing at the new images' positions in the array
+
+### Bulk tiers
+
+Each tier is `{"quantity": N, "totalPrice": M}`. The first tier is shown on the gallery card; all tiers are shown in the lightbox. Tiers should be sorted ascending by quantity.
+
+### How cards display differently
+
+- **Gallery card:** "From $8 AUD each" + "or 5 for $35 AUD" + "Order cards" button
+- **Lightbox:** Per-unit price, bulk tier pills, "Designs" section with variant cards (thumbnail + name + description + ID badge), filterable image strip, "Order cards" mailto
+- **Mailto:** Lists all variant IDs and names for the buyer to indicate quantities
+- **JSON-LD:** `UnitPriceSpecification` with `referenceQuantity` of 1 (bulk tiers are not expressed in JSON-LD)
+
+### Config defaults
+
+`CONFIG.cards` in `config.js`:
+
+| Field | Default | Meaning |
+|-------|---------|---------|
+| `defaultUnitPrice` | 8 | Fallback per-card price when `unitPrice` is omitted |
+| `suggestBulkAt` | 3 | UI hint threshold for bulk pricing suggestions |
 
 ## Managing Events
 
@@ -122,6 +209,8 @@ Edit `config.js` to change:
 | `defaultLeadTimeWeeks` | Fallback lead time for gallery commissions (number, e.g. `3`) |
 | `customCommissionLeadTime` | Lead time shown on the custom commission page and mailto (free-text string) |
 | `deposit` | Deposit fraction mentioned on commission page (e.g. `0.5` = 50%) |
+| `cards.defaultUnitPrice` | Fallback per-card price when product omits `unitPrice` (default: `8`) |
+| `cards.suggestBulkAt` | Quantity threshold for bulk pricing UI hint (default: `3`) |
 | `categories` | Array of `{id, label}` objects for product categories (format/medium) |
 | `themes` | Array of `{id, label}` objects for product themes (subject matter) |
 | `commission.introBlurb` | Intro paragraph on commission.html |

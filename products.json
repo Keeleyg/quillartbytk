@@ -35,5 +35,43 @@
     "status": "sold",
     "image": "images/piece-003.jpg",
     "dateAdded": "2026-05-19"
+  },
+  {
+    "id": "C001",
+    "title": "Valentine's Day Cards",
+    "description": "Handmade quilled Valentine's Day greeting cards featuring romantic designs in rich reds, pinks, and golds. Each card is individually crafted with delicate paper filigree on premium cardstock.",
+    "dimensions": "A6 (10.5cm x 14.8cm)",
+    "medium": "Quilled paper on premium cardstock",
+    "price": 8,
+    "unitPrice": 8,
+    "currency": "AUD",
+    "status": "order",
+    "category": "cards",
+    "image": "images/card-C001-V1-01.jpg",
+    "images": [
+      "images/card-C001-V1-01.jpg",
+      "images/card-C001-V1-02.jpg",
+      "images/card-C001-V2-01.jpg",
+      "images/card-C001-V2-02.jpg"
+    ],
+    "variants": [
+      {
+        "id": "V1",
+        "name": "Filigree Heart",
+        "description": "A classic heart shape filled with intricate quilled scrollwork in graduated reds and pinks.",
+        "imageIndexes": [0, 1]
+      },
+      {
+        "id": "V2",
+        "name": "Rose Bouquet",
+        "description": "A spray of quilled roses with delicate gold accents and trailing leaves.",
+        "imageIndexes": [2, 3]
+      }
+    ],
+    "bulkTiers": [
+      {"quantity": 5, "totalPrice": 35},
+      {"quantity": 10, "totalPrice": 65}
+    ],
+    "dateAdded": "2026-05-19"
   }
 ]

@@ -878,6 +878,12 @@ img {
     height: 48px;
   }
 
+  .variant-card-thumb,
+  .variant-thumb {
+    width: 64px;
+    height: 64px;
+  }
+
   .hero-logo {
     max-width: 400px;
   }
@@ -911,6 +917,171 @@ img {
   .gallery {
     grid-template-columns: repeat(4, 1fr);
   }
+}
+
+/* Card variant selector (lightbox) */
+.variant-selector {
+  margin: 1.25rem 0;
+}
+
+.variant-heading {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.variant-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.variant-card {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.variant-card:hover {
+  border-color: var(--color-accent);
+}
+
+.variant-card.active {
+  border-color: var(--color-accent);
+  background: rgba(201, 149, 107, 0.06);
+}
+
+.variant-card-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: var(--color-border);
+}
+
+.variant-card-info {
+  min-width: 0;
+}
+
+.variant-card-id {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--color-accent);
+  color: #fff;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+}
+
+.variant-card-name {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+  vertical-align: middle;
+}
+
+.variant-card-desc {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  margin-top: 0.2rem;
+}
+
+.variant-show-all {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  margin-bottom: 0.5rem;
+  text-decoration: underline;
+}
+
+.variant-show-all:hover {
+  color: var(--color-accent-hover);
+}
+
+.variant-image-strip {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.variant-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.2s, opacity 0.2s;
+  opacity: 0.65;
+  background: var(--color-border);
+}
+
+.variant-thumb:hover {
+  opacity: 1;
+  border-color: var(--color-border);
+}
+
+.variant-thumb.active {
+  border-color: var(--color-accent);
+  opacity: 1;
+}
+
+/* Card bulk pricing */
+.card-bulk-hint {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 0.15rem;
+}
+
+.lightbox-bulk-tiers {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.bulk-tier {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.card-made-to-order-pill {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  border-radius: 100px;
+  padding: 0.2rem 0.6rem;
+  margin-bottom: 0.75rem;
 }
 
 /* Image placeholder for missing images */
