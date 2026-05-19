@@ -249,6 +249,7 @@ Products can be tagged with a `category` (format/medium) and one or more `theme`
 | `birds` | Bird subjects |
 | `animals` | Non-bird, non-insect creatures (cats, fish, sea life, mammals) |
 | `insects` | Bees, mantises, butterflies, and other arthropods — often rendered in a "natural history specimen" style with scientific labelling |
+| `nautical` | Ocean and water motifs — whales, seahorses, lighthouses, waves |
 | `flowers` | Floral subjects |
 | `trees` | Tree / branch subjects |
 | `nursery` | Baby / nursery themed |

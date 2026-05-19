@@ -26,6 +26,7 @@ var CONFIG = {
     {id: "birds", label: "Birds"},
     {id: "animals", label: "Animals"},
     {id: "insects", label: "Insects"},
+    {id: "nautical", label: "Nautical"},
     {id: "flowers", label: "Flowers"},
     {id: "trees", label: "Trees"},
     {id: "nursery", label: "Nursery"},
