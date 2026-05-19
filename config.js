@@ -31,7 +31,10 @@ var CONFIG = {
     {id: "trees", label: "Trees"},
     {id: "nursery", label: "Nursery"},
     {id: "names", label: "Names"},
-    {id: "patterns", label: "Patterns"}
+    {id: "patterns", label: "Patterns"},
+    {id: "seasonal", label: "Seasonal"},
+    {id: "australiana", label: "Australiana"},
+    {id: "pets", label: "Pets"}
   ],
   commission: {
     introBlurb: "Have something specific in mind? I can create a fully custom quilled artwork to your brief — any subject, size, colour palette, or format. Whether it's a gift, a memorial piece, or something to match your space, I'll work with you to bring your idea to life in paper.",

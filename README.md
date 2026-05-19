@@ -64,6 +64,42 @@ Per-item lead time for commission pieces. If omitted, falls back to `config.defa
 
 For adding **greeting card** products, see [Cards (Greeting Cards)](#cards-greeting-cards) below.
 
+## Image Roles
+
+Each product image can be tagged with a **role** that controls where and how it appears:
+
+| Role | Meaning | Where it shows |
+|------|---------|---------------|
+| `main` | Primary / hero image | Gallery thumbnail, lightbox hero, JSON-LD |
+| `angle` | Alternate view of the finished piece | Lightbox image strip, JSON-LD |
+| `process` | Work-in-progress / making-of shot | Lightbox "Watch it come together" section only |
+
+### Image entry format
+
+Images in the `images` array use `{filename, role}` objects:
+
+```json
+"images": [
+  {"filename": "images/piece-004.jpg", "role": "main"},
+  {"filename": "images/piece-004-side.jpg", "role": "angle"},
+  {"filename": "images/piece-004-wip-01.jpg", "role": "process"},
+  {"filename": "images/piece-004-wip-02.jpg", "role": "process"}
+]
+```
+
+### Rules
+
+- Every product needs exactly **one** `main` image. If omitted, the first `angle` image is used as a fallback. If neither exists, the product is skipped from the gallery with a console error.
+- **Process images never appear as gallery thumbnails** — even if they're the only images on the product.
+- JSON-LD structured data includes `main` and `angle` images only; `process` images are excluded.
+- Products without an `images` array fall back to `item.image` (treated as `main`).
+
+### Process section in lightbox
+
+When a product has process images, the lightbox shows a "Watch it come together" section below the main details. Process photos are displayed as numbered steps (Step 1, Step 2, etc.) with smaller thumbnails. Clicking a step shows it in the main lightbox image area; a "← Back to finished piece" link returns to the main image.
+
+> **Coming soon:** The Heidi name piece (P037) will be the first product with process photos, documenting the quilling journey from sketch to finished frame. Process shots are currently surfaced only within the per-product lightbox — featuring them on the commission page as evidence of the craft involved is a candidate for the final catalog consolidation pass.
+
 ## Cards (Greeting Cards)
 
 Cards use a different data shape from regular artworks. One product entry represents a **card occasion** (e.g. "Valentine's Day Cards") containing multiple **design variants** underneath. Each card has per-unit pricing and optional bulk tiers.
@@ -86,9 +122,9 @@ These fields are **only meaningful when `category` is `"cards"`**. Non-card prod
   "category": "cards",
   "image": "images/card-C001-V1-01.jpg",
   "images": [
-    "images/card-C001-V1-01.jpg",
-    "images/card-C001-V1-02.jpg",
-    "images/card-C001-V2-01.jpg"
+    {"filename": "images/card-C001-V1-01.jpg", "role": "main"},
+    {"filename": "images/card-C001-V1-02.jpg", "role": "angle"},
+    {"filename": "images/card-C001-V2-01.jpg", "role": "angle"}
   ],
   "variants": [
     {
@@ -255,6 +291,9 @@ Products can be tagged with a `category` (format/medium) and one or more `theme`
 | `nursery` | Baby / nursery themed |
 | `names` | Name or word art |
 | `patterns` | Abstract or non-representational designs without a clear subject (e.g. pattern-based clocks, mandalas) |
+| `seasonal` | Seasonal and holiday pieces (Christmas, Valentine's, St Patrick's) |
+| `australiana` | Native Australian species, flora, and motifs |
+| `pets` | Pet-themed pieces (paw prints, pet portraits) |
 
 To add a new category or theme, add a `{id, label}` object to the relevant array in `config.js`. The filter UI picks up additions automatically.
 

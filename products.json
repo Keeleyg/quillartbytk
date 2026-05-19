@@ -49,10 +49,10 @@
     "category": "cards",
     "image": "images/card-C001-V1-01.jpg",
     "images": [
-      "images/card-C001-V1-01.jpg",
-      "images/card-C001-V1-02.jpg",
-      "images/card-C001-V2-01.jpg",
-      "images/card-C001-V2-02.jpg"
+      {"filename": "images/card-C001-V1-01.jpg", "role": "main"},
+      {"filename": "images/card-C001-V1-02.jpg", "role": "angle"},
+      {"filename": "images/card-C001-V2-01.jpg", "role": "angle"},
+      {"filename": "images/card-C001-V2-02.jpg", "role": "angle"}
     ],
     "variants": [
       {

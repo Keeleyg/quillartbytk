@@ -68,7 +68,9 @@
   }
 
   function getImages(item) {
-    if (Array.isArray(item.images) && item.images.length > 0) return item.images;
+    if (Array.isArray(item.images) && item.images.length > 0) {
+      return item.images.map(resolveFilename);
+    }
     return [item.image];
   }
 
@@ -78,6 +80,56 @@
     var allIndexes = [];
     for (var i = 0; i < imgs.length; i++) allIndexes.push(i);
     return [{ id: null, name: null, description: null, imageIndexes: allIndexes }];
+  }
+
+  // --- Image role helpers ---
+
+  function resolveFilename(entry) {
+    if (typeof entry === "string") return entry;
+    if (entry && typeof entry.filename === "string") return entry.filename;
+    return "";
+  }
+
+  function getImageRole(entry) {
+    if (typeof entry === "string") return "main";
+    if (entry && typeof entry.role === "string") return entry.role;
+    return "main";
+  }
+
+  function getRawImages(item) {
+    if (Array.isArray(item.images) && item.images.length > 0) return item.images;
+    if (item.image) return [item.image];
+    return [];
+  }
+
+  function getMainImage(item) {
+    var raw = getRawImages(item);
+    var i;
+    for (i = 0; i < raw.length; i++) {
+      if (getImageRole(raw[i]) === "main") return resolveFilename(raw[i]);
+    }
+    for (i = 0; i < raw.length; i++) {
+      if (getImageRole(raw[i]) === "angle") return resolveFilename(raw[i]);
+    }
+    return null;
+  }
+
+  function getAngleImages(item) {
+    return getRawImages(item)
+      .filter(function (e) { return getImageRole(e) === "angle"; })
+      .map(resolveFilename);
+  }
+
+  function getProcessImages(item) {
+    return getRawImages(item)
+      .filter(function (e) { return getImageRole(e) === "process"; })
+      .map(resolveFilename);
+  }
+
+  function getDisplayImages(item) {
+    return getRawImages(item)
+      .filter(function (e) { return getImageRole(e) !== "process"; })
+      .map(resolveFilename);
   }
 
   // --- Mailto builders ---
@@ -215,6 +267,12 @@
   // --- Card & gallery ---
 
   function createCard(item) {
+    var thumbSrc = getMainImage(item);
+    if (!thumbSrc) {
+      console.error("[Quillart] Product " + item.id + " has no main or angle image — skipping.");
+      return null;
+    }
+
     var card = document.createElement("article");
     card.className = "card";
     card.dataset.status = item.status;
@@ -245,7 +303,7 @@
     card.innerHTML =
       '<div class="card-image-wrap" role="button" tabindex="0" aria-label="View ' +
       escapeHtml(item.title) + '">' +
-      '<img src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.title) +
+      '<img src="' + escapeHtml(thumbSrc) + '" alt="' + escapeHtml(item.title) +
       '" loading="lazy" onerror="this.style.display=\'none\';this.insertAdjacentHTML(\'afterend\',\'<div class=img-placeholder>Image coming soon</div>\')">' +
       badgeHtml +
       "</div>" +
@@ -293,7 +351,8 @@
     }
 
     filtered.forEach(function (item) {
-      gallery.appendChild(createCard(item));
+      var card = createCard(item);
+      if (card) gallery.appendChild(card);
     });
 
     var cta = document.createElement("div");
@@ -333,7 +392,9 @@
     html += '<button class="variant-show-all" hidden>Show all designs</button>';
 
     html += '<div class="variant-image-strip">';
+    var rawImgs = getRawImages(item);
     images.forEach(function (img, i) {
+      if (getImageRole(rawImgs[i]) === "process") return;
       html +=
         '<img src="' + escapeHtml(img) +
         '" alt="Image ' + (i + 1) +
@@ -405,21 +466,95 @@
     selectVariant(0);
   }
 
+  // --- Process & image strip renderers ---
+
+  function renderProcessSection(processImgs) {
+    if (!processImgs || processImgs.length === 0) return "";
+    var html = '<div class="process-section">';
+    html += '<div class="process-separator"></div>';
+    html += '<h3 class="process-heading">Watch it come together</h3>';
+    html += '<div class="process-thumbnails">';
+    processImgs.forEach(function (src, i) {
+      html += '<div class="process-thumb-wrap" data-process-src="' + escapeHtml(src) + '">';
+      html += '<img src="' + escapeHtml(src) + '" alt="Step ' + (i + 1) +
+        '" class="process-thumb" loading="lazy">';
+      html += '<span class="process-step-label">Step ' + (i + 1) + '</span>';
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '<button class="process-back-btn" hidden>&#8592; Back to finished piece</button>';
+    html += '</div>';
+    return html;
+  }
+
+  function wireImageStripListeners() {
+    var strip = lightboxDetails.querySelector(".lightbox-image-strip");
+    if (!strip) return;
+    strip.addEventListener("click", function (e) {
+      var thumb = e.target.closest(".lightbox-strip-thumb");
+      if (!thumb) return;
+      lightboxImage.src = thumb.dataset.src;
+      strip.querySelectorAll(".lightbox-strip-thumb").forEach(function (t) {
+        t.classList.remove("active");
+      });
+      thumb.classList.add("active");
+    });
+  }
+
+  function wireProcessListeners(mainSrc) {
+    var section = lightboxDetails.querySelector(".process-section");
+    if (!section) return;
+    var backBtn = section.querySelector(".process-back-btn");
+    var thumbs = section.querySelectorAll(".process-thumb-wrap");
+    var strip = lightboxDetails.querySelector(".lightbox-image-strip");
+
+    thumbs.forEach(function (wrap) {
+      wrap.addEventListener("click", function () {
+        lightboxImage.src = wrap.dataset.processSrc;
+        if (backBtn) backBtn.hidden = false;
+        if (strip) {
+          strip.querySelectorAll(".lightbox-strip-thumb").forEach(function (t) {
+            t.classList.remove("active");
+          });
+        }
+      });
+    });
+
+    if (backBtn) {
+      backBtn.addEventListener("click", function () {
+        lightboxImage.src = mainSrc;
+        backBtn.hidden = true;
+        if (strip) {
+          strip.querySelectorAll(".lightbox-strip-thumb").forEach(function (t) {
+            t.classList.toggle("active", t.dataset.src === mainSrc);
+          });
+        }
+      });
+    }
+  }
+
   // --- Lightbox ---
 
   function openLightbox(item) {
-    var images = getImages(item);
-    lightboxImage.src = isCard(item) ? images[0] : item.image;
+    var mainImg = getMainImage(item);
+    var processImgs = getProcessImages(item);
+
+    lightboxImage.src = isCard(item) ? (getImages(item)[0] || "") : (mainImg || "");
     lightboxImage.alt = item.title;
     lightboxImage.style.display = "";
     lightboxImage.onerror = function () {
       this.style.display = "none";
     };
 
-    // Preload card images
+    // Preload images
     if (isCard(item)) {
-      images.forEach(function (src) { new Image().src = src; });
+      getDisplayImages(item).forEach(function (src) { new Image().src = src; });
+    } else {
+      getAngleImages(item).forEach(function (src) { new Image().src = src; });
     }
+    processImgs.forEach(function (src) { new Image().src = src; });
+
+    var processHtml = renderProcessSection(processImgs);
 
     if (isCard(item)) {
       lightboxDetails.innerHTML =
@@ -432,7 +567,8 @@
         '<p class="lightbox-description">' + escapeHtml(item.description) + "</p>" +
         renderVariantSelector(item) +
         '<a href="' + buildCardMailto(item) +
-        '" class="btn btn-primary lightbox-enquire">Order cards</a>';
+        '" class="btn btn-primary lightbox-enquire">Order cards</a>' +
+        processHtml;
 
       wireVariantListeners(item);
     } else {
@@ -454,6 +590,21 @@
           '" class="btn btn-primary lightbox-enquire">Commission this style</a>';
       }
 
+      var angleImgs = getAngleImages(item);
+      var imageStripHtml = "";
+      if (angleImgs.length > 0) {
+        imageStripHtml = '<div class="lightbox-image-strip">';
+        imageStripHtml += '<img src="' + escapeHtml(mainImg) + '" alt="' +
+          escapeHtml(item.title) + '" class="lightbox-strip-thumb active" data-src="' +
+          escapeHtml(mainImg) + '">';
+        angleImgs.forEach(function (src, i) {
+          imageStripHtml += '<img src="' + escapeHtml(src) + '" alt="' +
+            escapeHtml(item.title) + ' — view ' + (i + 2) +
+            '" class="lightbox-strip-thumb" data-src="' + escapeHtml(src) + '">';
+        });
+        imageStripHtml += "</div>";
+      }
+
       lightboxDetails.innerHTML =
         '<h2 class="lightbox-title">' + escapeHtml(item.title) + "</h2>" +
         '<div class="lightbox-meta">' +
@@ -463,8 +614,14 @@
         lightboxPriceHtml(item) +
         statusHtml +
         '<p class="lightbox-description">' + escapeHtml(item.description) + "</p>" +
-        actionHtml;
+        imageStripHtml +
+        actionHtml +
+        processHtml;
+
+      wireImageStripListeners();
     }
+
+    wireProcessListeners(mainImg);
 
     lightbox.hidden = false;
     document.body.style.overflow = "hidden";
@@ -537,9 +694,10 @@
       };
     }
 
-    var productImage = isCard(item)
-      ? getImages(item).map(function (img) { return CONFIG.baseUrl + "/" + img; })
-      : CONFIG.baseUrl + "/" + item.image;
+    var displayImgs = getDisplayImages(item);
+    var productImage = displayImgs.length === 1
+      ? CONFIG.baseUrl + "/" + displayImgs[0]
+      : displayImgs.map(function (img) { return CONFIG.baseUrl + "/" + img; });
 
     var ld = {
       "@context": "https://schema.org",
@@ -624,6 +782,22 @@
       })
       .then(function (data) {
         products = data;
+
+        // Image role validation
+        products.forEach(function (p) {
+          if (Array.isArray(p.images) && p.images.length > 0) {
+            var mainCount = p.images.filter(function (e) {
+              return getImageRole(e) === "main";
+            }).length;
+            if (mainCount === 0) {
+              console.warn("[Quillart] Product " + p.id +
+                " images array has no main image — will fall back to first angle.");
+            } else if (mainCount > 1) {
+              console.warn("[Quillart] Product " + p.id + " has " + mainCount +
+                " main images — only the first is used as thumbnail.");
+            }
+          }
+        });
 
         // Gentle validation for card products
         products.forEach(function (p) {
