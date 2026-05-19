@@ -1,0 +1,91 @@
+---
+import Base from '@/layouts/Base.astro';
+import ProductGrid from '@/components/ProductGrid.astro';
+import { getCollection, render } from 'astro:content';
+import { resolveCollectionImage } from '@/lib/images';
+
+export async function getStaticPaths() {
+  const collections = await getCollection('collections');
+  return collections.map((col) => ({
+    params: { slug: col.data.slug },
+    props: { collection: col },
+  }));
+}
+
+const { collection } = Astro.props;
+const { data } = collection;
+const { Content } = await render(collection);
+
+const heroSrc = resolveCollectionImage(data.hero, data.slug);
+const gallerySrcs = data.gallery.map((g: string) =>
+  resolveCollectionImage(g, data.slug)
+);
+
+// Resolve member products (skip missing ones silently — P103/P104 may not exist yet)
+const allProducts = await getCollection('products');
+const memberProducts = data.members
+  .map((pid: string) => allProducts.find((p) => p.data.id === pid))
+  .filter(Boolean);
+---
+
+<Base title={data.title} description={data.description} ogImage={heroSrc}>
+
+  <!-- Hero -->
+  <section class="relative">
+    <div class="aspect-[21/9] max-h-[50vh] overflow-hidden">
+      <img
+        src={heroSrc}
+        alt={data.title}
+        class="w-full h-full object-cover"
+        loading="eager"
+      />
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent flex items-end">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 w-full">
+        <h1 class="text-3xl sm:text-4xl font-serif font-semibold text-paper drop-shadow-lg">
+          {data.title}
+        </h1>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Description -->
+      <div class="max-w-3xl prose prose-sm text-muted mb-12">
+        <Content />
+      </div>
+
+      <!-- Gallery strip -->
+      {gallerySrcs.length > 0 && (
+        <div class="mb-12">
+          <div class="flex gap-4 overflow-x-auto pb-4">
+            {gallerySrcs.map((src: string, i: number) => (
+              <div class="flex-shrink-0 h-48 sm:h-64 rounded-lg overflow-hidden">
+                <img
+                  src={src}
+                  alt={`${data.title} gallery image ${i + 1}`}
+                  loading="lazy"
+                  decoding="async"
+                  class="h-full w-auto object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Members -->
+      {memberProducts.length > 0 && (
+        <div>
+          <h2 class="text-2xl font-serif font-semibold text-ink mb-8">
+            Pieces in this collection
+          </h2>
+          <ProductGrid products={memberProducts} />
+        </div>
+      )}
+
+    </div>
+  </section>
+</Base>

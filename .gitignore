@@ -1,2 +1,14 @@
 .claude/
 _catalog/phase1-transform.js
+
+# Dependencies
+node_modules/
+
+# Astro build output
+dist/
+.astro/
+
+# Worker
+worker/node_modules/
+worker/.wrangler/
+worker/.dev.vars

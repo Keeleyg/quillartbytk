@@ -1,0 +1,222 @@
+---
+import Base from '@/layouts/Base.astro';
+import ProductGrid from '@/components/ProductGrid.astro';
+import Lightbox from '@/components/Lightbox.astro';
+import { getCollection, render } from 'astro:content';
+import { resolveProductImage, categoryLabel, titleCase } from '@/lib/images';
+
+export async function getStaticPaths() {
+  const products = await getCollection('products');
+  return products.map((product) => ({
+    params: { slug: product.id },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+const { data } = product;
+
+// Render markdown body
+const { Content } = await render(product);
+
+// Resolve image paths
+const mainSrc = resolveProductImage(data.images.main);
+const angleSrcs = data.images.angles.map(resolveProductImage);
+const processSrcs = data.images.process.map(resolveProductImage);
+const allThumbs = [mainSrc, ...angleSrcs, ...processSrcs];
+
+// Price display
+const priceDisplay = data.price
+  ? `$${data.price}`
+  : data.status === 'order'
+    ? 'Made to order'
+    : 'Inquire for price';
+
+// Collection info
+const allCollections = await getCollection('collections');
+const parentCollection = data.collection
+  ? allCollections.find((c) => c.data.slug === data.collection)
+  : null;
+
+// Related products: same collection first, then theme intersection
+const allProducts = await getCollection('products');
+const visible = allProducts.filter(
+  (p) =>
+    p.data.id !== data.id &&
+    p.data.status !== 'hidden' &&
+    p.data.status !== 'draft'
+);
+
+let related: typeof visible = [];
+if (data.collection) {
+  related = visible
+    .filter((p) => p.data.collection === data.collection)
+    .slice(0, 3);
+}
+if (related.length < 3) {
+  const themeSet = new Set(data.themes);
+  const themeMatches = visible
+    .filter(
+      (p) =>
+        !related.includes(p) &&
+        p.data.themes.some((t) => themeSet.has(t))
+    )
+    .slice(0, 3 - related.length);
+  related = [...related, ...themeMatches];
+}
+
+const ogImage = mainSrc;
+---
+
+<Base title={data.title} description={`${data.title} — handmade quilled paper art by Tracey.`} ogImage={ogImage}>
+
+  <article class="py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Two-column layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+
+        <!-- Left: images -->
+        <div>
+          <!-- Main image -->
+          <div
+            class="aspect-auto max-h-[80vh] overflow-hidden rounded-lg bg-border/30 cursor-zoom-in"
+            data-lightbox-src={mainSrc}
+            data-lightbox-alt={data.title}
+            role="button"
+            tabindex="0"
+            aria-label={`View ${data.title} full size`}
+          >
+            <img
+              src={mainSrc}
+              alt={data.title}
+              class="w-full h-full object-contain"
+              loading="eager"
+            />
+          </div>
+
+          <!-- Thumbnail strip -->
+          {allThumbs.length > 1 && (
+            <div class="mt-4 flex gap-2 overflow-x-auto pb-2">
+              {allThumbs.map((src, i) => (
+                <button
+                  class="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border border-border hover:border-accent transition duration-200 cursor-zoom-in"
+                  data-lightbox-src={src}
+                  data-lightbox-alt={`${data.title} — view ${i + 1}`}
+                  aria-label={`View image ${i + 1} of ${allThumbs.length}`}
+                >
+                  <img
+                    src={src}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    class="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <!-- Right: details -->
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-serif font-semibold text-ink">{data.title}</h1>
+
+          <!-- Category + theme pills -->
+          <div class="mt-4 flex flex-wrap gap-2">
+            <a
+              href={`/gallery/category/${data.category}`}
+              class="inline-flex items-center px-3 py-1 rounded-full text-xs border border-border text-muted no-underline hover:text-ink hover:border-ink/30 transition duration-200"
+            >
+              {categoryLabel(data.category)}
+            </a>
+            {data.themes.map((theme) => (
+              <a
+                href={`/gallery/theme/${theme}`}
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs border border-border text-muted no-underline hover:text-ink hover:border-ink/30 transition duration-200"
+              >
+                {titleCase(theme)}
+              </a>
+            ))}
+          </div>
+
+          <!-- Price -->
+          <p class="mt-6 text-2xl font-semibold text-ink">{priceDisplay}</p>
+
+          <!-- Made to order badge -->
+          {data.status === 'order' && (
+            <div class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-accent/10 text-accent text-sm rounded-full">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+              </svg>
+              Made to order
+            </div>
+          )}
+
+          <!-- Palette variants -->
+          {data.palette_variants.length > 0 && (
+            <div class="mt-6">
+              <h3 class="text-sm font-medium text-ink">Available palettes</h3>
+              <div class="mt-2 flex flex-wrap gap-2">
+                {data.palette_variants.map((v) => (
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs border border-border text-muted">
+                    {titleCase(v)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <!-- Frame options -->
+          {data.frame_options.length > 0 && (
+            <div class="mt-4">
+              <h3 class="text-sm font-medium text-ink">Frame options</h3>
+              <div class="mt-2 flex flex-wrap gap-2">
+                {data.frame_options.map((f) => (
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs border border-border text-muted">
+                    {titleCase(f)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <!-- CTA -->
+          <a
+            href={`/contact?ref=${product.id}`}
+            class="mt-8 inline-flex items-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
+          >
+            Inquire about this piece
+          </a>
+
+          <!-- Description (first paragraph summary) -->
+          <div class="mt-8 prose prose-sm max-w-none text-muted">
+            <Content />
+          </div>
+
+          <!-- Collection link -->
+          {parentCollection && (
+            <p class="mt-6 text-sm text-muted">
+              Part of the{' '}
+              <a href={`/collections/${parentCollection.data.slug}`} class="text-accent">
+                {parentCollection.data.title}
+              </a>{' '}
+              collection.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <!-- Related products -->
+      {related.length > 0 && (
+        <section class="mt-20">
+          <h2 class="text-2xl font-serif font-semibold text-ink mb-8">You might also like</h2>
+          <ProductGrid products={related} />
+        </section>
+      )}
+
+    </div>
+  </article>
+
+  <Lightbox />
+</Base>

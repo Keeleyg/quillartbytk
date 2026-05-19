@@ -1,0 +1,93 @@
+---
+const navLinks = [
+  { label: 'Gallery', href: '/gallery' },
+  { label: 'Collections', href: '/collections' },
+  { label: 'Commissions', href: '/commissions' },
+  { label: 'About', href: '/about' },
+  { label: 'Contact', href: '/contact' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-50 bg-paper/95 backdrop-blur border-b border-border">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Wordmark -->
+      <a href="/" class="font-serif text-xl font-semibold tracking-tight text-ink no-underline hover:no-underline">
+        Quill Art by TK
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="hidden md:flex items-center gap-6" aria-label="Main navigation">
+        {navLinks.map(({ label, href }) => (
+          <a
+            href={href}
+            class:list={[
+              'text-sm font-medium no-underline transition duration-200',
+              currentPath.startsWith(href)
+                ? 'text-accent'
+                : 'text-muted hover:text-ink',
+            ]}
+            aria-current={currentPath.startsWith(href) ? 'page' : undefined}
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
+      <!-- Mobile burger -->
+      <button
+        id="mobile-menu-btn"
+        class="md:hidden p-2 -mr-2 text-muted hover:text-ink"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        aria-label="Open menu"
+      >
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path id="burger-icon" stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <nav
+    id="mobile-menu"
+    class="hidden md:hidden border-t border-border bg-paper"
+    aria-label="Mobile navigation"
+  >
+    <div class="px-4 py-4 space-y-2">
+      {navLinks.map(({ label, href }) => (
+        <a
+          href={href}
+          class:list={[
+            'block px-3 py-2 rounded-lg text-sm font-medium no-underline transition duration-200',
+            currentPath.startsWith(href)
+              ? 'text-accent bg-accent/5'
+              : 'text-muted hover:text-ink hover:bg-ink/5',
+          ]}
+          aria-current={currentPath.startsWith(href) ? 'page' : undefined}
+        >
+          {label}
+        </a>
+      ))}
+    </div>
+  </nav>
+</header>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn')!;
+  const menu = document.getElementById('mobile-menu')!;
+  const burgerIcon = document.getElementById('burger-icon')!;
+  const closeIcon = document.getElementById('close-icon')!;
+
+  btn.addEventListener('click', () => {
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!expanded));
+    menu.classList.toggle('hidden');
+    burgerIcon.classList.toggle('hidden');
+    closeIcon.classList.toggle('hidden');
+  });
+</script>

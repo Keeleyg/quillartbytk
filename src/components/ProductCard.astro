@@ -1,0 +1,38 @@
+---
+import { resolveProductImage, categoryLabel } from '@/lib/images';
+
+interface Props {
+  slug: string;
+  title: string;
+  category: string;
+  price: number | null;
+  status: string;
+  mainImage: string;
+}
+
+const { slug, title, category, price, status, mainImage } = Astro.props;
+const imgSrc = resolveProductImage(mainImage);
+const priceDisplay = price ? `$${price}` : status === 'order' ? 'Made to order' : 'Inquire';
+---
+
+<a
+  href={`/products/${slug}`}
+  class="group block no-underline"
+>
+  <div class="aspect-square overflow-hidden rounded-lg bg-border/30">
+    <img
+      src={imgSrc}
+      alt={title}
+      loading="lazy"
+      decoding="async"
+      class="w-full h-full object-cover transition duration-200 group-hover:scale-105"
+    />
+  </div>
+  <div class="mt-3 space-y-1">
+    <h3 class="text-sm font-medium text-ink group-hover:text-accent transition duration-200 line-clamp-2">
+      {title}
+    </h3>
+    <p class="text-xs text-muted">{categoryLabel(category)}</p>
+    <p class="text-sm font-medium text-ink">{priceDisplay}</p>
+  </div>
+</a>

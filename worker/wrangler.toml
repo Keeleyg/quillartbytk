@@ -1,0 +1,15 @@
+name = "quillartbytk-api"
+main = "src/index.ts"
+compatibility_date = "2025-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+# TODO: After running `wrangler login`, fill in account_id.
+# Find it in the Cloudflare dashboard sidebar (right side of any zone page).
+# account_id = "xxxxxxxxxxxxxxxxxxxx"
+
+# Route the Worker at /api/* on the production domain.
+# Requires the quillartbytk.com zone to be on this Cloudflare account
+# with the orange-cloud proxy enabled on the apex DNS record.
+[[routes]]
+pattern = "quillartbytk.com/api/*"
+zone_name = "quillartbytk.com"

@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Fraunces Variable', 'Fraunces', ui-serif, Georgia, serif;
+  --color-ink: oklch(0.2 0.02 280);
+  --color-paper: oklch(0.99 0.005 80);
+  --color-accent: oklch(0.55 0.18 25);
+  --color-muted: oklch(0.5 0.01 280);
+  --color-border: oklch(0.92 0.005 280);
+}
+
+@layer base {
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tight;
+  }
+  a {
+    @apply text-accent hover:underline;
+  }
+}

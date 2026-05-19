@@ -1,0 +1,38 @@
+---
+import ProductCard from './ProductCard.astro';
+
+interface Product {
+  id: string;
+  data: {
+    id: string;
+    title: string;
+    category: string;
+    price: number | null;
+    status: string;
+    images: { main: string };
+  };
+}
+
+interface Props {
+  products: Product[];
+}
+
+const { products } = Astro.props;
+---
+
+{products.length > 0 ? (
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {products.map((product) => (
+      <ProductCard
+        slug={product.id}
+        title={product.data.title}
+        category={product.data.category}
+        price={product.data.price}
+        status={product.data.status}
+        mainImage={product.data.images.main}
+      />
+    ))}
+  </div>
+) : (
+  <p class="text-center text-muted py-12">No products to show yet.</p>
+)}

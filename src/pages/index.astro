@@ -1,0 +1,162 @@
+---
+import Base from '@/layouts/Base.astro';
+import ProductGrid from '@/components/ProductGrid.astro';
+import CollectionCard from '@/components/CollectionCard.astro';
+import { getCollection } from 'astro:content';
+import { resolveProductImage } from '@/lib/images';
+
+// Fetch products + collections
+const allProducts = await getCollection('products');
+const allCollections = await getCollection('collections');
+
+// Published products (available or order)
+const published = allProducts
+  .filter((p) => p.data.status === 'available' || p.data.status === 'order')
+  .sort((a, b) => a.data.id.localeCompare(b.data.id));
+
+// Featured: pick 6 high-confidence, mixed categories.
+// Override this array later with hand-picked slugs.
+const featured = allProducts
+  .filter((p) => p.data.confidence === 'high' && (p.data.status === 'available' || p.data.status === 'order' || p.data.status === 'draft'))
+  .sort((a, b) => a.data.id.localeCompare(b.data.id));
+
+// Pick one from each category for variety, then fill remaining
+const categories = ['framed', 'cards', 'clocks', 'canvas', 'homewares'];
+const picked: typeof featured = [];
+for (const cat of categories) {
+  const item = featured.find((p) => p.data.category === cat && !picked.includes(p));
+  if (item) picked.push(item);
+}
+// Fill remaining from featured to reach 6
+for (const item of featured) {
+  if (picked.length >= 6) break;
+  if (!picked.includes(item)) picked.push(item);
+}
+
+// Top 3 collections by order
+const topCollections = allCollections
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
+
+// Hero image — Rainbow Tree of Life (P029)
+const hero = allProducts.find((p) => p.data.id === 'P029');
+const heroSrc = hero ? resolveProductImage(hero.data.images.main) : '/images/P029/main.jpg';
+---
+
+<Base title="Quill Art by TK" description="Handmade quilled paper art by Tracey — framed pieces, cards, clocks and custom commissions.">
+
+  <!-- Hero -->
+  <section class="relative bg-ink/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-serif font-semibold text-ink leading-tight">
+            Handmade quilled<br />paper art
+          </h1>
+          <p class="mt-6 text-lg text-muted max-w-lg">
+            Each piece is hand-rolled and shaped from paper strips, built up layer by layer
+            into colourful, dimensional artworks. Made with care in Australia by Tracey.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-4">
+            <a
+              href="/gallery"
+              class="inline-flex items-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
+            >
+              Browse gallery
+            </a>
+            <a
+              href="/commissions"
+              class="inline-flex items-center px-6 py-3 border border-border text-ink text-sm font-medium rounded-lg no-underline hover:bg-ink/5 transition duration-200"
+            >
+              Commission a piece
+            </a>
+          </div>
+        </div>
+        <div class="aspect-square rounded-2xl overflow-hidden shadow-lg">
+          <img
+            src={heroSrc}
+            alt="Rainbow Tree of Life — hand-quilled paper art"
+            class="w-full h-full object-cover"
+            loading="eager"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured -->
+  <section class="py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-end justify-between mb-8">
+        <h2 class="text-2xl sm:text-3xl font-serif font-semibold text-ink">Featured pieces</h2>
+        <a href="/gallery" class="text-sm text-accent no-underline hover:underline">View all &rarr;</a>
+      </div>
+      <ProductGrid products={picked} />
+    </div>
+  </section>
+
+  <!-- Collections -->
+  <section class="py-16 lg:py-24 bg-ink/[0.02]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-end justify-between mb-8">
+        <h2 class="text-2xl sm:text-3xl font-serif font-semibold text-ink">Collections</h2>
+        <a href="/collections" class="text-sm text-accent no-underline hover:underline">See all &rarr;</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {topCollections.map((col) => (
+          <CollectionCard
+            slug={col.data.slug}
+            title={col.data.title}
+            description={col.data.description}
+            hero={col.data.hero}
+            memberCount={col.data.members.length}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- About snippet -->
+  <section class="py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto text-center">
+        <h2 class="text-2xl sm:text-3xl font-serif font-semibold text-ink">About the artist</h2>
+        <p class="mt-6 text-muted leading-relaxed">
+          <!-- TODO: Tracey to write her own bio -->
+          Tracey is a self-taught quilling artist based in Australia, creating intricate paper artworks
+          from her home studio. Each piece begins with thin strips of paper that are rolled, shaped
+          and glued by hand — a meditative process that can take anywhere from a few hours to several
+          weeks depending on the complexity of the design.
+        </p>
+        <p class="mt-4 text-muted leading-relaxed">
+          Her work spans framed wall art, greeting cards, clocks, mini canvases and bespoke
+          commissions. Every piece is one of a kind.
+        </p>
+        <a
+          href="/about"
+          class="inline-block mt-6 text-sm text-accent no-underline hover:underline"
+        >
+          Read more &rarr;
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA strip -->
+  <section class="py-16 lg:py-20 bg-accent/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-2xl sm:text-3xl font-serif font-semibold text-ink">Want something unique?</h2>
+      <p class="mt-4 text-muted max-w-lg mx-auto">
+        Commission a custom quilled artwork — personalised names, favourite animals,
+        colour palettes to match your space.
+      </p>
+      <a
+        href="/contact"
+        class="inline-flex items-center mt-8 px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
+      >
+        Get in touch
+      </a>
+    </div>
+  </section>
+
+</Base>

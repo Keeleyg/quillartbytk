@@ -1,0 +1,27 @@
+---
+import Base from '@/layouts/Base.astro';
+import CollectionCard from '@/components/CollectionCard.astro';
+import { getCollection } from 'astro:content';
+
+const allCollections = await getCollection('collections');
+const sorted = allCollections.sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base title="Collections" description="Browse curated collections of handmade quilled paper art.">
+  <section class="py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-3xl sm:text-4xl font-serif font-semibold text-ink mb-8">Collections</h1>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {sorted.map((col) => (
+          <CollectionCard
+            slug={col.data.slug}
+            title={col.data.title}
+            description={col.data.description}
+            hero={col.data.hero}
+            memberCount={col.data.members.length}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>

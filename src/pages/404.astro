@@ -1,0 +1,31 @@
+---
+import Base from '@/layouts/Base.astro';
+---
+
+<Base title="Page not found">
+
+  <section class="py-24 lg:py-32">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p class="text-6xl font-serif font-semibold text-border">404</p>
+      <h1 class="mt-4 text-2xl sm:text-3xl font-serif font-semibold text-ink">Page not found</h1>
+      <p class="mt-4 text-muted max-w-md mx-auto">
+        The page you're looking for doesn't exist or may have been moved.
+      </p>
+      <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <a
+          href="/"
+          class="inline-flex items-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
+        >
+          Go home
+        </a>
+        <a
+          href="/gallery"
+          class="inline-flex items-center px-6 py-3 border border-border text-ink text-sm font-medium rounded-lg no-underline hover:bg-ink/5 transition duration-200"
+        >
+          Browse gallery
+        </a>
+      </div>
+    </div>
+  </section>
+
+</Base>
