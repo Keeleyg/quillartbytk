@@ -43,11 +43,11 @@ const heidi = allProducts.find((p) => p.data.id === 'P037');
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const heroSrc = heidi ? resolveProductImage(heidi.data.images.main) : `${base}/images/P037/main.jpg`;
 
-// Process images for "How it's made" — P037 has 5 process shots, pick 3
+// Process images for "How it's made" — P037 process shots, reordered: 3, 1, 2
 const processImages = heidi
-  ? heidi.data.images.process.slice(0, 3).map(resolveProductImage)
+  ? [heidi.data.images.process[2], heidi.data.images.process[0], heidi.data.images.process[1]].map(resolveProductImage)
   : [];
-const processLabels = ['Laying out the letters', 'Building up the details', 'Dense floral filigree'];
+const processLabels = ['Dense floral filigree', 'Laying out the letters', 'Building up the details'];
 ---
 
 <Base title="Quillart by TK" description="Handmade quilled paper art by Tracey — framed pieces, cards, clocks and custom commissions.">
