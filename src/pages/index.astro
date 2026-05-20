@@ -45,7 +45,7 @@ const heroSrc = heidi ? resolveProductImage(heidi.data.images.main) : `${base}/i
 
 // Process images for "How it's made" — pick process-3 (letters), process-4 (details), process-5 (filigree)
 const processImages = heidi
-  ? [heidi.data.images.process[0], heidi.data.images.process[3], heidi.data.images.process[4]].map(resolveProductImage)
+  ? [heidi.data.images.process[0], heidi.data.images.process[1], heidi.data.images.process[4]].map(resolveProductImage)
   : [];
 const processLabels = ['Laying out the letters', 'Building up the details', 'Dense floral filigree'];
 ---
