@@ -17,8 +17,9 @@ const currentPath = Astro.url.pathname;
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Wordmark -->
-      <a href={url('/')} class="font-serif text-xl font-semibold tracking-tight text-ink no-underline hover:no-underline">
-        Quillart by TK
+      <a href={url('/')} class="flex items-center gap-2 no-underline hover:no-underline">
+        <img src={url('/images/logo.jpg')} alt="" width="40" height="40" class="rounded-full" />
+        <span class="font-serif text-xl font-semibold tracking-tight text-ink">Quillart by TK</span>
       </a>
 
       <!-- Desktop nav -->
