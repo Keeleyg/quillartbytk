@@ -15,7 +15,7 @@ const {
   canonical,
 } = Astro.props;
 
-const siteName = 'Quill Art by TK';
+const siteName = 'Quillart by TK';
 const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 const ogImageURL = new URL(ogImage, Astro.site).href;

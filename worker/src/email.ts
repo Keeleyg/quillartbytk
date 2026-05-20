@@ -1,7 +1,7 @@
 import type { Env } from './index';
 import type { InquiryData } from './inquiry';
 
-const FROM = 'Quill Art by TK <inquiries@quillartbytk.com>';
+const FROM = 'Quillart by TK <inquiries@quillartbytk.com>';
 const ADMIN_EMAIL = 'quillartbytk@gmail.com';
 const RESEND_API = 'https://api.resend.com/emails';
 
@@ -35,7 +35,7 @@ function htmlWrapper(bodyHtml: string): string {
         </td></tr>
         <tr><td style="padding:16px 32px;text-align:center;">
           <p style="margin:0;font-size:12px;color:#7a7a8a;">
-            Quill Art by TK &middot; <a href="https://quillartbytk.com" style="color:#7a7a8a;">quillartbytk.com</a>
+            Quillart by TK &middot; <a href="https://quillartbytk.com" style="color:#7a7a8a;">quillartbytk.com</a>
           </p>
         </td></tr>
       </table>
@@ -119,7 +119,7 @@ export async function sendAutoReply(data: InquiryData, env: Env): Promise<void> 
     '',
   ];
   if (data.subject) lines.push(`Subject: ${data.subject}`);
-  lines.push(data.message, '', "If you'd like to add anything, just reply to this email.", '', 'Warm regards,', 'Tracey', 'Quill Art by TK', 'https://quillartbytk.com');
+  lines.push(data.message, '', "If you'd like to add anything, just reply to this email.", '', 'Warm regards,', 'Tracey', 'Quillart by TK', 'https://quillartbytk.com');
   const text = lines.join('\n');
 
   let refBlock = '';
@@ -144,7 +144,7 @@ export async function sendAutoReply(data: InquiryData, env: Env): Promise<void> 
     <p style="margin:0;font-size:15px;line-height:1.6;">
       Warm regards,<br>
       <strong>Tracey</strong><br>
-      <span style="color:#7a7a8a;">Quill Art by TK</span><br>
+      <span style="color:#7a7a8a;">Quillart by TK</span><br>
       <a href="https://quillartbytk.com" style="color:#8b3a3a;">quillartbytk.com</a>
     </p>
   `);
@@ -154,7 +154,7 @@ export async function sendAutoReply(data: InquiryData, env: Env): Promise<void> 
       from: FROM,
       to: data.email,
       reply_to: ADMIN_EMAIL,
-      subject: 'Thanks for your inquiry — Quill Art by TK',
+      subject: 'Thanks for your inquiry — Quillart by TK',
       text,
       html,
     },
