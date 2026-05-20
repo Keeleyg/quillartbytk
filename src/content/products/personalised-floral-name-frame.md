@@ -15,11 +15,11 @@ images:
   angles:
     - ../../../images/P037/angle-1.jpg
   process:
-    - ../../../images/P037/process-1.jpg
-    - ../../../images/P037/process-2.jpg
     - ../../../images/P037/process-3.jpg
-    - ../../../images/P037/process-4.jpg
+    - ../../../images/P037/process-1.jpg
     - ../../../images/P037/process-5.jpg
+    - ../../../images/P037/process-4.jpg
+    - ../../../images/P037/process-2.jpg
 confidence: high
 notes:
   - "angle-1: The finished piece photographed unframed, showing the full density of the floral quilling work and the dimensional layering."

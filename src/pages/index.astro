@@ -43,9 +43,9 @@ const heidi = allProducts.find((p) => p.data.id === 'P037');
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const heroSrc = heidi ? resolveProductImage(heidi.data.images.main) : `${base}/images/P037/main.jpg`;
 
-// Process images for "How it's made" — P037 process shots, reordered: 3, 1, 2
+// Process images for "How it's made" — pick process-3 (letters), process-4 (details), process-5 (filigree)
 const processImages = heidi
-  ? [heidi.data.images.process[2], heidi.data.images.process[0], heidi.data.images.process[1]].map(resolveProductImage)
+  ? [heidi.data.images.process[0], heidi.data.images.process[3], heidi.data.images.process[2]].map(resolveProductImage)
   : [];
 const processLabels = ['Laying out the letters', 'Building up the details', 'Dense floral filigree'];
 ---
