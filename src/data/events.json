@@ -1,14 +1,14 @@
 [
   {
     "id": "001",
-    "name": "Powerhouse Markets",
-    "date": "2026-07-13",
-    "venue": "Powerhouse, New Farm",
+    "name": "Maleny Handmade & Artisan Christmas Markets",
+    "date": "2026-11-28",
+    "venue": "Maleny Community Centre",
     "stallNumber": "Stall A12",
-    "url": "https://www.facebook.com/events/powerhouse-markets-jul",
-    "status": "confirmed",
-    "hidden": true,
-    "description": "Monthly artisan markets at the iconic Powerhouse. Over 100 stalls of handmade goods, art, and craft."
+    "url": "https://www.facebook.com/malenyhandmademarkets",
+    "status": "tentative",
+    "hidden": false,
+    "description": "Handmade, unique, quirky\nFind something to suit your personality or buy a gift or simply take something home with you that is handmade in Maleny and surrounding areas."
   },
   {
     "id": "002",
@@ -23,7 +23,7 @@
   },
   {
     "id": "003",
-    "name": "Maleny Handmade & Artisan Markets",
+    "name": "Maleny Handmade & Artisan Winter Markets",
     "date": "2026-07-04",
     "venue": "Maleny Community Centre",
     "stallNumber": "",
