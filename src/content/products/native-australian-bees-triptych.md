@@ -1,20 +1,24 @@
 ---
 id: P122
-title: "Native Australian Bees Triptych"
+title: Native Australian Bees Triptych
 category: framed
-themes: [insects, australiana]
+themes:
+  - insects
+  - australiana
 status: available
+hidden: false
+featured: false
 collection: native-bees
 commission_example: false
 multi_frame: true
 palette_variants: []
 frame_options: []
 price: 50
+lead_time: null
 images:
   main: ../../../images/P122/main.jpg
   angles:
     - ../../../images/P122/angle-1.jpg
-    - ../../../images/P122/angle-2.jpg
     - ../../../images/P122/angle-3.jpg
   process: []
 confidence: high
