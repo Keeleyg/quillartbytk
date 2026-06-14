@@ -1,15 +1,24 @@
 ---
 id: P029
-title: "Rainbow Tree of Life"
+title: Rainbow Tree of Life
 category: framed
-themes: [trees]
+themes:
+  - trees
 status: available
+hidden: false
+featured: true
 collection: null
 commission_example: false
 multi_frame: false
-palette_variants: ["rainbow", "autumn"]
-frame_options: ["white", "oak", "black"]
+palette_variants:
+  - rainbow
+  - autumn
+frame_options:
+  - white
+  - oak
+  - black
 price: 50
+lead_time: null
 images:
   main: ../../../images/P029/main.jpg
   angles:
@@ -23,13 +32,19 @@ images:
   process: []
 confidence: high
 notes:
-  - "angle-1: Close-up showing the dimensional quilled leaves standing proud of the surface."
-  - "angle-2: Same artwork in a white frame."
-  - "angle-3: Same artwork in a black frame."
-  - "angle-4: Autumn palette variant: tree of life with warm oranges, deep browns, and dark greens replacing the rainbow leaves — same composition, completely different mood. Light oak frame, front-on canonical product shot."
-  - "angle-5: Autumn palette variant photographed at a side angle — emphasises the dimensional rolled-paper construction of each leaf."
+  - >-
+    angle-1: Close-up showing the dimensional quilled leaves standing proud of
+    the surface.
+  - 'angle-2: Same artwork in a white frame.'
+  - 'angle-3: Same artwork in a black frame.'
+  - >-
+    angle-4: Autumn palette variant: tree of life with warm oranges, deep
+    browns, and dark greens replacing the rainbow leaves — same composition,
+    completely different mood. Light oak frame, front-on canonical product shot.
+  - >-
+    angle-5: Autumn palette variant photographed at a side angle — emphasises
+    the dimensional rolled-paper construction of each leaf.
 ---
-
 A vibrant tree of life with a black silhouette trunk and visible roots,
 crowned with hundreds of tightly rolled quilled leaves in every colour
 of the rainbow. A celebration piece often given to mark new beginnings,
