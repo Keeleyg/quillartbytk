@@ -16,14 +16,12 @@ frame_options: []
 price: 50
 lead_time: null
 images:
-  main: ../../../images/P014/main.jpg
+  main: ../../../images/P014/angle-3.jpg
   angles:
-    - ../../../images/P014/angle-3.jpg
     - ../../../images/P014/angle-4.jpg
   process: []
 confidence: high
 ---
-
 A scientifically-styled framed quilled paper rendering of the Australian
 native Blue Banded Bee (Amegilla cingulata), featuring detailed
 gold-bronze body work, translucent layered wings, and the species'
