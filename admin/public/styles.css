@@ -12,6 +12,9 @@
 }
 
 * { box-sizing: border-box; }
+/* The [hidden] attribute must win over display rules below (e.g. .login-view,
+   .empty-state, .btn) — without this, toggled-off panels stay visible. */
+[hidden] { display: none !important; }
 body { margin: 0; background: var(--paper); color: var(--ink); }
 h1, h2, h3, h4 { font-family: Georgia, "Times New Roman", serif; }
 .muted { color: var(--muted); }
