@@ -3,7 +3,7 @@ id: P120
 title: "Sugarbag Bee (Tetragonula carbonaria)"
 category: framed
 themes: [insects, australiana]
-status: available
+status: sold
 collection: native-bees
 commission_example: false
 multi_frame: false

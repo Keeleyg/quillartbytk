@@ -3,7 +3,7 @@ id: P129
 title: "Framed Quilled Angelfish"
 category: framed
 themes: [nautical]
-status: available
+status: sold
 collection: nautical
 commission_example: false
 multi_frame: false

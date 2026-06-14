@@ -3,7 +3,7 @@ id: P052
 title: "Corymbia ficifolia (Red Flowering Gum)"
 category: framed
 themes: [flowers, australiana]
-status: available
+status: sold
 collection: native-botanicals
 commission_example: false
 multi_frame: false

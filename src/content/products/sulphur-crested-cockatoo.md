@@ -3,7 +3,7 @@ id: P080
 title: "Sulphur-crested Cockatoo"
 category: framed
 themes: [birds, australiana]
-status: available
+status: sold
 collection: aussie-birds
 commission_example: false
 multi_frame: false

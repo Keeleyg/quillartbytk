@@ -3,7 +3,7 @@ id: P046
 title: "Kangaroo with Balloons (Framed Nursery Art - Blue Palette)"
 category: framed
 themes: [animals, nursery, australiana]
-status: available
+status: sold
 collection: nursery-animals
 commission_example: false
 multi_frame: false

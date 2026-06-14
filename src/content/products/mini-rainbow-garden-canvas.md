@@ -3,7 +3,7 @@ id: P055
 title: "Mini Rainbow Garden Canvas"
 category: canvas
 themes: [flowers]
-status: available
+status: sold
 collection: mini-canvases
 commission_example: false
 multi_frame: false

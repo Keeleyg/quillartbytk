@@ -4,7 +4,7 @@ title: Rainbow Tree of Life
 category: framed
 themes:
   - trees
-status: available
+status: sold
 hidden: false
 featured: true
 collection: null

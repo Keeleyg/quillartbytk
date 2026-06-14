@@ -3,7 +3,7 @@ id: P036
 title: "Framed Quilled Beetle"
 category: framed
 themes: [insects]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

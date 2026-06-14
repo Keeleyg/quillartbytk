@@ -3,7 +3,7 @@ id: P028
 title: "Framed Sunflower"
 category: framed
 themes: [flowers]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

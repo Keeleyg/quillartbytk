@@ -3,7 +3,7 @@ id: P056
 title: "Two Cats Forming a Heart"
 category: framed
 themes: [animals]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

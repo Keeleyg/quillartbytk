@@ -3,7 +3,7 @@ id: P010
 title: "Red-backed Fairywren and Finch on Wattle"
 category: framed
 themes: [birds, flowers]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

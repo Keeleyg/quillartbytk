@@ -3,7 +3,7 @@ id: P067
 title: "Mini Ladybug Vine Canvas"
 category: canvas
 themes: [insects]
-status: available
+status: sold
 collection: mini-canvases
 commission_example: false
 multi_frame: false

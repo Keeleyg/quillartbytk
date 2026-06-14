@@ -3,7 +3,7 @@ id: P087
 title: "\"I love you\" Red Tulip Bouquet Card"
 category: cards
 themes: [flowers]
-status: available
+status: sold
 collection: valentines-cards
 commission_example: false
 multi_frame: false

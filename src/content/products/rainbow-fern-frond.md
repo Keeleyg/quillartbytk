@@ -3,7 +3,7 @@ id: P058
 title: "Rainbow Fern Frond"
 category: framed
 themes: [flowers]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

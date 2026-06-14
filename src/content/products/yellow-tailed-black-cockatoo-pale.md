@@ -5,7 +5,7 @@ category: framed
 themes:
   - birds
   - australiana
-status: available
+status: sold
 hidden: true
 featured: false
 collection: null

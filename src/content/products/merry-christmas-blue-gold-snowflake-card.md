@@ -3,7 +3,7 @@ id: P093
 title: "Merry Christmas — Blue & Gold Snowflake Card"
 category: cards
 themes: [seasonal, patterns]
-status: available
+status: sold
 collection: christmas-cards
 commission_example: false
 multi_frame: false

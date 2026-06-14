@@ -3,7 +3,7 @@ id: P110
 title: "Mini Owl Canvas"
 category: canvas
 themes: [birds]
-status: available
+status: sold
 collection: mini-canvases
 commission_example: false
 multi_frame: false

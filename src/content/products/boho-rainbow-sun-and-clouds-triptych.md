@@ -4,7 +4,7 @@ title: 'Boho Rainbow, Sun and Clouds Triptych'
 category: framed
 themes:
   - nursery
-status: available
+status: sold
 hidden: true
 featured: false
 collection: null

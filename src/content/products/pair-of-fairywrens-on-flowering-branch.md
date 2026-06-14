@@ -3,7 +3,7 @@ id: P009
 title: "Pair of Fairywrens on Flowering Branch"
 category: framed
 themes: [birds, flowers]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

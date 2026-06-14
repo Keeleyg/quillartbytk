@@ -3,7 +3,7 @@ id: P095
 title: "Merry Christmas — Purple & Gold Snowflake Card"
 category: cards
 themes: [seasonal, patterns]
-status: available
+status: sold
 collection: christmas-cards
 commission_example: false
 multi_frame: false

@@ -3,7 +3,7 @@ id: P038
 title: "Personalised Floral Initial Frame"
 category: framed
 themes: [names, flowers]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

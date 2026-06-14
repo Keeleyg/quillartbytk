@@ -3,7 +3,7 @@ id: P041
 title: "Wisteria Bouquet Mother's Day Card"
 category: cards
 themes: [flowers]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

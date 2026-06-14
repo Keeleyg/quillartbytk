@@ -3,7 +3,7 @@ id: P096
 title: "Mini Garden Canvas (Extended Variant)"
 category: canvas
 themes: [flowers, insects]
-status: available
+status: sold
 collection: mini-canvases
 commission_example: false
 multi_frame: false

@@ -3,7 +3,7 @@ id: P086
 title: "Five Owls on a Branch"
 category: framed
 themes: [birds]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

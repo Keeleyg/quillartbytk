@@ -4,7 +4,7 @@ title: Rainbow Heart (Two Sizes Available)
 category: framed
 themes:
   - patterns
-status: available
+status: sold
 hidden: false
 featured: false
 collection: null

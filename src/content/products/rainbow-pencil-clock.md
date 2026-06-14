@@ -5,7 +5,7 @@ category: clocks
 themes:
   - patterns
   - nursery
-status: available
+status: sold
 hidden: false
 featured: true
 collection: null

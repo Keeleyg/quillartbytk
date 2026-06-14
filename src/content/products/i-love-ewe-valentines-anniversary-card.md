@@ -3,7 +3,7 @@ id: P063
 title: "I Love Ewe — Valentine's / Anniversary Card"
 category: cards
 themes: [animals]
-status: available
+status: sold
 collection: valentines-cards
 commission_example: false
 multi_frame: false

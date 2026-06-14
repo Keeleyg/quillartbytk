@@ -3,7 +3,7 @@ id: P021
 title: "Swirl Heart Card"
 category: cards
 themes: [patterns]
-status: available
+status: sold
 collection: valentines-cards
 commission_example: false
 multi_frame: false

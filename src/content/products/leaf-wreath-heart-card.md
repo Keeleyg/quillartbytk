@@ -3,7 +3,7 @@ id: P020
 title: "Leaf Wreath Heart Card"
 category: cards
 themes: [flowers, patterns]
-status: available
+status: sold
 collection: valentines-cards
 commission_example: false
 multi_frame: false

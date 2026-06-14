@@ -3,7 +3,7 @@ id: P072
 title: "Merry Christmas — String of Lights Card"
 category: cards
 themes: [seasonal, patterns]
-status: available
+status: sold
 collection: christmas-cards
 commission_example: false
 multi_frame: false

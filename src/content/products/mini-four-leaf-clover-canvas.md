@@ -3,7 +3,7 @@ id: P091
 title: "Mini Four-Leaf Clover Canvas"
 category: canvas
 themes: [seasonal, patterns]
-status: available
+status: sold
 collection: mini-canvases
 commission_example: false
 multi_frame: false

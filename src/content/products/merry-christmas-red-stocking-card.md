@@ -3,7 +3,7 @@ id: P068
 title: "Merry Christmas — Red Stocking Card"
 category: cards
 themes: [patterns, seasonal]
-status: available
+status: sold
 collection: christmas-cards
 commission_example: false
 multi_frame: false

@@ -3,7 +3,7 @@ id: P088
 title: "Acacia pycnantha (Golden Wattle)"
 category: framed
 themes: [flowers, australiana]
-status: available
+status: sold
 collection: native-botanicals
 commission_example: false
 multi_frame: false

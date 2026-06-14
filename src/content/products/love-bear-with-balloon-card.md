@@ -3,7 +3,7 @@ id: P022
 title: "Love Bear with Balloon Card"
 category: cards
 themes: [animals]
-status: available
+status: sold
 collection: valentines-cards
 commission_example: false
 multi_frame: false

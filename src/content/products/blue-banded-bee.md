@@ -5,7 +5,7 @@ category: framed
 themes:
   - insects
   - australiana
-status: available
+status: sold
 hidden: false
 featured: false
 collection: native-bees

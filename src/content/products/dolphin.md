@@ -3,7 +3,7 @@ id: P099
 title: "Framed Quilled Dolphin"
 category: framed
 themes: [nautical]
-status: available
+status: sold
 collection: nautical
 commission_example: false
 multi_frame: false

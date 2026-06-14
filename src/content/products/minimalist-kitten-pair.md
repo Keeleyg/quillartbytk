@@ -4,7 +4,7 @@ title: Minimalist Kitten Pair
 category: framed
 themes:
   - animals
-status: available
+status: sold
 hidden: false
 featured: false
 collection: null

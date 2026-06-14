@@ -3,7 +3,7 @@ id: P042
 title: "Pink Elephant with Balloons (Framed Nursery Art)"
 category: framed
 themes: [animals, nursery]
-status: available
+status: sold
 collection: nursery-animals
 commission_example: false
 multi_frame: false

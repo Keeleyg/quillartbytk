@@ -3,7 +3,7 @@ id: P109
 title: "Happy Valentine's Day — Tree of Hearts Card"
 category: cards
 themes: [trees, patterns]
-status: available
+status: sold
 collection: valentines-cards
 commission_example: false
 multi_frame: false

@@ -3,7 +3,7 @@ id: P089
 title: "Merry Christmas — White & Gold Angel Card"
 category: cards
 themes: [seasonal]
-status: available
+status: sold
 collection: christmas-cards
 commission_example: false
 multi_frame: false

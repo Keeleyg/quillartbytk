@@ -3,7 +3,7 @@ id: P090
 title: "Merry Christmas — Cream & Gold Bauble Card"
 category: cards
 themes: [seasonal, patterns]
-status: available
+status: sold
 collection: christmas-cards
 commission_example: false
 multi_frame: false

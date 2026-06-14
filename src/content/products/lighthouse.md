@@ -4,7 +4,7 @@ title: Framed Quilled Lighthouse
 category: framed
 themes:
   - nautical
-status: available
+status: sold
 hidden: true
 featured: false
 collection: nautical

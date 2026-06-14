@@ -3,7 +3,7 @@ id: P075
 title: "Callistemon citrinus (Crimson Bottlebrush)"
 category: framed
 themes: [flowers, australiana]
-status: available
+status: sold
 collection: native-botanicals
 commission_example: false
 multi_frame: false

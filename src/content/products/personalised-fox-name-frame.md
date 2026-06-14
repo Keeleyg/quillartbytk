@@ -3,7 +3,7 @@ id: P035
 title: "Personalised Fox Name Frame"
 category: framed
 themes: [animals, names]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

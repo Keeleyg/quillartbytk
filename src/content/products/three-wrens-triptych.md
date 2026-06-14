@@ -3,7 +3,7 @@ id: P007
 title: "Three Wrens Triptych"
 category: framed
 themes: [birds]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

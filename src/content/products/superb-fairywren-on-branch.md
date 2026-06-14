@@ -3,7 +3,7 @@ id: P006
 title: "Superb Fairywren on Branch"
 category: framed
 themes: [birds]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

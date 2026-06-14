@@ -3,7 +3,7 @@ id: P060
 title: "Quilled Paw Print"
 category: framed
 themes: [animals, pets]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

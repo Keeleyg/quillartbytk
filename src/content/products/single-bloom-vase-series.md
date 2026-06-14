@@ -3,7 +3,7 @@ id: P053
 title: "Single-Bloom Vase Series"
 category: framed
 themes: [flowers]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

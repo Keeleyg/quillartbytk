@@ -3,7 +3,7 @@ id: P121
 title: "Domino Cuckoo Bee (Thyreus lugubris)"
 category: framed
 themes: [insects, australiana]
-status: available
+status: sold
 collection: native-bees
 commission_example: false
 multi_frame: false

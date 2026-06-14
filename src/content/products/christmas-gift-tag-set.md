@@ -3,7 +3,7 @@ id: P071
 title: "Quilled Christmas Gift Tag Set"
 category: homewares
 themes: [seasonal, patterns]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

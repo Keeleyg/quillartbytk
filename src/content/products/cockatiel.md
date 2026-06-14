@@ -3,7 +3,7 @@ id: P045
 title: "Framed Quilled Cockatiel"
 category: framed
 themes: [birds]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

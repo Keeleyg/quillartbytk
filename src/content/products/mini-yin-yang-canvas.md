@@ -3,7 +3,7 @@ id: P112
 title: "Mini Yin-Yang Canvas"
 category: canvas
 themes: [patterns]
-status: available
+status: sold
 collection: mini-canvases
 commission_example: false
 multi_frame: false

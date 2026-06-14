@@ -3,7 +3,7 @@ id: P101
 title: "Mini Lovebirds Canvas"
 category: canvas
 themes: [animals]
-status: available
+status: sold
 collection: mini-canvases
 commission_example: false
 multi_frame: false

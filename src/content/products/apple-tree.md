@@ -4,7 +4,7 @@ title: Apple Tree
 category: framed
 themes:
   - trees
-status: available
+status: sold
 hidden: false
 featured: true
 collection: null

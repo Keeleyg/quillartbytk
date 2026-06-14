@@ -3,7 +3,7 @@ id: P025
 title: "New Baby Card - Boy"
 category: cards
 themes: [nursery]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

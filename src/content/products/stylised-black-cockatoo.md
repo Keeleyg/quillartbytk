@@ -3,7 +3,7 @@ id: P081
 title: "Stylised Black Cockatoo (Art-Style)"
 category: framed
 themes: [birds, australiana]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false

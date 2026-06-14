@@ -4,7 +4,7 @@ title: Praying Mantis
 category: framed
 themes:
   - insects
-status: available
+status: sold
 hidden: true
 featured: false
 collection: null

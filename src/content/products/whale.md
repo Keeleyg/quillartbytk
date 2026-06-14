@@ -4,7 +4,7 @@ title: Framed Quilled Whale
 category: framed
 themes:
   - nautical
-status: available
+status: sold
 hidden: false
 featured: false
 collection: nautical

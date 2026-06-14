@@ -3,7 +3,7 @@ id: P073
 title: "Quilled Paw Print Christmas Bauble (Blue)"
 category: homewares
 themes: [seasonal, animals]
-status: available
+status: sold
 collection: null
 commission_example: false
 multi_frame: false
