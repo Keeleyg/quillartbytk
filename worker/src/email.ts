@@ -2,7 +2,8 @@ import type { Env } from './index';
 import type { InquiryData } from './inquiry';
 
 const FROM = 'Quillart by TK <inquiries@quillartbytk.com>';
-const ADMIN_EMAIL = 'quillartbytk@gmail.com';
+// Inquiries land here; Cloudflare Email Routing forwards it to the gmail inbox.
+const ADMIN_EMAIL = 'tracey@quillartbytk.com';
 const RESEND_API = 'https://api.resend.com/emails';
 
 /** Escape HTML special characters for safe embedding in email HTML */

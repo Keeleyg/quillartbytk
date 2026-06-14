@@ -13,3 +13,7 @@ compatibility_flags = ["nodejs_compat"]
 [[routes]]
 pattern = "quillartbytk.com/api/*"
 zone_name = "quillartbytk.com"
+
+[[routes]]
+pattern = "www.quillartbytk.com/api/*"
+zone_name = "quillartbytk.com"
