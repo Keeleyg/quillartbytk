@@ -16,11 +16,11 @@ frame_options: []
 price: 50
 lead_time: null
 images:
-  main: ../../../images/P044/angle-3.jpg
+  main: ../../../images/P044/angle-6.jpg
   angles:
     - ../../../images/P044/angle-4.jpg
     - ../../../images/P044/angle-5.jpg
-    - ../../../images/P044/angle-6.jpg
+    - ../../../images/P044/angle-3.jpg
     - ../../../images/P044/angle-1.jpg
   process: []
 confidence: high
