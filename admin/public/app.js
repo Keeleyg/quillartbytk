@@ -20,7 +20,12 @@ async function api(path, { method = 'GET', body } = {}) {
     },
     body: body ? JSON.stringify(body) : undefined,
   });
-  if (res.status === 401) { logout(); throw new Error('Session expired — please sign in again.'); }
+  // A 401 on a normal request means the session lapsed. A 401 on the login
+  // request itself means the credentials were wrong — show the real message.
+  if (res.status === 401 && path !== '/api/login') {
+    logout();
+    throw new Error('Session expired — please sign in again.');
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.detail || data.error || `Request failed (${res.status})`);
   return data;
