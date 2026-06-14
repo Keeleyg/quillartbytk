@@ -7,6 +7,7 @@
     "stallNumber": "Stall A12",
     "url": "https://www.facebook.com/events/powerhouse-markets-jul",
     "status": "confirmed",
+    "hidden": true,
     "description": "Monthly artisan markets at the iconic Powerhouse. Over 100 stalls of handmade goods, art, and craft."
   },
   {
@@ -17,17 +18,18 @@
     "stallNumber": "",
     "url": "",
     "status": "tentative",
+    "hidden": true,
     "description": "Weekend markets along the river at South Bank. A mix of art, craft, fashion, and food."
   },
   {
     "id": "003",
-    "name": "BrisStyle Indie Market",
-    "date": "2026-09-20",
-    "venue": "Brisbane City Hall",
+    "name": "Maleny Handmade & Artisan Markets",
+    "date": "2026-07-04",
+    "venue": "Maleny Community Centre",
     "stallNumber": "",
-    "url": "https://www.brisstyle.com.au/markets",
+    "url": "https://www.facebook.com/malenyhandmademarkets",
     "status": "confirmed",
     "hidden": false,
-    "description": "Quarterly showcase of Brisbane's best independent designers and makers."
+    "description": "Handmade, unique, quirky\nFind something to suit your personality or buy a gift or simply take something home with you that is handmade in Maleny and surrounding areas."
   }
 ]
