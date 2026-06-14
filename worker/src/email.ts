@@ -1,7 +1,12 @@
 import type { Env } from './index';
 import type { InquiryData } from './inquiry';
 
-const FROM = 'Quillart by TK <inquiries@quillartbytk.com>';
+// Customer-facing auto-reply comes from Tracey (matches the business card,
+// and replies route to her forwarding inbox).
+const FROM_AUTOREPLY = 'Quillart by TK <tracey@quillartbytk.com>';
+// Internal new-inquiry alert comes from the inquiries address (keeps from→to
+// distinct, since the alert is sent to tracey@).
+const FROM_NOTIFICATION = 'Quillart by TK <inquiries@quillartbytk.com>';
 // Inquiries land here; Cloudflare Email Routing forwards it to the gmail inbox.
 const ADMIN_EMAIL = 'tracey@quillartbytk.com';
 const RESEND_API = 'https://api.resend.com/emails';
@@ -95,7 +100,7 @@ export async function sendAdminNotification(data: InquiryData, env: Env): Promis
 
   await sendEmail(
     {
-      from: FROM,
+      from: FROM_NOTIFICATION,
       to: ADMIN_EMAIL,
       reply_to: data.email,
       subject: subjectLine,
@@ -152,7 +157,7 @@ export async function sendAutoReply(data: InquiryData, env: Env): Promise<void> 
 
   await sendEmail(
     {
-      from: FROM,
+      from: FROM_AUTOREPLY,
       to: data.email,
       reply_to: ADMIN_EMAIL,
       subject: 'Thanks for your inquiry — Quillart by TK',
