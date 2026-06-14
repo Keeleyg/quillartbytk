@@ -16,9 +16,8 @@ frame_options: []
 price: 50
 lead_time: null
 images:
-  main: ../../../images/P012/main.jpg
-  angles:
-    - ../../../images/P012/angle-1.jpg
+  main: ../../../images/P012/angle-1.jpg
+  angles: []
   process: []
 confidence: high
 ---

@@ -5,7 +5,7 @@ category: framed
 themes:
   - animals
 status: sold
-hidden: false
+hidden: true
 featured: false
 collection: null
 commission_example: false
@@ -15,10 +15,10 @@ frame_options: []
 price: 50
 lead_time: null
 images:
-  main: ../../../images/P015/angle-1.jpg
+  main: ../../../images/P015/angle-3.jpg
   angles:
-    - ../../../images/P015/main.jpg
     - ../../../images/P015/angle-2.jpg
+    - ../../../images/P015/angle-1.jpg
   process: []
 confidence: high
 ---

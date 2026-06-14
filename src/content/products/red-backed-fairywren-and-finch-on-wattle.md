@@ -1,15 +1,20 @@
 ---
 id: P010
-title: "Red-backed Fairywren and Finch on Wattle"
+title: Red-backed Fairywren and Finch on Wattle
 category: framed
-themes: [birds, flowers]
+themes:
+  - birds
+  - flowers
 status: sold
+hidden: false
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+lead_time: null
 images:
   main: ../../../images/P010/main.jpg
   angles:
@@ -17,9 +22,4 @@ images:
   process: []
 confidence: high
 ---
-
-A pair of Australian songbirds perched on a wattle branch: a male
-Red-backed Fairywren in black with a vibrant red shoulder band, and a
-Red-browed Finch with its distinctive red beak. The branch bursts with
-yellow wattle blossoms and green foliage. A celebration of native
-Australian flora and fauna in white shadow-box frame.
+A Male Superb Fairywren perched on a branch in a small white shadow box frame 10x10cm

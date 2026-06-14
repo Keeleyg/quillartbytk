@@ -22,9 +22,9 @@ images:
   process: []
 confidence: high
 ---
-A scientifically-styled framed quilled paper rendering of the Australian
+A paper quilled Australian
 native Blue Banded Bee (Amegilla cingulata), featuring detailed
 gold-bronze body work, translucent layered wings, and the species'
 distinctive electric blue abdominal stripes. Includes a scientific name
-plaque. A natural history specimen aesthetic in a deep black shadow-box
-frame.
+plaque. 
+Presented in a white shadow box frame 20x25cm

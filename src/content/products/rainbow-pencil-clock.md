@@ -5,7 +5,7 @@ category: clocks
 themes:
   - patterns
   - nursery
-status: sold
+status: available
 hidden: false
 featured: true
 collection: null
@@ -13,7 +13,7 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 60
 lead_time: null
 images:
   main: ../../../images/P005/main.jpg
@@ -21,7 +21,7 @@ images:
   process: []
 confidence: high
 ---
-A playful children's wall clock with a quilled rainbow spiral face
+A colourful small wall clock with a quilled rainbow spiral face
 surrounded by colourful paper coils. The hour and minute hand are a
-coloured pencil and a small flower is the second hand. A bright, joyful
-design for a child's room or playroom.
+coloured pencil and a small flower is the second hand.
+Smooth and silent clock mechanism (no ticking)

@@ -19,6 +19,7 @@ images:
   angles:
     - ../../../images/P016/angle-3.jpg
     - ../../../images/P016/angle-5.jpg
+    - ../../../images/P016/angle-1.jpg
   process: []
 confidence: high
 ---
