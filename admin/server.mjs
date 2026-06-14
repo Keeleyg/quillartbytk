@@ -34,6 +34,7 @@ const ROOT = join(__dirname, '..');
 const PRODUCTS_DIR = join(ROOT, 'src', 'content', 'products');
 const COLLECTIONS_DIR = join(ROOT, 'src', 'content', 'collections');
 const IMAGES_DIR = join(ROOT, 'images');
+const EVENTS_PATH = join(ROOT, 'src', 'data', 'events.json');
 const DIST_DIR = join(ROOT, 'dist');
 const CREDS_PATH = join(__dirname, 'credentials.json');
 const ASTRO_BIN = join(ROOT, 'node_modules', 'astro', 'bin', 'astro.mjs');
@@ -249,6 +250,9 @@ async function changedProducts() {
     }
     m = line.match(/^images\/(P\d{3})\//);
     if (m && byId.has(m[1])) { const p = byId.get(m[1]); out.set(p.slug, p); }
+    if (line === 'src/data/events.json') {
+      out.set('__events__', { slug: '__events__', title: 'Markets & events', id: 'events' });
+    }
   }
   return [...out.values()];
 }
@@ -647,6 +651,71 @@ app.post('/api/products/:slug/move-angle', requireAuth, async (req, res) => {
       [`src/content/products/${req.params.slug}.md`, `src/content/products/${toSlug}.md`,
        `images/${from.data.id}`, `images/${toId}`]);
     res.json({ ok: true, images: imagesView(from.data), toTitle: to.data.title, draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
+  }
+});
+
+/* ---- events: helpers ---------------------------------------------- */
+async function readEvents() {
+  if (!existsSync(EVENTS_PATH)) return [];
+  try { return JSON.parse(await readFile(EVENTS_PATH, 'utf8')); } catch { return []; }
+}
+async function writeEvents(arr) {
+  await writeFile(EVENTS_PATH, JSON.stringify(arr, null, 2) + '\n', 'utf8');
+}
+
+/* ---- events: list / create / update ------------------------------- */
+app.get('/api/events', requireAuth, async (_req, res) => {
+  res.json(await readEvents());
+});
+
+app.post('/api/events', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const evs = await readEvents();
+    let max = 0;
+    for (const e of evs) { const n = parseInt(e.id, 10); if (!Number.isNaN(n) && n > max) max = n; }
+    const id = String(max + 1).padStart(3, '0');
+    const name = (req.body?.name && String(req.body.name).trim()) || 'New event';
+    const ev = { id, name, date: '', venue: '', stallNumber: '', url: '', status: 'tentative', hidden: true, description: '' };
+    evs.push(ev);
+    await writeEvents(evs);
+    await commitDraft(`Create event ${name}`, ['src/data/events.json']);
+    res.json({ ok: true, event: ev, draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
+  }
+});
+
+app.put('/api/events/:id', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const evs = await readEvents();
+    const i = evs.findIndex((e) => e.id === req.params.id);
+    if (i < 0) return res.status(404).json({ error: 'Event not found' });
+    const b = req.body || {};
+    if (!b.name || !String(b.name).trim()) return res.status(400).json({ error: 'Event name is required' });
+    const status = ['confirmed', 'tentative', 'cancelled'].includes(b.status) ? b.status : 'confirmed';
+    const date = b.date ? String(b.date).trim() : '';
+    if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Date must be YYYY-MM-DD' });
+    const hidden = !!b.hidden;
+    if (!hidden && !date) return res.status(400).json({ error: 'Add a date before making the event visible.' });
+    const ev = {
+      id: evs[i].id,
+      name: String(b.name).trim(),
+      date,
+      venue: b.venue ? String(b.venue).trim() : '',
+      stallNumber: b.stallNumber ? String(b.stallNumber).trim() : '',
+      url: b.url ? String(b.url).trim() : '',
+      status,
+      hidden,
+      description: b.description ? String(b.description).trim() : '',
+    };
+    evs[i] = ev;
+    await writeEvents(evs);
+    await commitDraft(`Edit event ${ev.name}`, ['src/data/events.json']);
+    res.json({ ok: true, event: ev, draft: await draftStatus() });
   } catch (err) {
     res.status(500).json({ error: String(err.message || err) });
   }

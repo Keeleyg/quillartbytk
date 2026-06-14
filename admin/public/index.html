@@ -25,7 +25,11 @@
   <div id="app-view" hidden>
     <header class="topbar">
       <div class="topbar-left">
-        <strong>Gallery editor</strong>
+        <strong>Admin</strong>
+        <nav class="tabs" aria-label="Sections">
+          <button id="tab-gallery" type="button" class="tab active">Gallery</button>
+          <button id="tab-events" type="button" class="tab">Events</button>
+        </nav>
         <span id="branch-badge" class="badge" title="Editing branch"></span>
       </div>
       <button id="logout-btn" class="btn btn-ghost">Sign out</button>
@@ -45,6 +49,8 @@
       </div>
     </div>
 
+    <!-- Gallery tab -->
+    <div id="gallery-tab">
     <div class="layout">
       <!-- Product list -->
       <aside class="sidebar">
@@ -208,6 +214,78 @@
         </form>
       </main>
     </div>
+    </div><!-- /gallery-tab -->
+
+    <!-- Events tab -->
+    <div id="events-tab" hidden>
+      <div class="layout">
+        <aside class="sidebar">
+          <div class="sidebar-head">
+            <input id="ev-search" type="search" placeholder="Search events…" class="search" />
+            <button id="ev-new-btn" type="button" class="btn btn-sm btn-primary" title="Add a new event">＋ New</button>
+          </div>
+          <div id="event-list" class="product-list"></div>
+        </aside>
+
+        <main class="editor">
+          <div id="ev-empty-state" class="empty-state"><p>Select an event to edit, or add a new one.</p></div>
+
+          <form id="event-form" hidden>
+            <div class="editor-head">
+              <div><h2 id="ev-title">—</h2><span id="ev-id" class="muted mono"></span></div>
+            </div>
+
+            <div class="field">Visibility
+              <div id="ev-visibility" class="radio-group">
+                <label class="pill"><input type="radio" name="ev-visibility" value="visible" hidden/> Visible</label>
+                <label class="pill"><input type="radio" name="ev-visibility" value="hidden" hidden/> Hidden</label>
+              </div>
+              <small class="muted">Hidden removes this event from the Markets &amp; events page.</small>
+            </div>
+
+            <label class="field">Event name
+              <input id="ev-name" type="text" required />
+            </label>
+
+            <div class="grid-2">
+              <label class="field">Date
+                <input id="ev-date" type="date" />
+              </label>
+              <label class="field">Status
+                <select id="ev-status">
+                  <option value="confirmed">confirmed</option>
+                  <option value="tentative">tentative</option>
+                  <option value="cancelled">cancelled</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field">Venue
+              <input id="ev-venue" type="text" placeholder="e.g. Stanley Street Plaza, South Bank" />
+            </label>
+
+            <div class="grid-2">
+              <label class="field">Stall number <small class="muted">(optional)</small>
+                <input id="ev-stall" type="text" placeholder="e.g. Stall A12" />
+              </label>
+              <label class="field">Event link <small class="muted">(optional)</small>
+                <input id="ev-url" type="text" placeholder="https://…" />
+              </label>
+            </div>
+
+            <label class="field">Description
+              <textarea id="ev-desc" rows="4"></textarea>
+            </label>
+
+            <div class="actions">
+              <button type="submit" id="ev-save-btn" class="btn btn-primary">Save to draft</button>
+              <span id="ev-save-status" class="save-status"></span>
+            </div>
+            <p class="muted small">Saves to your local draft. Nothing goes live until you click <strong>Commit</strong> in the bar above.</p>
+          </form>
+        </main>
+      </div>
+    </div><!-- /events-tab -->
   </div>
 
   <script src="./app.js"></script>

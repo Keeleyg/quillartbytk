@@ -127,6 +127,7 @@ $('#commit-btn').addEventListener('click', async () => {
     $('#editor-form').hidden = true;
     $('#empty-state').hidden = false;
     await loadProductList();
+    await resetEventsView();
     await refreshDraft();
   } catch (e) {
     alert('Publish failed:\n\n' + e.message);
@@ -149,6 +150,7 @@ $('#discard-btn').addEventListener('click', async () => {
     $('#editor-form').hidden = true;
     $('#empty-state').hidden = false;
     await loadProductList();
+    await resetEventsView();
     await refreshDraft();
   } catch (e) {
     alert('Discard failed:\n\n' + e.message);
@@ -503,6 +505,140 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+
+/* ================= Tabs ================= */
+function showTab(name) {
+  $('#gallery-tab').hidden = name !== 'gallery';
+  $('#events-tab').hidden = name !== 'events';
+  $('#tab-gallery').classList.toggle('active', name === 'gallery');
+  $('#tab-events').classList.toggle('active', name === 'events');
+  if (name === 'events' && events === null) loadEventList();
+}
+$('#tab-gallery').addEventListener('click', () => showTab('gallery'));
+$('#tab-events').addEventListener('click', () => showTab('events'));
+
+/* ================= Events editor ================= */
+let events = null;
+let currentEvent = null;
+
+async function loadEventList() {
+  events = await api('/api/events');
+  renderEventList();
+}
+async function resetEventsView() {
+  currentEvent = null;
+  $('#event-form').hidden = true;
+  $('#ev-empty-state').hidden = false;
+  if (events !== null) await loadEventList(); // reflect reverted/published state
+}
+function renderEventList() {
+  const wrap = $('#event-list');
+  wrap.innerHTML = '';
+  const q = $('#ev-search').value.toLowerCase().trim();
+  const list = [...(events || [])]
+    .filter((ev) => !q || (ev.name || '').toLowerCase().includes(q) || (ev.venue || '').toLowerCase().includes(q))
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  list.forEach((ev) => {
+    const btn = document.createElement('button');
+    btn.className = 'product-item' + (currentEvent && currentEvent.id === ev.id ? ' active' : '') + (ev.hidden ? ' is-hidden' : '');
+    btn.innerHTML = `
+      <span>
+        <span class="pi-title">${escapeHtml(ev.name)}${ev.hidden ? ' <span class="pi-tag hidden">hidden</span>' : ''}</span><br/>
+        <span class="pi-meta">${ev.date || '— no date'} · ${ev.status || ''}</span>
+      </span>`;
+    btn.addEventListener('click', () => selectEvent(ev.id));
+    wrap.appendChild(btn);
+  });
+}
+$('#ev-search').addEventListener('input', renderEventList);
+
+function selectEvent(id) {
+  currentEvent = (events || []).find((e) => e.id === id);
+  if (!currentEvent) return;
+  $('#ev-empty-state').hidden = true;
+  $('#event-form').hidden = false;
+  renderEventList();
+  $('#ev-title').textContent = currentEvent.name;
+  $('#ev-id').textContent = '#' + currentEvent.id;
+  $('#ev-name').value = currentEvent.name || '';
+  $('#ev-date').value = currentEvent.date || '';
+  $('#ev-venue').value = currentEvent.venue || '';
+  $('#ev-stall').value = currentEvent.stallNumber || '';
+  $('#ev-url').value = currentEvent.url || '';
+  $('#ev-status').value = currentEvent.status || 'confirmed';
+  $('#ev-desc').value = currentEvent.description || '';
+  setEvVisibility(!!currentEvent.hidden);
+  setEvStatus('', '');
+}
+
+function setEvStatus(msg, kind) {
+  const el = $('#ev-save-status');
+  el.textContent = msg;
+  el.className = 'save-status ' + (kind || '');
+}
+function setEvVisibility(hidden) {
+  const val = hidden ? 'hidden' : 'visible';
+  $('#ev-visibility').querySelectorAll('input').forEach((i) => {
+    i.checked = i.value === val;
+    i.closest('.pill').classList.toggle('checked', i.checked);
+  });
+}
+function isEvHidden() {
+  return (($('#ev-visibility').querySelector('input:checked') || {}).value) === 'hidden';
+}
+$('#ev-visibility').querySelectorAll('input').forEach((inp) => {
+  inp.addEventListener('change', () => {
+    $('#ev-visibility').querySelectorAll('.pill').forEach((pl) =>
+      pl.classList.toggle('checked', pl.querySelector('input').checked));
+  });
+});
+
+$('#ev-new-btn').addEventListener('click', async () => {
+  const name = prompt('Name of the new event? (you can change it later)');
+  if (name === null) return;
+  try {
+    const r = await api('/api/events', { method: 'POST', body: { name: name.trim() } });
+    if (!events) events = [];
+    events.push(r.event);
+    if (r.draft) renderDraft(r.draft);
+    selectEvent(r.event.id);
+    setEvStatus('New event created (hidden). Fill in the details and a date, then set Visible.', 'ok');
+  } catch (e) {
+    alert('Could not create event:\n\n' + e.message);
+  }
+});
+
+$('#event-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!currentEvent) return;
+  const btn = $('#ev-save-btn');
+  btn.disabled = true;
+  const payload = {
+    name: $('#ev-name').value,
+    date: $('#ev-date').value,
+    venue: $('#ev-venue').value,
+    stallNumber: $('#ev-stall').value,
+    url: $('#ev-url').value,
+    status: $('#ev-status').value,
+    description: $('#ev-desc').value,
+    hidden: isEvHidden(),
+  };
+  try {
+    setEvStatus('Saving to draft…', 'busy');
+    const r = await api('/api/events/' + currentEvent.id, { method: 'PUT', body: payload });
+    currentEvent = r.event;
+    const i = events.findIndex((x) => x.id === currentEvent.id);
+    if (i >= 0) events[i] = currentEvent;
+    $('#ev-title').textContent = currentEvent.name;
+    renderEventList();
+    if (r.draft) renderDraft(r.draft);
+    setEvStatus('Saved to draft.', 'ok');
+  } catch (e2) {
+    setEvStatus(e2.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+});
 
 /* ---------------- start ---------------- */
 if (token) boot().catch(() => showLogin());

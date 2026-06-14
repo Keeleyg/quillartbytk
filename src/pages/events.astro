@@ -12,9 +12,11 @@ interface MarketEvent {
   url: string;
   status: string;
   description: string;
+  hidden?: boolean;
 }
 
-const events = eventsData as MarketEvent[];
+// Hidden events are removed from the page entirely.
+const events = (eventsData as MarketEvent[]).filter((e) => !e.hidden);
 
 // Split into upcoming and past based on build date
 const today = new Date().toISOString().slice(0, 10);

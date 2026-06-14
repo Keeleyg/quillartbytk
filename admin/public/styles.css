@@ -76,6 +76,13 @@ a { color: var(--accent); }
   font-size: 0.72rem; padding: 0.15rem 0.55rem; border-radius: 999px;
   background: var(--accent-soft); color: var(--accent); font-family: ui-monospace, monospace;
 }
+.tabs { display: flex; gap: 0.25rem; }
+.tab {
+  border: none; background: transparent; padding: 0.35rem 0.85rem; border-radius: 999px;
+  cursor: pointer; font-size: 0.9rem; color: var(--muted); transition: 0.12s;
+}
+.tab:hover { color: var(--ink); }
+.tab.active { background: var(--ink); color: var(--paper); }
 
 /* Layout */
 .layout { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 53px); }
