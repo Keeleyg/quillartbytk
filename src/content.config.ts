@@ -28,6 +28,8 @@ const products = defineCollection({
     category: z.enum(VALID_CATEGORIES),
     themes: z.array(z.enum(VALID_THEMES)).min(1),
     status: z.enum(VALID_STATUS).default('draft'),
+    hidden: z.boolean().default(false),
+    featured: z.boolean().default(false),
     collection: z.string().nullable().default(null),
     commission_example: z.boolean().default(false),
     multi_frame: z.boolean().default(false),
@@ -35,6 +37,13 @@ const products = defineCollection({
     frame_options: z.array(z.string()).default([]),
     price: z.number().nullable().default(null),
     lead_time: z.string().nullable().default(null),
+    /* Card-only attributes (omitted for non-card categories) */
+    card_occasion: z.string().optional(),
+    card_size: z.string().optional(),
+    card_envelope_colour: z.string().optional(),
+    card_blank_inside: z.boolean().optional(),
+    card_includes_envelope: z.boolean().optional(),
+    card_customisable: z.boolean().optional(),
     images: z.object({
       main: z.string(),
       angles: z.array(z.string()).default([]),

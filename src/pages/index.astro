@@ -4,33 +4,41 @@ import ProductGrid from '@/components/ProductGrid.astro';
 import CollectionCard from '@/components/CollectionCard.astro';
 import { getCollection } from 'astro:content';
 import { resolveProductImage, url } from '@/lib/images';
+import { isVisible, visibleIdSet } from '@/lib/products';
 
 // Fetch products + collections
 const allProducts = await getCollection('products');
 const allCollections = await getCollection('collections');
+const visible = visibleIdSet(allProducts);
 
-// Published products (available or order)
+// Visible pieces (not hidden)
 const published = allProducts
-  .filter((p) => p.data.status === 'available' || p.data.status === 'order')
+  .filter(isVisible)
   .sort((a, b) => a.data.id.localeCompare(b.data.id));
 
-// Featured: pick 6 high-confidence, mixed categories.
-// Override this array later with hand-picked slugs.
-const featured = allProducts
-  .filter((p) => p.data.confidence === 'high' && (p.data.status === 'available' || p.data.status === 'order'))
+// Featured pieces: only those explicitly toggled "featured" (and visible).
+const featuredItems = allProducts
+  .filter((p) => p.data.featured && isVisible(p))
   .sort((a, b) => a.data.id.localeCompare(b.data.id));
 
-// Pick one from each category for variety, then fill remaining
-const categories = ['framed', 'cards', 'clocks', 'canvas', 'homewares'];
-const picked: typeof featured = [];
-for (const cat of categories) {
-  const item = featured.find((p) => p.data.category === cat && !picked.includes(p));
-  if (item) picked.push(item);
-}
-// Fill remaining from featured to reach 6
-for (const item of featured) {
-  if (picked.length >= 6) break;
-  if (!picked.includes(item)) picked.push(item);
+// Fallback while nothing is curated yet: auto-pick 6 high-confidence, mixed
+// categories. As soon as Tracey features any piece, only those show.
+let picked = featuredItems;
+if (picked.length === 0) {
+  const candidates = allProducts
+    .filter((p) => p.data.confidence === 'high' && isVisible(p))
+    .sort((a, b) => a.data.id.localeCompare(b.data.id));
+  const categories = ['framed', 'cards', 'clocks', 'canvas', 'homewares'];
+  const auto: typeof candidates = [];
+  for (const cat of categories) {
+    const item = candidates.find((p) => p.data.category === cat && !auto.includes(p));
+    if (item) auto.push(item);
+  }
+  for (const item of candidates) {
+    if (auto.length >= 6) break;
+    if (!auto.includes(item)) auto.push(item);
+  }
+  picked = auto;
 }
 
 // Top 3 collections by order
@@ -159,7 +167,7 @@ const processLabels = ['Laying out the letters', 'Building up the details', 'Den
             title={col.data.title}
             description={col.data.description}
             hero={col.data.hero}
-            memberCount={col.data.members.length}
+            memberCount={col.data.members.filter((id) => visible.has(id)).length}
           />
         ))}
       </div>

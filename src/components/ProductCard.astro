@@ -12,7 +12,8 @@ interface Props {
 
 const { slug, title, category, price, status, mainImage } = Astro.props;
 const imgSrc = resolveProductImage(mainImage);
-const priceDisplay = price ? `$${price}` : status === 'order' ? 'Made to order' : 'Inquire';
+const priceDisplay =
+  status === 'sold' ? 'Sold' : price != null ? `$${price}` : status === 'order' ? 'Made to order' : 'Inquire';
 ---
 
 <a

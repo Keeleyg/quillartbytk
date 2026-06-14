@@ -5,6 +5,7 @@ import ProductGrid from '@/components/ProductGrid.astro';
 import { getCollection } from 'astro:content';
 import { VALID_THEMES } from '@/content.config';
 import { titleCase } from '@/lib/images';
+import { isVisible } from '@/lib/products';
 
 export function getStaticPaths() {
   return VALID_THEMES.map((theme) => ({
@@ -15,14 +16,8 @@ export function getStaticPaths() {
 const { theme } = Astro.params;
 const allProducts = await getCollection('products');
 
-const includeDrafts = !!import.meta.env.ASTRO_INCLUDE_DRAFTS;
 const products = allProducts
-  .filter((p) => {
-    if (!p.data.themes.includes(theme as any)) return false;
-    if (p.data.status === 'available' || p.data.status === 'order') return true;
-    if (includeDrafts && p.data.status === 'draft') return true;
-    return false;
-  })
+  .filter((p) => p.data.themes.includes(theme as any) && isVisible(p))
   .sort((a, b) => a.data.id.localeCompare(b.data.id));
 
 const label = titleCase(theme!);

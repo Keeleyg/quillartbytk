@@ -48,7 +48,10 @@
     <div class="layout">
       <!-- Product list -->
       <aside class="sidebar">
-        <input id="search" type="search" placeholder="Search products…" class="search" />
+        <div class="sidebar-head">
+          <input id="search" type="search" placeholder="Search products…" class="search" />
+          <button id="new-item-btn" type="button" class="btn btn-sm btn-primary" title="Add a new piece">＋ New</button>
+        </div>
         <div id="product-list" class="product-list"></div>
       </aside>
 
@@ -65,6 +68,14 @@
               <span id="editor-id" class="muted mono"></span>
             </div>
             <a id="view-live" class="btn btn-ghost" target="_blank" rel="noopener">View live ↗</a>
+          </div>
+
+          <div class="field">Visibility
+            <div id="f-visibility" class="radio-group">
+              <label class="pill"><input type="radio" name="visibility" value="visible" hidden/> Visible</label>
+              <label class="pill"><input type="radio" name="visibility" value="hidden" hidden/> Hidden</label>
+            </div>
+            <small class="muted">Hidden removes this piece from the entire site — gallery, collections and home.</small>
           </div>
 
           <label class="field">Title
@@ -103,6 +114,7 @@
               <select id="f-collection"></select>
             </label>
             <div class="field">Flags
+              <label class="inline-check"><input id="f-featured" type="checkbox" /> Featured on home page</label>
               <label class="inline-check"><input id="f-commission" type="checkbox" /> Commission example</label>
               <label class="inline-check"><input id="f-multiframe" type="checkbox" /> Multi-frame piece</label>
             </div>
@@ -116,6 +128,52 @@
               <div id="f-frames" class="chips-input" data-field="frames"></div>
             </div>
           </div>
+
+          <!-- Card details (cards only) -->
+          <fieldset id="card-section" class="card-fieldset" hidden>
+            <legend>Card details</legend>
+            <div class="grid-2">
+              <label class="field">Occasion
+                <input id="f-card-occasion" type="text" list="occasion-list" placeholder="e.g. Valentine's Day" />
+                <datalist id="occasion-list">
+                  <option value="Valentine's Day"></option>
+                  <option value="Christmas"></option>
+                  <option value="Mother's Day"></option>
+                  <option value="Father's Day"></option>
+                  <option value="New Baby"></option>
+                  <option value="Birthday"></option>
+                  <option value="Anniversary"></option>
+                  <option value="Get Well"></option>
+                  <option value="Thank You"></option>
+                  <option value="Wedding"></option>
+                  <option value="Easter"></option>
+                </datalist>
+              </label>
+              <label class="field">Size
+                <input id="f-card-size" type="text" list="size-list" placeholder="e.g. A6" />
+                <datalist id="size-list">
+                  <option value="A6"></option><option value="A5"></option>
+                  <option value="Square"></option><option value="DL"></option>
+                </datalist>
+              </label>
+            </div>
+            <div class="grid-2">
+              <label class="field">Envelope colour
+                <input id="f-card-envelope" type="text" list="env-list" placeholder="e.g. Cream" />
+                <datalist id="env-list">
+                  <option value="White"></option><option value="Cream"></option>
+                  <option value="Red"></option><option value="Pink"></option>
+                  <option value="Blue"></option><option value="Kraft"></option>
+                  <option value="Coordinating"></option>
+                </datalist>
+              </label>
+              <div class="field">Card options
+                <label class="inline-check"><input id="f-card-blank" type="checkbox" /> Blank inside (no printed message)</label>
+                <label class="inline-check"><input id="f-card-envelope-inc" type="checkbox" /> Includes envelope</label>
+                <label class="inline-check"><input id="f-card-customisable" type="checkbox" /> Inside wording customisable on request</label>
+              </div>
+            </div>
+          </fieldset>
 
           <!-- Images -->
           <div class="field">Images

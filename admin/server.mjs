@@ -148,6 +148,8 @@ async function writeProduct(slug, data, body) {
     category: data.category,
     themes: data.themes,
     status: data.status,
+    hidden: data.hidden ?? false,
+    featured: data.featured ?? false,
     collection: data.collection ?? null,
     commission_example: data.commission_example ?? false,
     multi_frame: data.multi_frame ?? false,
@@ -155,13 +157,22 @@ async function writeProduct(slug, data, body) {
     frame_options: data.frame_options ?? [],
     price: data.price ?? null,
     lead_time: data.lead_time ?? null,
-    images: {
-      main: data.images.main,
-      angles: data.images.angles ?? [],
-      process: data.images.process ?? [],
-    },
-    confidence: data.confidence ?? 'high',
   };
+  // Card-only attributes — written only for cards, omitted everywhere else.
+  if (data.category === 'cards') {
+    if (data.card_occasion) ordered.card_occasion = data.card_occasion;
+    if (data.card_size) ordered.card_size = data.card_size;
+    if (data.card_envelope_colour) ordered.card_envelope_colour = data.card_envelope_colour;
+    ordered.card_blank_inside = !!data.card_blank_inside;
+    ordered.card_includes_envelope = !!data.card_includes_envelope;
+    ordered.card_customisable = !!data.card_customisable;
+  }
+  ordered.images = {
+    main: data.images.main,
+    angles: data.images.angles ?? [],
+    process: data.images.process ?? [],
+  };
+  ordered.confidence = data.confidence ?? 'high';
   if (data.notes !== undefined) ordered.notes = data.notes;
   await writeFile(join(PRODUCTS_DIR, slug + '.md'), matter.stringify(body, ordered), 'utf8');
 }
@@ -180,6 +191,33 @@ async function nextImageName(id, role, ext) {
   let n = 1;
   while (existing.includes(`${prefix}${n}${ext}`)) n++;
   return `${prefix}${n}${ext}`;
+}
+
+function slugify(s) {
+  return (
+    String(s).toLowerCase().trim()
+      .replace(/['"’]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) || 'new-piece'
+  );
+}
+async function uniqueSlug(base) {
+  let slug = base, n = 2;
+  while (existsSync(join(PRODUCTS_DIR, slug + '.md'))) slug = `${base}-${n++}`;
+  return slug;
+}
+async function nextProductId() {
+  let max = 0;
+  for (const f of await listMarkdown(PRODUCTS_DIR)) {
+    try {
+      const { data } = matter(await readFile(join(PRODUCTS_DIR, f), 'utf8'));
+      const n = parseInt(String(data.id || '').replace(/^P/, ''), 10);
+      if (!Number.isNaN(n) && n > max) max = n;
+    } catch { /* skip */ }
+  }
+  if (max + 1 > 999) throw new Error('Product id limit reached (P999).');
+  return 'P' + String(max + 1).padStart(3, '0');
 }
 
 /** id -> {slug,title} index from the current working tree. */
@@ -357,7 +395,10 @@ app.get('/api/products', requireAuth, async (_req, res) => {
       const { data } = matter(await readFile(join(PRODUCTS_DIR, f), 'utf8'));
       items.push({
         slug: basename(f, '.md'), id: data.id, title: data.title,
-        category: data.category, status: data.status, mainUrl: toPreviewUrl(data.images?.main ?? ''),
+        category: data.category, status: data.status,
+        hidden: data.hidden === true || data.status === 'hidden',
+        featured: data.featured === true,
+        mainUrl: data.images?.main ? toPreviewUrl(data.images.main) : '',
       });
     } catch { /* skip */ }
   }
@@ -370,12 +411,42 @@ app.get('/api/products/:slug', requireAuth, async (req, res) => {
   if (!p) return res.status(404).json({ error: 'Not found' });
   res.json({
     slug: p.slug, id: p.data.id, title: p.data.title, category: p.data.category,
-    themes: p.data.themes ?? [], status: p.data.status, collection: p.data.collection ?? null,
+    themes: p.data.themes ?? [], status: p.data.status,
+    hidden: p.data.hidden === true || p.data.status === 'hidden',
+    featured: p.data.featured === true,
+    collection: p.data.collection ?? null,
     commission_example: !!p.data.commission_example, multi_frame: !!p.data.multi_frame,
     palette_variants: p.data.palette_variants ?? [], frame_options: p.data.frame_options ?? [],
     price: p.data.price ?? null, lead_time: p.data.lead_time ?? null,
+    card_occasion: p.data.card_occasion ?? '', card_size: p.data.card_size ?? '',
+    card_envelope_colour: p.data.card_envelope_colour ?? '',
+    card_blank_inside: p.data.card_blank_inside ?? false,
+    card_includes_envelope: p.data.card_includes_envelope ?? false,
+    card_customisable: p.data.card_customisable ?? false,
     confidence: p.data.confidence ?? 'high', body: p.body.trim(), images: imagesView(p.data),
   });
+});
+
+/* ---- create new product ------------------------------------------- */
+app.post('/api/products', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const title = (req.body?.title && String(req.body.title).trim()) || 'New piece';
+    const id = await nextProductId();
+    const slug = await uniqueSlug(slugify(title));
+    const data = {
+      id, title, category: 'framed', themes: ['flowers'], status: 'draft',
+      hidden: true, featured: false, collection: null,
+      commission_example: false, multi_frame: false,
+      palette_variants: [], frame_options: [], price: null, lead_time: null,
+      images: { main: '', angles: [], process: [] }, confidence: 'high',
+    };
+    await writeProduct(slug, data, 'Describe this piece…\n');
+    await commitDraft(`Create ${title} (${id})`, [`src/content/products/${slug}.md`]);
+    res.json({ ok: true, slug, id, draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
+  }
 });
 
 /* ---- save product fields ------------------------------------------ */
@@ -400,13 +471,27 @@ app.put('/api/products/:slug', requireAuth, async (req, res) => {
     }
     const leadTime = b.lead_time && String(b.lead_time).trim() ? String(b.lead_time).trim() : null;
     const collection = b.collection && String(b.collection).trim() ? String(b.collection).trim() : null;
+    const hidden = !!b.hidden;
+
+    // A visible piece needs a main image, or its page would be broken.
+    if (!hidden && !String(p.data.images?.main || '').trim()) {
+      return res.status(400).json({ error: 'Add a main image before making this piece visible.' });
+    }
 
     const next = {
       ...p.data, title: String(b.title).trim(), category: b.category, themes, status: b.status,
+      hidden, featured: !!b.featured,
       collection, commission_example: !!b.commission_example, multi_frame: !!b.multi_frame,
       palette_variants: Array.isArray(b.palette_variants) ? b.palette_variants.map(String) : [],
       frame_options: Array.isArray(b.frame_options) ? b.frame_options.map(String) : [],
       price, lead_time: leadTime,
+      // Card fields (writeProduct only persists them when category === 'cards')
+      card_occasion: b.card_occasion ? String(b.card_occasion).trim() : '',
+      card_size: b.card_size ? String(b.card_size).trim() : '',
+      card_envelope_colour: b.card_envelope_colour ? String(b.card_envelope_colour).trim() : '',
+      card_blank_inside: !!b.card_blank_inside,
+      card_includes_envelope: !!b.card_includes_envelope,
+      card_customisable: !!b.card_customisable,
       confidence: ['high', 'medium', 'low'].includes(b.confidence) ? b.confidence : (p.data.confidence ?? 'high'),
     };
     const body = typeof b.body === 'string' ? b.body.trim() + '\n' : p.body;

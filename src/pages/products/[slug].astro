@@ -4,10 +4,12 @@ import ProductGrid from '@/components/ProductGrid.astro';
 import Lightbox from '@/components/Lightbox.astro';
 import { getCollection, render } from 'astro:content';
 import { resolveProductImage, categoryLabel, titleCase, url } from '@/lib/images';
+import { isVisible, priceLabel } from '@/lib/products';
 
 export async function getStaticPaths() {
   const products = await getCollection('products');
-  return products.map((product) => ({
+  // Hidden pieces get no page at all.
+  return products.filter(isVisible).map((product) => ({
     params: { slug: product.id },
     props: { product },
   }));
@@ -26,11 +28,17 @@ const processSrcs = data.images.process.map(resolveProductImage);
 const allThumbs = [mainSrc, ...angleSrcs, ...processSrcs];
 
 // Price display
-const priceDisplay = data.price
-  ? `$${data.price}`
-  : data.status === 'order'
-    ? 'Made to order'
-    : 'Inquire for price';
+const priceDisplay = priceLabel(product);
+const isSold = data.status === 'sold';
+
+// Card details block only renders if the card has at least one detail set.
+const hasCardDetails =
+  data.category === 'cards' &&
+  (!!data.card_occasion ||
+    !!data.card_size ||
+    data.card_blank_inside !== undefined ||
+    data.card_includes_envelope === true ||
+    data.card_customisable === true);
 
 // Collection info
 const allCollections = await getCollection('collections');
@@ -40,12 +48,7 @@ const parentCollection = data.collection
 
 // Related products: same collection first, then theme intersection
 const allProducts = await getCollection('products');
-const visible = allProducts.filter(
-  (p) =>
-    p.data.id !== data.id &&
-    p.data.status !== 'hidden' &&
-    p.data.status !== 'draft'
-);
+const visible = allProducts.filter((p) => p.data.id !== data.id && isVisible(p));
 
 let related: typeof visible = [];
 if (data.collection) {
@@ -153,6 +156,16 @@ const ogImage = mainSrc;
             </div>
           )}
 
+          <!-- Sold badge -->
+          {isSold && (
+            <div class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 bg-ink/10 text-ink text-sm rounded-full">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+              Sold — this one has found a home
+            </div>
+          )}
+
           <!-- Lead time -->
           {data.lead_time && (
             <p class="mt-3 text-sm text-muted flex items-center gap-1.5">
@@ -191,12 +204,36 @@ const ogImage = mainSrc;
             </div>
           )}
 
+          <!-- Card details -->
+          {hasCardDetails && (
+            <div class="mt-6 rounded-lg border border-border p-4">
+              <h3 class="text-sm font-medium text-ink mb-2">Card details</h3>
+              <dl class="text-sm text-muted space-y-1">
+                {data.card_occasion && (
+                  <div class="flex gap-2"><dt class="min-w-28">Occasion</dt><dd class="text-ink">{data.card_occasion}</dd></div>
+                )}
+                {data.card_size && (
+                  <div class="flex gap-2"><dt class="min-w-28">Size</dt><dd class="text-ink">{data.card_size}</dd></div>
+                )}
+                {data.card_blank_inside !== undefined && (
+                  <div class="flex gap-2"><dt class="min-w-28">Inside</dt><dd class="text-ink">{data.card_blank_inside ? 'Blank for your own message' : 'Printed greeting'}</dd></div>
+                )}
+                {data.card_includes_envelope && (
+                  <div class="flex gap-2"><dt class="min-w-28">Envelope</dt><dd class="text-ink">Included{data.card_envelope_colour ? ` — ${data.card_envelope_colour}` : ''}</dd></div>
+                )}
+                {data.card_customisable && (
+                  <div class="flex gap-2"><dt class="min-w-28">Personalisation</dt><dd class="text-ink">Inside wording can be customised on request</dd></div>
+                )}
+              </dl>
+            </div>
+          )}
+
           <!-- CTA -->
           <a
             href={url(`/contact?ref=${product.id}`)}
             class="mt-8 inline-flex items-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
           >
-            Inquire about this piece
+            {isSold ? 'Enquire about a similar piece' : 'Inquire about this piece'}
           </a>
 
           <!-- Description (first paragraph summary) -->

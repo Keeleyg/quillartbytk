@@ -3,6 +3,7 @@ import Base from '@/layouts/Base.astro';
 import ProductGrid from '@/components/ProductGrid.astro';
 import { getCollection, render } from 'astro:content';
 import { resolveCollectionImage } from '@/lib/images';
+import { isVisible } from '@/lib/products';
 
 export async function getStaticPaths() {
   const collections = await getCollection('collections');
@@ -25,7 +26,7 @@ const gallerySrcs = data.gallery.map((g: string) =>
 const allProducts = await getCollection('products');
 const memberProducts = data.members
   .map((pid: string) => allProducts.find((p) => p.data.id === pid))
-  .filter(Boolean);
+  .filter((p): p is NonNullable<typeof p> => Boolean(p) && isVisible(p!));
 ---
 
 <Base title={data.title} description={data.description} ogImage={heroSrc}>

@@ -3,10 +3,11 @@ import Base from '@/layouts/Base.astro';
 import ProductGrid from '@/components/ProductGrid.astro';
 import { getCollection } from 'astro:content';
 import { url } from '@/lib/images';
+import { isVisible } from '@/lib/products';
 
 const allProducts = await getCollection('products');
 const commissionExamples = allProducts
-  .filter((p) => p.data.commission_example)
+  .filter((p) => p.data.commission_example && isVisible(p))
   .sort((a, b) => a.data.id.localeCompare(b.data.id));
 ---
 

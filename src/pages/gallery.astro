@@ -3,17 +3,13 @@ import Base from '@/layouts/Base.astro';
 import FilterNav from '@/components/FilterNav.astro';
 import ProductGrid from '@/components/ProductGrid.astro';
 import { getCollection } from 'astro:content';
+import { isVisible } from '@/lib/products';
 
 const allProducts = await getCollection('products');
 
-// Show available + order. Include drafts only if env flag is set.
-const includeDrafts = !!import.meta.env.ASTRO_INCLUDE_DRAFTS;
+// Portfolio: show every piece that isn't hidden (including sold).
 const products = allProducts
-  .filter((p) => {
-    if (p.data.status === 'available' || p.data.status === 'order') return true;
-    if (includeDrafts && p.data.status === 'draft') return true;
-    return false;
-  })
+  .filter(isVisible)
   .sort((a, b) => a.data.id.localeCompare(b.data.id));
 ---
 

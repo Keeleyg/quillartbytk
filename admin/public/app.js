@@ -167,12 +167,14 @@ function renderProductList(list) {
   wrap.innerHTML = '';
   list.forEach((p) => {
     const btn = document.createElement('button');
-    btn.className = 'product-item' + (current && current.slug === p.slug ? ' active' : '');
+    btn.className = 'product-item' + (current && current.slug === p.slug ? ' active' : '') + (p.hidden ? ' is-hidden' : '');
     btn.dataset.slug = p.slug;
+    const thumb = p.mainUrl ? `<img src="${p.mainUrl}" alt="" loading="lazy" />` : `<span class="pi-noimg">＋</span>`;
+    const tags = `${p.hidden ? '<span class="pi-tag hidden">hidden</span>' : ''}${p.featured ? '<span class="pi-tag featured">★ featured</span>' : ''}`;
     btn.innerHTML = `
-      <img src="${p.mainUrl}" alt="" loading="lazy" />
+      ${thumb}
       <span>
-        <span class="pi-title">${escapeHtml(p.title)}</span><br/>
+        <span class="pi-title">${escapeHtml(p.title)}<span class="pi-tags">${tags}</span></span><br/>
         <span class="pi-meta"><span class="status-dot s-${p.status}"></span>${p.id} · ${p.category}</span>
       </span>`;
     btn.addEventListener('click', () => selectProduct(p.slug));
@@ -183,6 +185,20 @@ $('#search').addEventListener('input', (e) => {
   const q = e.target.value.toLowerCase().trim();
   renderProductList(!q ? products : products.filter((p) =>
     p.title.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.category.includes(q)));
+});
+
+$('#new-item-btn').addEventListener('click', async () => {
+  const title = prompt('Title for the new piece? (you can change it later)');
+  if (title === null) return;
+  try {
+    const r = await api('/api/products', { method: 'POST', body: { title: title.trim() } });
+    await loadProductList();
+    if (r.draft) renderDraft(r.draft);
+    await selectProduct(r.slug);
+    setStatus(`Created ${r.id} (hidden). Add a main image and details, then set Visible.`, 'ok');
+  } catch (e) {
+    alert('Could not create item:\n\n' + e.message);
+  }
 });
 
 /* ---------------- Editor ---------------- */
@@ -205,6 +221,17 @@ async function selectProduct(slug) {
   $('#f-collection').value = current.collection ?? '';
   $('#f-commission').checked = current.commission_example;
   $('#f-multiframe').checked = current.multi_frame;
+  $('#f-featured').checked = current.featured;
+  setVisibility(current.hidden);
+
+  // Card fields
+  $('#f-card-occasion').value = current.card_occasion || '';
+  $('#f-card-size').value = current.card_size || '';
+  $('#f-card-envelope').value = current.card_envelope_colour || '';
+  $('#f-card-blank').checked = !!current.card_blank_inside;
+  $('#f-card-envelope-inc').checked = !!current.card_includes_envelope;
+  $('#f-card-customisable').checked = !!current.card_customisable;
+  updateCardSection(current.category);
 
   renderCategory(current.category);
   renderThemes(current.themes);
@@ -225,9 +252,33 @@ function renderCategory(selected) {
     inp.addEventListener('change', () => {
       $('#f-category').querySelectorAll('.pill').forEach((pl) =>
         pl.classList.toggle('checked', pl.querySelector('input').checked));
+      updateCardSection(($('#f-category').querySelector('input:checked') || {}).value);
     });
   });
 }
+function selectedCategory() {
+  return ($('#f-category').querySelector('input:checked') || {}).value;
+}
+function updateCardSection(category) {
+  $('#card-section').hidden = category !== 'cards';
+}
+function setVisibility(hidden) {
+  const val = hidden ? 'hidden' : 'visible';
+  $('#f-visibility').querySelectorAll('input').forEach((i) => {
+    i.checked = i.value === val;
+    i.closest('.pill').classList.toggle('checked', i.checked);
+  });
+}
+function isHiddenSelected() {
+  return (($('#f-visibility').querySelector('input:checked') || {}).value) === 'hidden';
+}
+// One-time: visibility pills reflect selection
+$('#f-visibility').querySelectorAll('input').forEach((inp) => {
+  inp.addEventListener('change', () => {
+    $('#f-visibility').querySelectorAll('.pill').forEach((pl) =>
+      pl.classList.toggle('checked', pl.querySelector('input').checked));
+  });
+});
 function renderThemes(selected) {
   const set = new Set(selected);
   $('#f-themes').innerHTML = meta.themes.map((t) => `
@@ -272,7 +323,8 @@ function renderChips(field) {
 
 /* ---------------- Images ---------------- */
 function renderImages(images) {
-  renderImgGrid($('#img-main'), images.main ? [images.main] : [], 'main');
+  const hasMain = images.main && images.main.path;
+  renderImgGrid($('#img-main'), hasMain ? [images.main] : [], 'main');
   renderImgGrid($('#img-angles'), images.angles, 'angles');
   renderImgGrid($('#img-process'), images.process, 'process');
 }
@@ -335,6 +387,8 @@ $('#editor-form').addEventListener('submit', async (e) => {
     body: $('#f-body').value,
     category, themes,
     status: $('#f-status').value,
+    hidden: isHiddenSelected(),
+    featured: $('#f-featured').checked,
     price: $('#f-price').value === '' ? null : Number($('#f-price').value),
     lead_time: $('#f-lead').value,
     collection: $('#f-collection').value,
@@ -342,6 +396,12 @@ $('#editor-form').addEventListener('submit', async (e) => {
     multi_frame: $('#f-multiframe').checked,
     palette_variants: chips.palette,
     frame_options: chips.frames,
+    card_occasion: $('#f-card-occasion').value,
+    card_size: $('#f-card-size').value,
+    card_envelope_colour: $('#f-card-envelope').value,
+    card_blank_inside: $('#f-card-blank').checked,
+    card_includes_envelope: $('#f-card-envelope-inc').checked,
+    card_customisable: $('#f-card-customisable').checked,
     confidence: current.confidence,
   };
   try {

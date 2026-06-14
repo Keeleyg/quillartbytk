@@ -5,6 +5,7 @@ import ProductGrid from '@/components/ProductGrid.astro';
 import { getCollection } from 'astro:content';
 import { VALID_CATEGORIES } from '@/content.config';
 import { categoryLabel } from '@/lib/images';
+import { isVisible } from '@/lib/products';
 
 export function getStaticPaths() {
   return VALID_CATEGORIES.map((cat) => ({
@@ -15,14 +16,8 @@ export function getStaticPaths() {
 const { category } = Astro.params;
 const allProducts = await getCollection('products');
 
-const includeDrafts = !!import.meta.env.ASTRO_INCLUDE_DRAFTS;
 const products = allProducts
-  .filter((p) => {
-    if (p.data.category !== category) return false;
-    if (p.data.status === 'available' || p.data.status === 'order') return true;
-    if (includeDrafts && p.data.status === 'draft') return true;
-    return false;
-  })
+  .filter((p) => p.data.category === category && isVisible(p))
   .sort((a, b) => a.data.id.localeCompare(b.data.id));
 
 const label = categoryLabel(category!);
