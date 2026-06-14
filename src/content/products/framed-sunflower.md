@@ -1,22 +1,25 @@
 ---
 id: P028
-title: "Framed Sunflower"
+title: Framed Sunflower
 category: framed
-themes: [flowers]
+themes:
+  - flowers
 status: sold
+hidden: false
+featured: true
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+lead_time: null
 images:
   main: ../../../images/P028/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-
 A single quilled sunflower with layered yellow and orange petals, a
 dense dark-brown spiral centre, and swirling green leaves and tendrils
 filling the surrounding space. Mounted in a white shadow-box frame. A
