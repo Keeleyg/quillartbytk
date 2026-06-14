@@ -32,6 +32,21 @@ a { color: var(--accent); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-ghost { background: transparent; }
 .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.82rem; }
+.btn-danger { background: #fff; color: var(--danger); border-color: #e3b8b3; }
+.btn-danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Draft bar */
+.draft-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.6rem 1.2rem; background: #fffaf0; border-bottom: 1px solid var(--border);
+  position: sticky; top: 53px; z-index: 9; flex-wrap: wrap;
+}
+.draft-info { display: flex; align-items: center; gap: 0.55rem; font-size: 0.88rem; }
+.draft-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+.draft-dot.pending { background: #d98a2b; }
+.draft-dot.clean { background: var(--ok); }
+.draft-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 
 /* Login */
 .login-view { min-height: 100vh; display: grid; place-items: center; padding: 1rem; }

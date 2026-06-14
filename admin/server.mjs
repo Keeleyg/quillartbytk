@@ -1,12 +1,18 @@
 /**
  * Local-only gallery admin server for Quillart by TK.
  *
- *   npm run admin        → starts http://localhost:4321/admin-tool
+ *   npm run admin        → http://localhost:4399/admin-tool/
  *
- * Runs ONLY on your machine. It reads and writes the product markdown files
- * in src/content/products and the image folders in images/, and the Publish
- * button commits + pushes those changes with git. Nothing here is ever
- * deployed to the public site — it lives outside Astro's build.
+ * Runs ONLY on your machine. Edits accumulate on a local branch
+ * (gallery-edits) so nothing goes live until you choose to publish:
+ *
+ *   • Editing            → writes + commits to the gallery-edits branch
+ *   • Build preview      → astro build, served at /quillartbytk/ for review
+ *   • Commit (publish)   → squash-merge gallery-edits → main, push (goes live)
+ *   • Discard            → delete the gallery-edits branch entirely
+ *
+ * Unpublished edits persist on the branch, so closing and reopening the editor
+ * shows your work-in-progress until you Commit or Discard.
  *
  * Login credentials live in admin/credentials.json (gitignored). Create them
  * once with:  npm run admin:setup
@@ -14,7 +20,7 @@
 import express from 'express';
 import matter from 'gray-matter';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
-import { readFile, writeFile, readdir, mkdir, unlink, rm } from 'node:fs/promises';
+import { readFile, writeFile, readdir, mkdir, unlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, extname, basename } from 'node:path';
@@ -28,10 +34,17 @@ const ROOT = join(__dirname, '..');
 const PRODUCTS_DIR = join(ROOT, 'src', 'content', 'products');
 const COLLECTIONS_DIR = join(ROOT, 'src', 'content', 'collections');
 const IMAGES_DIR = join(ROOT, 'images');
+const DIST_DIR = join(ROOT, 'dist');
 const CREDS_PATH = join(__dirname, 'credentials.json');
+const ASTRO_BIN = join(ROOT, 'node_modules', 'astro', 'bin', 'astro.mjs');
 
-const PORT = 4321;
-const PORT_FALLBACK = 4331;
+const PORT = Number(process.env.ADMIN_PORT) || 4399;
+const PORT_FALLBACK = 4400;
+
+/* Branch model — overridable via env for testing. */
+const LIVE_BRANCH = process.env.ADMIN_LIVE_BRANCH || 'main';
+const DRAFT_BRANCH = process.env.ADMIN_DRAFT_BRANCH || 'gallery-edits';
+const NO_PUSH = process.env.ADMIN_NO_PUSH === '1';
 
 /* ---- shared enums (mirror src/content.config.ts) ------------------- */
 const VALID_THEMES = [
@@ -43,11 +56,43 @@ const VALID_STATUS = ['available', 'draft', 'order', 'hidden', 'sold'];
 
 /* ---- git helpers --------------------------------------------------- */
 async function git(args) {
-  const { stdout, stderr } = await execFileAsync('git', args, { cwd: ROOT, maxBuffer: 10 * 1024 * 1024 });
+  const { stdout, stderr } = await execFileAsync('git', args, { cwd: ROOT, maxBuffer: 20 * 1024 * 1024 });
   return (stdout || '') + (stderr || '');
 }
 async function currentBranch() {
   return (await git(['rev-parse', '--abbrev-ref', 'HEAD'])).trim();
+}
+async function branchExists(name) {
+  try { await git(['rev-parse', '--verify', '--quiet', 'refs/heads/' + name]); return true; }
+  catch { return false; }
+}
+async function treeCleanTracked() {
+  return (await git(['status', '--porcelain', '--untracked-files=no'])).trim() === '';
+}
+async function aheadCount() {
+  if (!(await branchExists(DRAFT_BRANCH))) return 0;
+  return Number((await git(['rev-list', '--count', `${LIVE_BRANCH}..${DRAFT_BRANCH}`])).trim()) || 0;
+}
+
+/** Make sure we're on the draft branch (creating it off LIVE_BRANCH if needed). */
+async function ensureDraft() {
+  if ((await currentBranch()) === DRAFT_BRANCH) return;
+  if (!(await treeCleanTracked())) {
+    throw new Error('Your repo has uncommitted changes outside the editor. Commit or stash them first.');
+  }
+  if (await branchExists(DRAFT_BRANCH)) {
+    await git(['checkout', DRAFT_BRANCH]);
+  } else {
+    await git(['checkout', LIVE_BRANCH]);
+    await git(['checkout', '-b', DRAFT_BRANCH]);
+  }
+}
+
+/** Stage given paths and commit if anything changed. */
+async function commitDraft(message, paths) {
+  await git(['add', '-A', '--', ...paths]);
+  const staged = (await git(['diff', '--cached', '--name-only'])).trim();
+  if (staged) await git(['commit', '-m', message]);
 }
 
 /* ---- credentials / auth ------------------------------------------- */
@@ -56,14 +101,13 @@ if (!existsSync(CREDS_PATH)) {
   process.exit(1);
 }
 const creds = JSON.parse(await readFile(CREDS_PATH, 'utf8'));
-const sessions = new Map(); // token -> expiry ms
+const sessions = new Map();
 const SESSION_MS = 8 * 60 * 60 * 1000;
 
 function checkPassword(username, password) {
   if (username !== creds.username) return false;
   const hash = createHash('sha256').update(creds.salt + password).digest('hex');
-  const a = Buffer.from(hash);
-  const b = Buffer.from(creds.passwordHash);
+  const a = Buffer.from(hash), b = Buffer.from(creds.passwordHash);
   return a.length === b.length && timingSafeEqual(a, b);
 }
 function issueToken() {
@@ -84,8 +128,6 @@ function requireAuth(req, res, next) {
 
 /* ---- product helpers ---------------------------------------------- */
 const FM_PREFIX = '../../../images/';
-
-/** frontmatter path (../../../images/P037/main.jpg) -> preview url (/img/P037/main.jpg) */
 function toPreviewUrl(fmPath) {
   const m = String(fmPath).match(/images\/(.+)$/);
   return m ? '/img/' + m[1] : fmPath;
@@ -96,12 +138,9 @@ function listMarkdown(dir) {
 async function readProduct(slug) {
   const file = join(PRODUCTS_DIR, slug + '.md');
   if (!existsSync(file)) return null;
-  const raw = await readFile(file, 'utf8');
-  const { data, content } = matter(raw);
+  const { data, content } = matter(await readFile(file, 'utf8'));
   return { slug, file, data, body: content };
 }
-
-/** Rebuild frontmatter in canonical (schema) order, then write the file. */
 async function writeProduct(slug, data, body) {
   const ordered = {
     id: data.id,
@@ -124,11 +163,8 @@ async function writeProduct(slug, data, body) {
     confidence: data.confidence ?? 'high',
   };
   if (data.notes !== undefined) ordered.notes = data.notes;
-  const file = join(PRODUCTS_DIR, slug + '.md');
-  const out = matter.stringify(body, ordered);
-  await writeFile(file, out, 'utf8');
+  await writeFile(join(PRODUCTS_DIR, slug + '.md'), matter.stringify(body, ordered), 'utf8');
 }
-
 function imagesView(data) {
   return {
     main: { path: data.images.main, url: toPreviewUrl(data.images.main) },
@@ -136,8 +172,6 @@ function imagesView(data) {
     process: (data.images.process ?? []).map((p) => ({ path: p, url: toPreviewUrl(p) })),
   };
 }
-
-/** Find the next free angle-N / process-N name in a product's image folder. */
 async function nextImageName(id, role, ext) {
   const folder = join(IMAGES_DIR, id);
   await mkdir(folder, { recursive: true });
@@ -148,14 +182,61 @@ async function nextImageName(id, role, ext) {
   return `${prefix}${n}${ext}`;
 }
 
+/** id -> {slug,title} index from the current working tree. */
+async function indexProducts() {
+  const byId = new Map();
+  for (const f of await listMarkdown(PRODUCTS_DIR)) {
+    try {
+      const { data } = matter(await readFile(join(PRODUCTS_DIR, f), 'utf8'));
+      byId.set(data.id, { slug: basename(f, '.md'), title: data.title, id: data.id });
+    } catch { /* skip */ }
+  }
+  return byId;
+}
+
+/** Products changed on the draft branch vs live. */
+async function changedProducts() {
+  if (!(await branchExists(DRAFT_BRANCH))) return [];
+  const diff = (await git(['diff', '--name-only', `${LIVE_BRANCH}...${DRAFT_BRANCH}`])).trim();
+  if (!diff) return [];
+  const byId = await indexProducts();
+  const out = new Map();
+  for (const line of diff.split('\n')) {
+    let m = line.match(/^src\/content\/products\/(.+)\.md$/);
+    if (m) {
+      const slug = m[1];
+      const hit = [...byId.values()].find((p) => p.slug === slug);
+      out.set(slug, hit || { slug, title: slug, id: '' });
+      continue;
+    }
+    m = line.match(/^images\/(P\d{3})\//);
+    if (m && byId.has(m[1])) { const p = byId.get(m[1]); out.set(p.slug, p); }
+  }
+  return [...out.values()];
+}
+
+async function draftStatus() {
+  const exists = await branchExists(DRAFT_BRANCH);
+  const onDraft = (await currentBranch()) === DRAFT_BRANCH;
+  const changed = exists ? await changedProducts() : [];
+  return {
+    exists,
+    onDraft,
+    ahead: await aheadCount(),
+    changed,
+    live: LIVE_BRANCH,
+    draft: DRAFT_BRANCH,
+    pushes: !NO_PUSH,
+  };
+}
+
 /* ---- app ----------------------------------------------------------- */
 const app = express();
 app.use(express.json({ limit: '30mb' }));
 
-// Public product photos for previews (local only, not secret).
-app.use('/img', express.static(IMAGES_DIR));
-// The editor UI.
-app.use('/admin-tool', express.static(join(__dirname, 'public')));
+app.use('/img', express.static(IMAGES_DIR));                       // product photos for previews
+app.use('/quillartbytk', express.static(DIST_DIR));               // built site preview (after Build preview)
+app.use('/admin-tool', express.static(join(__dirname, 'public'))); // editor UI
 app.get('/', (_req, res) => res.redirect('/admin-tool/'));
 
 /* ---- login -------------------------------------------------------- */
@@ -164,7 +245,7 @@ app.post('/api/login', async (req, res) => {
   if (checkPassword(String(username || ''), String(password || ''))) {
     return res.json({ token: issueToken() });
   }
-  await new Promise((r) => setTimeout(r, 600)); // throttle guesses
+  await new Promise((r) => setTimeout(r, 600));
   res.status(401).json({ error: 'Invalid username or password' });
 });
 
@@ -172,8 +253,7 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/meta', requireAuth, async (_req, res) => {
   let collections = [];
   try {
-    const slugs = await readdir(COLLECTIONS_DIR, { withFileTypes: true });
-    for (const d of slugs) {
+    for (const d of await readdir(COLLECTIONS_DIR, { withFileTypes: true })) {
       if (!d.isDirectory()) continue;
       const idx = join(COLLECTIONS_DIR, d.name, 'index.md');
       if (existsSync(idx)) {
@@ -183,207 +263,242 @@ app.get('/api/meta', requireAuth, async (_req, res) => {
     }
   } catch { /* none */ }
   res.json({
-    categories: VALID_CATEGORIES,
-    themes: VALID_THEMES,
-    statuses: VALID_STATUS,
-    collections,
-    branch: await currentBranch().catch(() => 'unknown'),
+    categories: VALID_CATEGORIES, themes: VALID_THEMES, statuses: VALID_STATUS,
+    collections, live: LIVE_BRANCH, draft: DRAFT_BRANCH,
   });
 });
 
-/* ---- list products ------------------------------------------------ */
-app.get('/api/products', requireAuth, async (_req, res) => {
-  const files = await listMarkdown(PRODUCTS_DIR);
-  const items = [];
-  for (const f of files) {
-    const slug = basename(f, '.md');
-    try {
-      const { data } = matter(await readFile(join(PRODUCTS_DIR, f), 'utf8'));
-      items.push({
-        slug,
-        id: data.id,
-        title: data.title,
-        category: data.category,
-        status: data.status,
-        mainUrl: toPreviewUrl(data.images?.main ?? ''),
-      });
-    } catch { /* skip unparseable */ }
-  }
-  items.sort((a, b) => String(a.id).localeCompare(String(b.id)));
-  res.json(items);
+/* ---- draft status / publish / discard ----------------------------- */
+app.get('/api/draft', requireAuth, async (_req, res) => {
+  res.json(await draftStatus());
 });
 
-/* ---- get one product ---------------------------------------------- */
-app.get('/api/products/:slug', requireAuth, async (req, res) => {
-  const p = await readProduct(req.params.slug);
-  if (!p) return res.status(404).json({ error: 'Not found' });
-  res.json({
-    slug: p.slug,
-    id: p.data.id,
-    title: p.data.title,
-    category: p.data.category,
-    themes: p.data.themes ?? [],
-    status: p.data.status,
-    collection: p.data.collection ?? null,
-    commission_example: !!p.data.commission_example,
-    multi_frame: !!p.data.multi_frame,
-    palette_variants: p.data.palette_variants ?? [],
-    frame_options: p.data.frame_options ?? [],
-    price: p.data.price ?? null,
-    lead_time: p.data.lead_time ?? null,
-    confidence: p.data.confidence ?? 'high',
-    body: p.body.trim(),
-    images: imagesView(p.data),
-  });
-});
-
-/* ---- save product fields ------------------------------------------ */
-app.put('/api/products/:slug', requireAuth, async (req, res) => {
-  const p = await readProduct(req.params.slug);
-  if (!p) return res.status(404).json({ error: 'Not found' });
-  const b = req.body || {};
-
-  // Validate / coerce
-  if (!b.title || !String(b.title).trim()) return res.status(400).json({ error: 'Title is required' });
-  if (!VALID_CATEGORIES.includes(b.category)) return res.status(400).json({ error: 'Invalid category' });
-  const themes = Array.isArray(b.themes) ? b.themes.filter((t) => VALID_THEMES.includes(t)) : [];
-  if (themes.length < 1) return res.status(400).json({ error: 'Pick at least one theme' });
-  if (!VALID_STATUS.includes(b.status)) return res.status(400).json({ error: 'Invalid status' });
-
-  let price = null;
-  if (b.price !== null && b.price !== '' && b.price !== undefined) {
-    const n = Number(b.price);
-    if (Number.isNaN(n)) return res.status(400).json({ error: 'Price must be a number' });
-    price = n;
-  }
-  const leadTime = b.lead_time && String(b.lead_time).trim() ? String(b.lead_time).trim() : null;
-  const collection = b.collection && String(b.collection).trim() ? String(b.collection).trim() : null;
-
-  const next = {
-    ...p.data,
-    title: String(b.title).trim(),
-    category: b.category,
-    themes,
-    status: b.status,
-    collection,
-    commission_example: !!b.commission_example,
-    multi_frame: !!b.multi_frame,
-    palette_variants: Array.isArray(b.palette_variants) ? b.palette_variants.map(String) : [],
-    frame_options: Array.isArray(b.frame_options) ? b.frame_options.map(String) : [],
-    price,
-    lead_time: leadTime,
-    confidence: ['high', 'medium', 'low'].includes(b.confidence) ? b.confidence : (p.data.confidence ?? 'high'),
-  };
-
-  const body = typeof b.body === 'string' ? b.body.trim() + '\n' : p.body;
-  await writeProduct(req.params.slug, next, body);
-  res.json({ ok: true });
-});
-
-/* ---- add image ---------------------------------------------------- */
-app.post('/api/products/:slug/images', requireAuth, async (req, res) => {
-  const p = await readProduct(req.params.slug);
-  if (!p) return res.status(404).json({ error: 'Not found' });
-  const { role, filename, dataBase64 } = req.body || {};
-  if (!['main', 'angles', 'process'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
-  if (!dataBase64) return res.status(400).json({ error: 'No image data' });
-
-  let ext = extname(String(filename || '')).toLowerCase();
-  if (!/^\.(jpe?g|png|webp|avif|gif)$/.test(ext)) ext = '.jpg';
-
-  const id = p.data.id;
-  const folder = join(IMAGES_DIR, id);
-  await mkdir(folder, { recursive: true });
-
-  const name = role === 'main' ? `main${ext}` : await nextImageName(id, role, ext);
-  const buf = Buffer.from(String(dataBase64).replace(/^data:[^,]+,/, ''), 'base64');
-  await writeFile(join(folder, name), buf);
-
-  const fmPath = `${FM_PREFIX}${id}/${name}`;
-  if (role === 'main') {
-    p.data.images.main = fmPath;
-  } else {
-    p.data.images[role] = [...(p.data.images[role] ?? []), fmPath];
-  }
-  await writeProduct(req.params.slug, p.data, p.body);
-  res.json({ ok: true, images: imagesView(p.data) });
-});
-
-/* ---- delete image ------------------------------------------------- */
-app.delete('/api/products/:slug/images', requireAuth, async (req, res) => {
-  const p = await readProduct(req.params.slug);
-  if (!p) return res.status(404).json({ error: 'Not found' });
-  const { role, path } = req.body || {};
-  if (role === 'main') return res.status(400).json({ error: 'Main image is required — replace it instead of deleting.' });
-  if (!['angles', 'process'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
-
-  const list = p.data.images[role] ?? [];
-  if (!list.includes(path)) return res.status(404).json({ error: 'Image not found on this product' });
-  p.data.images[role] = list.filter((x) => x !== path);
-
-  // Remove the physical file too.
-  const m = String(path).match(/images\/(.+)$/);
-  if (m) {
-    const file = join(IMAGES_DIR, m[1]);
-    if (existsSync(file)) await unlink(file).catch(() => {});
-  }
-  await writeProduct(req.params.slug, p.data, p.body);
-  res.json({ ok: true, images: imagesView(p.data) });
-});
-
-/* ---- pending changes for a product -------------------------------- */
-app.get('/api/products/:slug/status', requireAuth, async (req, res) => {
-  const p = await readProduct(req.params.slug);
-  if (!p) return res.status(404).json({ error: 'Not found' });
-  const paths = [`src/content/products/${req.params.slug}.md`, `images/${p.data.id}`];
-  const out = await git(['status', '--porcelain', '--', ...paths]).catch(() => '');
-  res.json({ dirty: out.trim().length > 0, detail: out.trim() });
-});
-
-/* ---- publish (commit + push) -------------------------------------- */
-app.post('/api/products/:slug/publish', requireAuth, async (req, res) => {
-  const p = await readProduct(req.params.slug);
-  if (!p) return res.status(404).json({ error: 'Not found' });
-  const slug = req.params.slug;
-  const mdPath = `src/content/products/${slug}.md`;
-  const imgPath = `images/${p.data.id}`;
-
+app.post('/api/publish', requireAuth, async (_req, res) => {
   try {
-    await git(['add', '-A', '--', mdPath, imgPath]);
-    const staged = (await git(['diff', '--cached', '--name-only'])).trim();
-    if (!staged) {
-      return res.json({ ok: true, committed: false, message: 'No changes to publish.' });
+    if (!(await branchExists(DRAFT_BRANCH))) {
+      return res.json({ ok: true, published: false, message: 'No unpublished edits.' });
     }
-    const branch = await currentBranch();
-    const msg = `Admin: update ${p.data.title} (${p.data.id})`;
-    await git(['commit', '-m', msg]);
-    const pushOut = await git(['push', 'origin', branch]);
+    if ((await aheadCount()) === 0) {
+      await git(['checkout', LIVE_BRANCH]);
+      await git(['branch', '-D', DRAFT_BRANCH]);
+      return res.json({ ok: true, published: false, message: 'Draft had no changes — cleared.' });
+    }
+    const changed = await changedProducts();
+    const names = changed.map((c) => c.title);
+    const summary = names.length <= 5
+      ? names.join(', ')
+      : `${names.slice(0, 5).join(', ')} +${names.length - 5} more`;
+    const msg = `Gallery update: ${summary}`;
+
+    await git(['checkout', LIVE_BRANCH]);
+    try {
+      await git(['merge', '--squash', DRAFT_BRANCH]);
+      await git(['commit', '-m', msg]);
+    } catch (mergeErr) {
+      await git(['merge', '--abort']).catch(() => {});
+      await git(['checkout', DRAFT_BRANCH]).catch(() => {});
+      throw mergeErr;
+    }
+    let pushed = false;
+    if (!NO_PUSH) { await git(['push', 'origin', LIVE_BRANCH]); pushed = true; }
+    await git(['branch', '-D', DRAFT_BRANCH]);
+
     res.json({
-      ok: true,
-      committed: true,
-      branch,
-      message: `Published to ${branch}. The live site rebuilds in ~1–2 minutes.`,
-      detail: pushOut.trim(),
+      ok: true, published: true, pushed, count: changed.length,
+      message: pushed
+        ? `Published ${changed.length} change(s) to ${LIVE_BRANCH}. The live site rebuilds in ~1–2 minutes.`
+        : `Merged ${changed.length} change(s) into ${LIVE_BRANCH} locally (push skipped).`,
     });
   } catch (err) {
     res.status(500).json({ error: 'Publish failed', detail: String(err.stderr || err.message || err) });
   }
 });
 
+app.post('/api/discard', requireAuth, async (_req, res) => {
+  try {
+    if (!(await branchExists(DRAFT_BRANCH))) {
+      if ((await currentBranch()) !== LIVE_BRANCH) await git(['checkout', LIVE_BRANCH]);
+      return res.json({ ok: true, message: 'No draft to discard.' });
+    }
+    if ((await currentBranch()) === DRAFT_BRANCH) {
+      await git(['reset', '--hard']);          // drop any stray uncommitted edits
+      await git(['checkout', LIVE_BRANCH]);
+    }
+    await git(['branch', '-D', DRAFT_BRANCH]);
+    res.json({ ok: true, message: 'All unpublished edits discarded.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Discard failed', detail: String(err.stderr || err.message || err) });
+  }
+});
+
+/* ---- preview build ------------------------------------------------ */
+let buildState = { building: false, lastBuiltAt: null, ok: false };
+app.get('/api/preview', requireAuth, (_req, res) => res.json(buildState));
+app.post('/api/preview/build', requireAuth, async (_req, res) => {
+  if (buildState.building) return res.status(409).json({ error: 'A build is already running.' });
+  buildState.building = true;
+  try {
+    await execFileAsync(process.execPath, [ASTRO_BIN, 'build'], {
+      cwd: ROOT, maxBuffer: 50 * 1024 * 1024, env: { ...process.env, FORCE_COLOR: '0' },
+    });
+    buildState = { building: false, lastBuiltAt: new Date().toISOString(), ok: true };
+    res.json({ ok: true, url: '/quillartbytk/', builtAt: buildState.lastBuiltAt });
+  } catch (err) {
+    buildState = { building: false, lastBuiltAt: buildState.lastBuiltAt, ok: false };
+    res.status(500).json({ error: 'Build failed', detail: String(err.stderr || err.message || err).slice(-4000) });
+  }
+});
+
+/* ---- list / get products ------------------------------------------ */
+app.get('/api/products', requireAuth, async (_req, res) => {
+  const items = [];
+  for (const f of await listMarkdown(PRODUCTS_DIR)) {
+    try {
+      const { data } = matter(await readFile(join(PRODUCTS_DIR, f), 'utf8'));
+      items.push({
+        slug: basename(f, '.md'), id: data.id, title: data.title,
+        category: data.category, status: data.status, mainUrl: toPreviewUrl(data.images?.main ?? ''),
+      });
+    } catch { /* skip */ }
+  }
+  items.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  res.json(items);
+});
+
+app.get('/api/products/:slug', requireAuth, async (req, res) => {
+  const p = await readProduct(req.params.slug);
+  if (!p) return res.status(404).json({ error: 'Not found' });
+  res.json({
+    slug: p.slug, id: p.data.id, title: p.data.title, category: p.data.category,
+    themes: p.data.themes ?? [], status: p.data.status, collection: p.data.collection ?? null,
+    commission_example: !!p.data.commission_example, multi_frame: !!p.data.multi_frame,
+    palette_variants: p.data.palette_variants ?? [], frame_options: p.data.frame_options ?? [],
+    price: p.data.price ?? null, lead_time: p.data.lead_time ?? null,
+    confidence: p.data.confidence ?? 'high', body: p.body.trim(), images: imagesView(p.data),
+  });
+});
+
+/* ---- save product fields ------------------------------------------ */
+app.put('/api/products/:slug', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const p = await readProduct(req.params.slug);
+    if (!p) return res.status(404).json({ error: 'Not found' });
+    const b = req.body || {};
+
+    if (!b.title || !String(b.title).trim()) return res.status(400).json({ error: 'Title is required' });
+    if (!VALID_CATEGORIES.includes(b.category)) return res.status(400).json({ error: 'Invalid category' });
+    const themes = Array.isArray(b.themes) ? b.themes.filter((t) => VALID_THEMES.includes(t)) : [];
+    if (themes.length < 1) return res.status(400).json({ error: 'Pick at least one theme' });
+    if (!VALID_STATUS.includes(b.status)) return res.status(400).json({ error: 'Invalid status' });
+
+    let price = null;
+    if (b.price !== null && b.price !== '' && b.price !== undefined) {
+      const n = Number(b.price);
+      if (Number.isNaN(n)) return res.status(400).json({ error: 'Price must be a number' });
+      price = n;
+    }
+    const leadTime = b.lead_time && String(b.lead_time).trim() ? String(b.lead_time).trim() : null;
+    const collection = b.collection && String(b.collection).trim() ? String(b.collection).trim() : null;
+
+    const next = {
+      ...p.data, title: String(b.title).trim(), category: b.category, themes, status: b.status,
+      collection, commission_example: !!b.commission_example, multi_frame: !!b.multi_frame,
+      palette_variants: Array.isArray(b.palette_variants) ? b.palette_variants.map(String) : [],
+      frame_options: Array.isArray(b.frame_options) ? b.frame_options.map(String) : [],
+      price, lead_time: leadTime,
+      confidence: ['high', 'medium', 'low'].includes(b.confidence) ? b.confidence : (p.data.confidence ?? 'high'),
+    };
+    const body = typeof b.body === 'string' ? b.body.trim() + '\n' : p.body;
+    await writeProduct(req.params.slug, next, body);
+    await commitDraft(`Edit ${next.title} (${next.id})`, [`src/content/products/${req.params.slug}.md`]);
+    res.json({ ok: true, draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
+  }
+});
+
+/* ---- add image ---------------------------------------------------- */
+app.post('/api/products/:slug/images', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const p = await readProduct(req.params.slug);
+    if (!p) return res.status(404).json({ error: 'Not found' });
+    const { role, filename, dataBase64 } = req.body || {};
+    if (!['main', 'angles', 'process'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+    if (!dataBase64) return res.status(400).json({ error: 'No image data' });
+
+    let ext = extname(String(filename || '')).toLowerCase();
+    if (!/^\.(jpe?g|png|webp|avif|gif)$/.test(ext)) ext = '.jpg';
+
+    const id = p.data.id;
+    await mkdir(join(IMAGES_DIR, id), { recursive: true });
+    const name = role === 'main' ? `main${ext}` : await nextImageName(id, role, ext);
+    const buf = Buffer.from(String(dataBase64).replace(/^data:[^,]+,/, ''), 'base64');
+    await writeFile(join(IMAGES_DIR, id, name), buf);
+
+    const fmPath = `${FM_PREFIX}${id}/${name}`;
+    if (role === 'main') p.data.images.main = fmPath;
+    else p.data.images[role] = [...(p.data.images[role] ?? []), fmPath];
+
+    await writeProduct(req.params.slug, p.data, p.body);
+    await commitDraft(`Add ${role} image to ${p.data.title} (${id})`,
+      [`src/content/products/${req.params.slug}.md`, `images/${id}`]);
+    res.json({ ok: true, images: imagesView(p.data), draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
+  }
+});
+
+/* ---- delete image ------------------------------------------------- */
+app.delete('/api/products/:slug/images', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const p = await readProduct(req.params.slug);
+    if (!p) return res.status(404).json({ error: 'Not found' });
+    const { role, path } = req.body || {};
+    if (role === 'main') return res.status(400).json({ error: 'Main image is required — replace it instead of deleting.' });
+    if (!['angles', 'process'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+
+    const list = p.data.images[role] ?? [];
+    if (!list.includes(path)) return res.status(404).json({ error: 'Image not found on this product' });
+    p.data.images[role] = list.filter((x) => x !== path);
+
+    const m = String(path).match(/images\/(.+)$/);
+    if (m) { const file = join(IMAGES_DIR, m[1]); if (existsSync(file)) await unlink(file).catch(() => {}); }
+
+    await writeProduct(req.params.slug, p.data, p.body);
+    await commitDraft(`Remove ${role} image from ${p.data.title} (${p.data.id})`,
+      [`src/content/products/${req.params.slug}.md`, `images/${p.data.id}`]);
+    res.json({ ok: true, images: imagesView(p.data), draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
+  }
+});
+
+/* ---- startup: resume an existing draft ---------------------------- */
+async function reconcileBranch() {
+  try {
+    if ((await branchExists(DRAFT_BRANCH)) && (await currentBranch()) !== DRAFT_BRANCH && (await treeCleanTracked())) {
+      await git(['checkout', DRAFT_BRANCH]);
+      console.log(`  Resumed unpublished edits on "${DRAFT_BRANCH}".`);
+    }
+  } catch { /* best effort */ }
+}
+
 /* ---- start (with port fallback) ----------------------------------- */
 function start(port) {
-  const server = app.listen(port, '127.0.0.1', () => {
+  const server = app.listen(port, '127.0.0.1', async () => {
+    await reconcileBranch();
     console.log(`\n  Gallery admin running →  http://localhost:${port}/admin-tool/`);
+    console.log(`  live: ${LIVE_BRANCH}   draft: ${DRAFT_BRANCH}${NO_PUSH ? '   (push disabled)' : ''}`);
     console.log(`  (local only — press Ctrl+C to stop)\n`);
   });
   server.on('error', (err) => {
     if (err.code === 'EADDRINUSE' && port === PORT) {
       console.warn(`  Port ${PORT} busy, trying ${PORT_FALLBACK}…`);
       start(PORT_FALLBACK);
-    } else {
-      console.error(err);
-      process.exit(1);
-    }
+    } else { console.error(err); process.exit(1); }
   });
 }
 start(PORT);

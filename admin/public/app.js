@@ -6,7 +6,7 @@ const $ = (sel) => document.querySelector(sel);
 let token = sessionStorage.getItem('admin_token') || '';
 let meta = null;
 let products = [];
-let current = null; // full product being edited
+let current = null;
 let chips = { palette: [], frames: [] };
 
 /* ---------------- API helper ---------------- */
@@ -21,24 +21,14 @@ async function api(path, { method = 'GET', body } = {}) {
   });
   if (res.status === 401) { logout(); throw new Error('Session expired — please sign in again.'); }
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  if (!res.ok) throw new Error(data.detail || data.error || `Request failed (${res.status})`);
   return data;
 }
 
 /* ---------------- Auth ---------------- */
-function showLogin() {
-  $('#login-view').hidden = false;
-  $('#app-view').hidden = true;
-}
-function showApp() {
-  $('#login-view').hidden = true;
-  $('#app-view').hidden = false;
-}
-function logout() {
-  token = '';
-  sessionStorage.removeItem('admin_token');
-  showLogin();
-}
+function showLogin() { $('#login-view').hidden = false; $('#app-view').hidden = true; }
+function showApp() { $('#login-view').hidden = true; $('#app-view').hidden = false; }
+function logout() { token = ''; sessionStorage.removeItem('admin_token'); showLogin(); }
 
 $('#login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -53,32 +43,119 @@ $('#login-form').addEventListener('submit', async (e) => {
     sessionStorage.setItem('admin_token', token);
     $('#login-pass').value = '';
     await boot();
-  } catch (e2) {
-    err.textContent = e2.message;
-    err.hidden = false;
-  }
+  } catch (e2) { err.textContent = e2.message; err.hidden = false; }
 });
-
 $('#logout-btn').addEventListener('click', logout);
 
 /* ---------------- Boot ---------------- */
 async function boot() {
   showApp();
   meta = await api('/api/meta');
-  $('#branch-badge').textContent = 'branch: ' + meta.branch;
+  $('#branch-badge').textContent = 'editing: ' + meta.draft;
   buildStatusSelect();
   buildCollectionSelect();
   await loadProductList();
+  await refreshDraft();
 }
-
 function buildStatusSelect() {
   $('#f-status').innerHTML = meta.statuses.map((s) => `<option value="${s}">${s}</option>`).join('');
 }
 function buildCollectionSelect() {
-  const opts = ['<option value="">(none)</option>']
-    .concat(meta.collections.map((c) => `<option value="${c.slug}">${c.title}</option>`));
-  $('#f-collection').innerHTML = opts.join('');
+  $('#f-collection').innerHTML = ['<option value="">(none)</option>']
+    .concat(meta.collections.map((c) => `<option value="${c.slug}">${c.title}</option>`)).join('');
 }
+
+/* ---------------- Draft bar ---------------- */
+function renderDraft(d) {
+  const dot = $('#draft-dot');
+  const summary = $('#draft-summary');
+  const commit = $('#commit-btn');
+  const discard = $('#discard-btn');
+  const pending = d && d.changed && d.changed.length > 0;
+
+  if (pending) {
+    const names = d.changed.map((c) => c.title);
+    const shown = names.slice(0, 4).join(', ') + (names.length > 4 ? ` +${names.length - 4} more` : '');
+    summary.innerHTML = `<strong>${names.length}</strong> unpublished edit${names.length === 1 ? '' : 's'}: <span class="muted">${escapeHtml(shown)}</span>`;
+    dot.className = 'draft-dot pending';
+    commit.disabled = false;
+    discard.disabled = false;
+    commit.textContent = `Commit ${names.length} change${names.length === 1 ? '' : 's'} (publish live)`;
+  } else {
+    summary.innerHTML = `No unpublished edits — in sync with live.`;
+    dot.className = 'draft-dot clean';
+    commit.disabled = true;
+    discard.disabled = true;
+    commit.textContent = 'Commit (publish live)';
+  }
+}
+async function refreshDraft() {
+  try { renderDraft(await api('/api/draft')); } catch { /* ignore */ }
+}
+
+/* preview */
+$('#preview-btn').addEventListener('click', async () => {
+  const btn = $('#preview-btn');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Building… (~10s)';
+  try {
+    await api('/api/preview/build', { method: 'POST' });
+    $('#preview-link').hidden = false;
+    btn.textContent = 'Rebuild preview';
+    window.open('/quillartbytk/', '_blank', 'noopener');
+  } catch (e) {
+    alert('Build failed:\n\n' + e.message);
+    btn.textContent = original;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+/* commit */
+$('#commit-btn').addEventListener('click', async () => {
+  const d = await api('/api/draft').catch(() => null);
+  const n = d && d.changed ? d.changed.length : 0;
+  if (!n) return;
+  if (!confirm(`Publish ${n} change${n === 1 ? '' : 's'} to the LIVE site?\n\nThis pushes to ${meta.draft === 'gallery-edits' ? 'the live branch' : meta.live} and the site rebuilds in a minute or two.`)) return;
+  const btn = $('#commit-btn');
+  btn.disabled = true; btn.textContent = 'Publishing…';
+  try {
+    const r = await api('/api/publish', { method: 'POST' });
+    alert(r.message);
+    current = null;
+    $('#editor-form').hidden = true;
+    $('#empty-state').hidden = false;
+    await loadProductList();
+    await refreshDraft();
+  } catch (e) {
+    alert('Publish failed:\n\n' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+/* discard */
+$('#discard-btn').addEventListener('click', async () => {
+  const d = await api('/api/draft').catch(() => null);
+  const n = d && d.changed ? d.changed.length : 0;
+  if (!n) return;
+  if (!confirm(`Discard ALL ${n} unpublished edit${n === 1 ? '' : 's'}?\n\nThis permanently deletes your draft and cannot be undone.`)) return;
+  const btn = $('#discard-btn');
+  btn.disabled = true; btn.textContent = 'Discarding…';
+  try {
+    const r = await api('/api/discard', { method: 'POST' });
+    current = null;
+    $('#editor-form').hidden = true;
+    $('#empty-state').hidden = false;
+    await loadProductList();
+    await refreshDraft();
+  } catch (e) {
+    alert('Discard failed:\n\n' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Discard';
+  }
+});
 
 /* ---------------- Product list ---------------- */
 async function loadProductList() {
@@ -104,10 +181,8 @@ function renderProductList(list) {
 }
 $('#search').addEventListener('input', (e) => {
   const q = e.target.value.toLowerCase().trim();
-  renderProductList(
-    !q ? products : products.filter((p) =>
-      p.title.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.category.includes(q))
-  );
+  renderProductList(!q ? products : products.filter((p) =>
+    p.title.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.category.includes(q)));
 });
 
 /* ---------------- Editor ---------------- */
@@ -207,10 +282,8 @@ function renderImgGrid(el, items, role) {
     const card = document.createElement('div');
     card.className = 'img-card';
     const delBtn = role === 'main' ? '' : `<button class="del" title="Delete" type="button">×</button>`;
-    card.innerHTML = `<img src="${img.url}" alt="" />${delBtn}`;
-    if (role !== 'main') {
-      card.querySelector('.del').addEventListener('click', () => deleteImage(role, img.path));
-    }
+    card.innerHTML = `<img src="${img.url}?t=${Date.now()}" alt="" />${delBtn}`;
+    if (role !== 'main') card.querySelector('.del').addEventListener('click', () => deleteImage(role, img.path));
     el.appendChild(card);
   });
 }
@@ -219,41 +292,33 @@ document.querySelectorAll('input[type="file"]').forEach((inp) => {
   inp.addEventListener('change', async () => {
     if (!inp.files || !inp.files[0] || !current) return;
     const file = inp.files[0];
-    const role = inp.dataset.role;
     setStatus('Uploading image…', 'busy');
     try {
       const dataBase64 = await fileToBase64(file);
       const data = await api(`/api/products/${current.slug}/images`, {
-        method: 'POST',
-        body: { role, filename: file.name, dataBase64 },
+        method: 'POST', body: { role: inp.dataset.role, filename: file.name, dataBase64 },
       });
       current.images = data.images;
       renderImages(data.images);
-      setStatus('Image added — remember to Save & publish.', 'ok');
-    } catch (e) {
-      setStatus(e.message, 'err');
-    }
+      if (data.draft) renderDraft(data.draft);
+      setStatus('Image added to draft.', 'ok');
+    } catch (e) { setStatus(e.message, 'err'); }
     inp.value = '';
   });
 });
-
 async function deleteImage(role, path) {
-  if (!confirm('Delete this image? It will be removed when you publish.')) return;
+  if (!confirm('Remove this image from the draft?')) return;
   setStatus('Removing image…', 'busy');
   try {
-    const data = await api(`/api/products/${current.slug}/images`, {
-      method: 'DELETE',
-      body: { role, path },
-    });
+    const data = await api(`/api/products/${current.slug}/images`, { method: 'DELETE', body: { role, path } });
     current.images = data.images;
     renderImages(data.images);
-    setStatus('Image removed — remember to Save & publish.', 'ok');
-  } catch (e) {
-    setStatus(e.message, 'err');
-  }
+    if (data.draft) renderDraft(data.draft);
+    setStatus('Image removed from draft.', 'ok');
+  } catch (e) { setStatus(e.message, 'err'); }
 }
 
-/* ---------------- Save & publish ---------------- */
+/* ---------------- Save to draft ---------------- */
 $('#editor-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!current) return;
@@ -262,15 +327,13 @@ $('#editor-form').addEventListener('submit', async (e) => {
 
   const themes = [...$('#f-themes').querySelectorAll('input:checked')].map((i) => i.value);
   const category = ($('#f-category').querySelector('input:checked') || {}).value;
-
   if (!themes.length) { setStatus('Pick at least one theme.', 'err'); btn.disabled = false; return; }
   if (!category) { setStatus('Pick a category.', 'err'); btn.disabled = false; return; }
 
   const payload = {
     title: $('#f-title').value,
     body: $('#f-body').value,
-    category,
-    themes,
+    category, themes,
     status: $('#f-status').value,
     price: $('#f-price').value === '' ? null : Number($('#f-price').value),
     lead_time: $('#f-lead').value,
@@ -281,17 +344,14 @@ $('#editor-form').addEventListener('submit', async (e) => {
     frame_options: chips.frames,
     confidence: current.confidence,
   };
-
   try {
-    setStatus('Saving…', 'busy');
-    await api('/api/products/' + current.slug, { method: 'PUT', body: payload });
-    setStatus('Publishing (commit + push)…', 'busy');
-    const pub = await api(`/api/products/${current.slug}/publish`, { method: 'POST' });
-    setStatus(pub.committed ? pub.message : 'Saved — nothing new to publish.', 'ok');
-    // Refresh list (title/status/thumbnail may have changed)
+    setStatus('Saving to draft…', 'busy');
+    const r = await api('/api/products/' + current.slug, { method: 'PUT', body: payload });
     current.title = payload.title;
-    await loadProductList();
     $('#editor-title').textContent = payload.title;
+    await loadProductList();
+    if (r.draft) renderDraft(r.draft); else await refreshDraft();
+    setStatus('Saved to draft.', 'ok');
   } catch (e2) {
     setStatus(e2.message, 'err');
   } finally {
@@ -319,8 +379,5 @@ function escapeHtml(s) {
 }
 
 /* ---------------- start ---------------- */
-if (token) {
-  boot().catch(() => showLogin());
-} else {
-  showLogin();
-}
+if (token) boot().catch(() => showLogin());
+else showLogin();

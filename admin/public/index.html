@@ -26,10 +26,24 @@
     <header class="topbar">
       <div class="topbar-left">
         <strong>Gallery editor</strong>
-        <span id="branch-badge" class="badge" title="Changes publish to this branch"></span>
+        <span id="branch-badge" class="badge" title="Editing branch"></span>
       </div>
       <button id="logout-btn" class="btn btn-ghost">Sign out</button>
     </header>
+
+    <!-- Draft / publish bar -->
+    <div id="draft-bar" class="draft-bar">
+      <div class="draft-info">
+        <span id="draft-dot" class="draft-dot"></span>
+        <span id="draft-summary">Checking for unpublished edits…</span>
+      </div>
+      <div class="draft-actions">
+        <button id="preview-btn" type="button" class="btn btn-ghost btn-sm">Build preview</button>
+        <a id="preview-link" class="btn btn-ghost btn-sm" href="/quillartbytk/" target="_blank" rel="noopener" hidden>Open preview ↗</a>
+        <button id="commit-btn" type="button" class="btn btn-primary btn-sm" disabled>Commit (publish live)</button>
+        <button id="discard-btn" type="button" class="btn btn-danger btn-sm" disabled>Discard</button>
+      </div>
+    </div>
 
     <div class="layout">
       <!-- Product list -->
@@ -129,10 +143,10 @@
           </div>
 
           <div class="actions">
-            <button type="submit" id="save-btn" class="btn btn-primary">Save &amp; publish changes</button>
+            <button type="submit" id="save-btn" class="btn btn-primary">Save to draft</button>
             <span id="save-status" class="save-status"></span>
           </div>
-          <p class="muted small">“Save &amp; publish” writes the file, then commits and pushes with git. The live site rebuilds a minute or two later.</p>
+          <p class="muted small">Saves to your local draft. Nothing goes live until you click <strong>Commit</strong> in the bar above. Use <strong>Build preview</strong> to see the whole site first.</p>
         </form>
       </main>
     </div>
