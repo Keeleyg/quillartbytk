@@ -178,6 +178,18 @@ function renderProductList(list) {
         <span class="pi-meta"><span class="status-dot s-${p.status}"></span>${p.id} · ${p.category}</span>
       </span>`;
     btn.addEventListener('click', () => selectProduct(p.slug));
+    // Drop target: move an angle image from another item onto this one.
+    btn.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; btn.classList.add('drop-target'); });
+    btn.addEventListener('dragleave', () => btn.classList.remove('drop-target'));
+    btn.addEventListener('drop', (e) => {
+      e.preventDefault();
+      btn.classList.remove('drop-target');
+      const d = parseDrag(e);
+      if (!d || !d.path) return;
+      if (d.role !== 'angles') { setStatus('Only angle images can be moved between items.', 'err'); return; }
+      if (d.fromSlug === p.slug) return;
+      moveAngleToItem(d.fromSlug, d.path, p.slug, p.title);
+    });
     wrap.appendChild(btn);
   });
 }
@@ -344,7 +356,7 @@ function renderImgGrid(el, items, role) {
       card.querySelector('.del').addEventListener('click', () => deleteImage(role, img.path));
       card.querySelector('.mkmain').addEventListener('click', () => setMainImage(img.path));
       card.addEventListener('dragstart', (ev) => {
-        ev.dataTransfer.setData('text/plain', img.path);
+        ev.dataTransfer.setData('text/plain', JSON.stringify({ path: img.path, role, fromSlug: current.slug }));
         ev.dataTransfer.effectAllowed = 'move';
       });
     }
@@ -364,6 +376,10 @@ async function setMainImage(path) {
   } catch (e) { setStatus(e.message, 'err'); }
 }
 
+function parseDrag(e) {
+  try { return JSON.parse(e.dataTransfer.getData('text/plain')); } catch { return null; }
+}
+
 // Main image slot is a drop target — drop an angle/process thumb onto it.
 (function setupMainDropZone() {
   const z = $('#img-main');
@@ -372,10 +388,23 @@ async function setMainImage(path) {
   z.addEventListener('drop', (e) => {
     e.preventDefault();
     z.classList.remove('drop-hover');
-    const path = e.dataTransfer.getData('text/plain');
-    if (path) setMainImage(path);
+    const d = parseDrag(e);
+    if (d && d.path) setMainImage(d.path);
   });
 })();
+
+// Move an angle image onto a different item in the list.
+async function moveAngleToItem(fromSlug, path, toSlug, toTitle) {
+  if (!confirm(`Move this angle image to “${toTitle}”?\n\nIt will be added there and removed from the current item.`)) return;
+  setStatus('Moving image…', 'busy');
+  try {
+    const data = await api(`/api/products/${fromSlug}/move-angle`, { method: 'POST', body: { path, toSlug } });
+    if (current && current.slug === fromSlug) { current.images = data.images; renderImages(data.images); }
+    if (data.draft) renderDraft(data.draft);
+    await loadProductList();
+    setStatus(`Moved to “${toTitle}”.`, 'ok');
+  } catch (e) { setStatus(e.message, 'err'); }
+}
 
 document.querySelectorAll('input[type="file"]').forEach((inp) => {
   inp.addEventListener('change', async () => {

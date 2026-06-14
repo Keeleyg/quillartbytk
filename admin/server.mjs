@@ -20,7 +20,7 @@
 import express from 'express';
 import matter from 'gray-matter';
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
-import { readFile, writeFile, readdir, mkdir, unlink } from 'node:fs/promises';
+import { readFile, writeFile, readdir, mkdir, unlink, copyFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, extname, basename } from 'node:path';
@@ -592,6 +592,47 @@ app.post('/api/products/:slug/main-image', requireAuth, async (req, res) => {
     await commitDraft(`Set main image for ${p.data.title} (${p.data.id})`,
       [`src/content/products/${req.params.slug}.md`, `images/${p.data.id}`]);
     res.json({ ok: true, images: imagesView(p.data), draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
+  }
+});
+
+/* ---- move an angle image to a different product ------------------- */
+app.post('/api/products/:slug/move-angle', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const from = await readProduct(req.params.slug);
+    if (!from) return res.status(404).json({ error: 'Source item not found' });
+    const { path, toSlug } = req.body || {};
+    if (!toSlug || toSlug === req.params.slug) return res.status(400).json({ error: 'Pick a different item' });
+    const to = await readProduct(toSlug);
+    if (!to) return res.status(404).json({ error: 'Target item not found' });
+    if (!(from.data.images.angles ?? []).includes(path)) {
+      return res.status(404).json({ error: 'That image is not an angle on this item' });
+    }
+
+    const m = String(path).match(/images\/([^/]+)\/(.+)$/);
+    if (!m) return res.status(400).json({ error: 'Bad image path' });
+    const srcFile = join(IMAGES_DIR, m[1], m[2]);
+    if (!existsSync(srcFile)) return res.status(404).json({ error: 'Source image file is missing' });
+
+    const toId = to.data.id;
+    let ext = extname(m[2]).toLowerCase();
+    if (!/^\.(jpe?g|png|webp|avif|gif)$/.test(ext)) ext = '.jpg';
+    await mkdir(join(IMAGES_DIR, toId), { recursive: true });
+    const newName = await nextImageName(toId, 'angles', ext);
+    await copyFile(srcFile, join(IMAGES_DIR, toId, newName));
+    await unlink(srcFile).catch(() => {});
+
+    from.data.images.angles = from.data.images.angles.filter((x) => x !== path);
+    to.data.images.angles = [...(to.data.images.angles ?? []), `${FM_PREFIX}${toId}/${newName}`];
+
+    await writeProduct(req.params.slug, from.data, from.body);
+    await writeProduct(toSlug, to.data, to.body);
+    await commitDraft(`Move angle image from ${from.data.title} to ${to.data.title}`,
+      [`src/content/products/${req.params.slug}.md`, `src/content/products/${toSlug}.md`,
+       `images/${from.data.id}`, `images/${toId}`]);
+    res.json({ ok: true, images: imagesView(from.data), toTitle: to.data.title, draft: await draftStatus() });
   } catch (err) {
     res.status(500).json({ error: String(err.message || err) });
   }
