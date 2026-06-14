@@ -1,11 +1,11 @@
 ---
 id: P017
-title: Praying Mantis
+title: Nursery Weather Triptych
 category: framed
 themes:
   - insects
-status: sold
-hidden: true
+status: available
+hidden: false
 featured: false
 collection: null
 commission_example: false
@@ -20,7 +20,6 @@ images:
   process: []
 confidence: high
 ---
-A vibrant green praying mantis rendered in quilled paper with delicate
-striped detailing in green and warm brown. The classic raised-forelegs
-pose is captured precisely. Presented in a deep black shadow-box frame
-for a natural history specimen feel.
+Perfect for the nursery. 
+A paper quilled triptych of a sun showers and a rainbow. 
+Presented in a white shadow box frame with a safety conscious perspex window.

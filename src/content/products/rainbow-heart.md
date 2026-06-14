@@ -1,11 +1,11 @@
 ---
 id: P016
-title: Rainbow Heart (Two Sizes Available)
+title: Rainbow Heart
 category: framed
 themes:
   - patterns
 status: sold
-hidden: false
+hidden: true
 featured: false
 collection: null
 commission_example: false
@@ -24,8 +24,5 @@ images:
 confidence: high
 ---
 A heart-shaped composition built entirely from tightly rolled pastel
-paper coils in a full rainbow spectrum. Shown here in two size options -
-a large square frame and a smaller version. A vibrant, joyful piece
-suitable as a feature wall artwork or a gift. See also P117 (Rainbow
-Hearts in a Heart) for a variant using dimensional quilled hearts
-instead of rolled coils.
+paper coils in a full rainbow spectrum. 
+Presented in a small white shadow box frame 10x10cm
