@@ -1,15 +1,19 @@
 ---
 id: P033
-title: "Framed Quilled Nautical Initial"
+title: Framed Quilled Nautical Initial
 category: framed
-themes: [nautical]
+themes:
+  - nautical
 status: sold
+hidden: true
+featured: false
 collection: nautical
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+lead_time: null
 images:
   main: ../../../images/P033/main.jpg
   angles:
@@ -17,9 +21,10 @@ images:
   process: []
 confidence: high
 notes:
-  - "angle-1: Side-by-side display showing the initial alongside the matching whale piece - frequently commissioned as a pair."
+  - >-
+    angle-1: Side-by-side display showing the initial alongside the matching
+    whale piece - frequently commissioned as a pair.
 ---
-
 A personalised statement letter rendered in dark blue and silver-grey
 quilled scrollwork, with small accent pieces (starfish, shell) tucked
 into the lower corner. Each piece is made to order for a chosen initial
