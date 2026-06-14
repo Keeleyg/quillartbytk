@@ -70,7 +70,7 @@ The inquiry form backend sends emails via [Resend](https://resend.com). Free tie
 
 - **Account**: signed up under Tracey's email
 - **API key**: stored as a Cloudflare Worker secret (never in the repo)
-- **Sending address (From)**: `inquiries@quillartbytk.com` (virtual, Resend handles delivery)
+- **Sending address (From)**: `tracey@quillartbytk.com` (the only mailbox used; on the Resend-verified domain)
 - **Destination (To)**: `tracey@quillartbytk.com` → forwarded to the gmail inbox via Cloudflare Email Routing
 - **DNS records**: SPF, DKIM, and DMARC records on `quillartbytk.com` in Cloudflare, required for Resend domain verification — the From domain won't send until these verify green
 
@@ -98,9 +98,9 @@ All email DNS records must be **DNS only** (grey cloud):
 - TXT at `_dmarc.quillartbytk.com` → DMARC policy
 
 ### Email routing
-Cloudflare Email Routing forwards domain mailboxes to the gmail inbox:
-- `tracey@quillartbytk.com` → gmail (where inquiry notifications land)
-- `inquiries@quillartbytk.com` → gmail (catches direct replies to the From address)
+Cloudflare Email Routing forwards `tracey@quillartbytk.com` → the gmail inbox.
+All inquiry mail (the From, the notification To, and customer replies) uses this
+single address; `inquiries@quillartbytk.com` is not a real mailbox.
 
 ## Local development
 - `npm run dev` — Astro site only. Form will error against a missing Worker endpoint.
