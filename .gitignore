@@ -12,3 +12,6 @@ dist/
 worker/node_modules/
 worker/.wrangler/
 worker/.dev.vars
+
+# Admin tool credentials (local-only, never commit)
+admin/credentials.json

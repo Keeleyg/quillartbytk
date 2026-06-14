@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Quillart Admin — Gallery Editor</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="login-view" class="login-view">
+    <form id="login-form" class="login-card" autocomplete="off">
+      <h1>Gallery editor</h1>
+      <p class="muted">Local admin — Quillart by TK</p>
+      <label>Username<input id="login-user" type="text" autocomplete="username" required /></label>
+      <label>Password<input id="login-pass" type="password" autocomplete="current-password" required /></label>
+      <button type="submit" class="btn btn-primary">Sign in</button>
+      <p id="login-error" class="error" hidden></p>
+    </form>
+  </div>
+
+  <!-- App -->
+  <div id="app-view" hidden>
+    <header class="topbar">
+      <div class="topbar-left">
+        <strong>Gallery editor</strong>
+        <span id="branch-badge" class="badge" title="Changes publish to this branch"></span>
+      </div>
+      <button id="logout-btn" class="btn btn-ghost">Sign out</button>
+    </header>
+
+    <div class="layout">
+      <!-- Product list -->
+      <aside class="sidebar">
+        <input id="search" type="search" placeholder="Search products…" class="search" />
+        <div id="product-list" class="product-list"></div>
+      </aside>
+
+      <!-- Editor -->
+      <main class="editor">
+        <div id="empty-state" class="empty-state">
+          <p>Select a piece on the left to edit it.</p>
+        </div>
+
+        <form id="editor-form" hidden>
+          <div class="editor-head">
+            <div>
+              <h2 id="editor-title">—</h2>
+              <span id="editor-id" class="muted mono"></span>
+            </div>
+            <a id="view-live" class="btn btn-ghost" target="_blank" rel="noopener">View live ↗</a>
+          </div>
+
+          <label class="field">Title
+            <input id="f-title" type="text" required />
+          </label>
+
+          <label class="field">Description
+            <textarea id="f-body" rows="6"></textarea>
+            <small class="muted">Markdown — this is the piece's write-up shown on its page.</small>
+          </label>
+
+          <div class="grid-2">
+            <div class="field">Category <small class="muted">(one)</small>
+              <div id="f-category" class="radio-group"></div>
+            </div>
+            <div class="field">Status
+              <select id="f-status"></select>
+            </div>
+          </div>
+
+          <div class="field">Themes <small class="muted">(one or more)</small>
+            <div id="f-themes" class="check-grid"></div>
+          </div>
+
+          <div class="grid-2">
+            <label class="field">Price (AUD) <small class="muted">blank = “Inquire”</small>
+              <input id="f-price" type="number" min="0" step="1" placeholder="e.g. 50" />
+            </label>
+            <label class="field">Lead time <small class="muted">blank = none shown</small>
+              <input id="f-lead" type="text" placeholder="e.g. 2–4 weeks" />
+            </label>
+          </div>
+
+          <div class="grid-2">
+            <label class="field">Collection
+              <select id="f-collection"></select>
+            </label>
+            <div class="field">Flags
+              <label class="inline-check"><input id="f-commission" type="checkbox" /> Commission example</label>
+              <label class="inline-check"><input id="f-multiframe" type="checkbox" /> Multi-frame piece</label>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">Palette variants
+              <div id="f-palette" class="chips-input" data-field="palette"></div>
+            </div>
+            <div class="field">Frame options
+              <div id="f-frames" class="chips-input" data-field="frames"></div>
+            </div>
+          </div>
+
+          <!-- Images -->
+          <div class="field">Images
+            <div class="img-section">
+              <h4>Main image <small class="muted">(required — upload to replace)</small></h4>
+              <div id="img-main" class="img-grid"></div>
+              <label class="btn btn-ghost btn-sm upload-btn">Replace main…
+                <input type="file" accept="image/*" data-role="main" hidden />
+              </label>
+            </div>
+            <div class="img-section">
+              <h4>Angle shots</h4>
+              <div id="img-angles" class="img-grid"></div>
+              <label class="btn btn-ghost btn-sm upload-btn">Add angle image…
+                <input type="file" accept="image/*" data-role="angles" hidden />
+              </label>
+            </div>
+            <div class="img-section">
+              <h4>Process shots</h4>
+              <div id="img-process" class="img-grid"></div>
+              <label class="btn btn-ghost btn-sm upload-btn">Add process image…
+                <input type="file" accept="image/*" data-role="process" hidden />
+              </label>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" id="save-btn" class="btn btn-primary">Save &amp; publish changes</button>
+            <span id="save-status" class="save-status"></span>
+          </div>
+          <p class="muted small">“Save &amp; publish” writes the file, then commits and pushes with git. The live site rebuilds a minute or two later.</p>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

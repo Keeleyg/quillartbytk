@@ -34,6 +34,7 @@ const products = defineCollection({
     palette_variants: z.array(z.string()).default([]),
     frame_options: z.array(z.string()).default([]),
     price: z.number().nullable().default(null),
+    lead_time: z.string().nullable().default(null),
     images: z.object({
       main: z.string(),
       angles: z.array(z.string()).default([]),
