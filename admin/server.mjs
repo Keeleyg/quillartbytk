@@ -320,29 +320,65 @@ app.post('/api/publish', requireAuth, async (_req, res) => {
     if (!(await branchExists(DRAFT_BRANCH))) {
       return res.json({ ok: true, published: false, message: 'No unpublished edits.' });
     }
-    if ((await aheadCount()) === 0) {
-      await git(['checkout', LIVE_BRANCH]);
+
+    await git(['checkout', LIVE_BRANCH]);
+
+    // Sync the local live branch with GitHub FIRST, so the push is always a
+    // fast-forward and any stuck commit from a previously-failed publish is
+    // cleared (its content is still safe on the draft branch, re-applied below).
+    if (!NO_PUSH) {
+      try {
+        await git(['fetch', 'origin', LIVE_BRANCH]);
+        await git(['reset', '--hard', `origin/${LIVE_BRANCH}`]);
+      } catch (fetchErr) {
+        return res.status(500).json({
+          error: 'Publish failed',
+          detail: 'Could not reach GitHub to sync. Check the internet connection, then try Commit again.\n\n' +
+            String(fetchErr.stderr || fetchErr.message || fetchErr),
+        });
+      }
+    }
+
+    const changed = await changedProducts();
+    if (changed.length === 0 && (await aheadCount()) === 0) {
       await git(['branch', '-D', DRAFT_BRANCH]);
       return res.json({ ok: true, published: false, message: 'Draft had no changes — cleared.' });
     }
-    const changed = await changedProducts();
     const names = changed.map((c) => c.title);
     const summary = names.length <= 5
       ? names.join(', ')
       : `${names.slice(0, 5).join(', ')} +${names.length - 5} more`;
     const msg = `Gallery update: ${summary}`;
 
-    await git(['checkout', LIVE_BRANCH]);
     try {
       await git(['merge', '--squash', DRAFT_BRANCH]);
-      await git(['commit', '-m', msg]);
     } catch (mergeErr) {
       await git(['merge', '--abort']).catch(() => {});
       await git(['checkout', DRAFT_BRANCH]).catch(() => {});
       throw mergeErr;
     }
+    // Only commit if the squash actually staged something (it won't if those
+    // changes already reached the live branch).
+    const staged = (await git(['diff', '--cached', '--name-only'])).trim();
+    if (staged) await git(['commit', '-m', msg]);
+
     let pushed = false;
-    if (!NO_PUSH) { await git(['push', 'origin', LIVE_BRANCH]); pushed = true; }
+    if (!NO_PUSH) {
+      try {
+        await git(['push', 'origin', LIVE_BRANCH]);
+        pushed = true;
+      } catch (pushErr) {
+        // Leave nothing stuck: roll the live branch back to origin and return
+        // to the draft, so a retry starts from a clean slate.
+        await git(['reset', '--hard', `origin/${LIVE_BRANCH}`]).catch(() => {});
+        await git(['checkout', DRAFT_BRANCH]).catch(() => {});
+        const d = String(pushErr.stderr || pushErr.message || pushErr);
+        const friendly = /403|permission|denied|authentication|could not read|terminal prompts disabled/i.test(d)
+          ? 'GitHub sign-in needed. When the GitHub sign-in window appears, sign in with the account that has access (keeleytj), then click Commit again.'
+          : 'Could not push to GitHub. Your edits are safe — just try Commit again.';
+        return res.status(500).json({ error: 'Publish failed', detail: friendly + '\n\n' + d });
+      }
+    }
     await git(['branch', '-D', DRAFT_BRANCH]);
 
     res.json({
