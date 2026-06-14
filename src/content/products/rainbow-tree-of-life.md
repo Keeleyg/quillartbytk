@@ -29,6 +29,7 @@ images:
     - ../../../images/P029/angle-5.jpg
     - ../../../images/P029/angle-6.jpg
     - ../../../images/P029/angle-7.jpg
+    - ../../../images/P029/angle-8.jpg
   process: []
 confidence: high
 notes:

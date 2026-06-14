@@ -5,8 +5,8 @@ category: framed
 themes:
   - flowers
   - names
-status: sold
-hidden: false
+status: available
+hidden: true
 featured: false
 collection: null
 commission_example: false
@@ -42,9 +42,7 @@ notes:
 ---
 A made-to-order personalised initial piece featuring a single tall white
 block letter set against a lavish background of pink quilled florals,
-hearts, swirling filigree and rolled roses. A small subtitle reads
-'...is for [Name]' running vertically beside the letter. The example
-shown features 'I is for Indiana'. A favourite for nursery walls,
-christenings, and first-birthday commissions. Please specify the initial
-letter, the full first name for the subtitle, and any palette
-preferences when enquiring.
+hearts, swirling filigree and rolled roses. A favourite for nursery walls,
+christenings, and first-birthday commissions. 
+Presented in a 28x35.5 white shadow box frame
+This particular product is available. Please enquire for alternative letters
