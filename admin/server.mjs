@@ -7,7 +7,7 @@
  * (gallery-edits) so nothing goes live until you choose to publish:
  *
  *   • Editing            → writes + commits to the gallery-edits branch
- *   • Build preview      → astro build, served at /quillartbytk/ for review
+ *   • Build preview      → astro build, served at the site root for review
  *   • Commit (publish)   → squash-merge gallery-edits → main, push (goes live)
  *   • Discard            → delete the gallery-edits branch entirely
  *
@@ -277,9 +277,15 @@ const app = express();
 app.use(express.json({ limit: '30mb' }));
 
 app.use('/img', express.static(IMAGES_DIR));                       // product photos for previews
-app.use('/quillartbytk', express.static(DIST_DIR));               // built site preview (after Build preview)
 app.use('/admin-tool', express.static(join(__dirname, 'public'))); // editor UI
-app.get('/', (_req, res) => res.redirect('/admin-tool/'));
+// The built-site preview is served from the ROOT (after "Build preview") so its
+// root-relative assets (/_astro, /images, ...) resolve. The editor is at
+// /admin-tool. The actual dist static mount is registered last (below) so the
+// /api, /img and /admin-tool routes always take precedence.
+app.get('/', (_req, res, next) => {
+  if (existsSync(join(DIST_DIR, 'index.html'))) return next();
+  res.redirect('/admin-tool/');
+});
 
 /* ---- login -------------------------------------------------------- */
 app.post('/api/login', async (req, res) => {
@@ -420,7 +426,7 @@ app.post('/api/preview/build', requireAuth, async (_req, res) => {
       cwd: ROOT, maxBuffer: 50 * 1024 * 1024, env: { ...process.env, FORCE_COLOR: '0' },
     });
     buildState = { building: false, lastBuiltAt: new Date().toISOString(), ok: true };
-    res.json({ ok: true, url: '/quillartbytk/', builtAt: buildState.lastBuiltAt });
+    res.json({ ok: true, url: '/', builtAt: buildState.lastBuiltAt });
   } catch (err) {
     buildState = { building: false, lastBuiltAt: buildState.lastBuiltAt, ok: false };
     res.status(500).json({ error: 'Build failed', detail: String(err.stderr || err.message || err).slice(-4000) });
@@ -780,6 +786,9 @@ app.put('/api/events/:id', requireAuth, async (req, res) => {
     res.status(500).json({ error: String(err.message || err) });
   }
 });
+
+/* ---- built-site preview (root) — registered LAST as a catch-all --- */
+app.use(express.static(DIST_DIR));
 
 /* ---- startup: resume an existing draft ---------------------------- */
 async function reconcileBranch() {

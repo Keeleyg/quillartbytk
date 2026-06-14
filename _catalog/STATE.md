@@ -2,6 +2,8 @@
 
 Site live at https://quillartbytk.com as of 2026-05-19.
 
+**Apex launch (2026-06-14):** moved off the GitHub Pages project subpath onto the apex root. `base: '/quillartbytk'` removed from `astro.config.mjs`, `site` set to `https://quillartbytk.com`, and `public/CNAME` added so the custom domain survives each deploy.
+
 Hand-off document for continuing the catalog work in a fresh chat thread.
 
 > **All prices currently set to $50 AUD as launch placeholder.** Tracey to review and set real prices product-by-product.

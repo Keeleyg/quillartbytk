@@ -4,8 +4,9 @@
 Auto-deploys via `.github/workflows/deploy.yml` on every push to `main`.
 
 Repo settings → Pages → Source: **GitHub Actions** (not "Deploy from a branch").
-Live URL: `https://keeleyg.github.io/quillartbytk/`
-Base path `/quillartbytk` is set in `astro.config.mjs`.
+Live URL: `https://quillartbytk.com` (apex custom domain via Cloudflare DNS).
+The custom domain is kept across deploys by `public/CNAME` (emitted as `dist/CNAME`).
+Served from the site root — no `base` is set in `astro.config.mjs`; `site` is the apex.
 
 ## Worker (Cloudflare)
 Manual deploy from `worker/`:

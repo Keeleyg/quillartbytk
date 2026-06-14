@@ -32,7 +32,7 @@ Open **http://localhost:4399/admin-tool/** and sign in.
 3. Repeat for as many pieces as you like. The bar at the top shows how many
    unpublished edits you have.
 4. Click **Build preview** to compile the real site and open it at
-   `http://localhost:4399/quillartbytk/` — exactly what will go live.
+   `http://localhost:4399/` — exactly what will go live.
 5. When you're happy, click **Commit (publish live)** to push the changes. The
    live site rebuilds about a minute or two later.
 6. Changed your mind? **Discard** deletes every unpublished edit and returns to

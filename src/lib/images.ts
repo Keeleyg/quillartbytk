@@ -4,11 +4,13 @@ const base = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '');
 /**
  * Convert a relative frontmatter image path to an absolute URL.
  *
+ * Paths are prefixed with the configured base URL (root "/" on the apex domain).
+ *
  * Product images:
- *   ../../../images/P029/main.jpg  →  /quillartbytk/images/P029/main.jpg
+ *   ../../../images/P029/main.jpg  →  /images/P029/main.jpg
  *
  * Collection images:
- *   ./hero.jpg  →  /quillartbytk/collections/{slug}/hero.jpg
+ *   ./hero.jpg  →  /collections/{slug}/hero.jpg
  */
 export function resolveProductImage(relativePath: string): string {
   // Strip leading ../ segments and normalise to {base}/images/...

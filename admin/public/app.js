@@ -1,6 +1,6 @@
 'use strict';
 
-const LIVE_BASE = 'https://keeleyg.github.io/quillartbytk';
+const LIVE_BASE = 'https://quillartbytk.com';
 const $ = (sel) => document.querySelector(sel);
 
 let token = sessionStorage.getItem('admin_token') || '';
@@ -109,7 +109,7 @@ $('#preview-btn').addEventListener('click', async () => {
     await api('/api/preview/build', { method: 'POST' });
     $('#preview-link').hidden = false;
     btn.textContent = 'Rebuild preview';
-    window.open('/quillartbytk/', '_blank', 'noopener');
+    window.open('/', '_blank', 'noopener');
   } catch (e) {
     alert('Build failed:\n\n' + e.message);
     btn.textContent = original;
