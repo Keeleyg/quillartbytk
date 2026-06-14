@@ -8,16 +8,52 @@ Live URL: `https://quillartbytk.com` (apex custom domain via Cloudflare DNS).
 The custom domain is kept across deploys by `public/CNAME` (emitted as `dist/CNAME`).
 Served from the site root — no `base` is set in `astro.config.mjs`; `site` is the apex.
 
-## Worker (Cloudflare)
-Manual deploy from `worker/`:
+## Worker (Cloudflare) — inquiry form backend
+
+The contact form posts same-origin to `/api/inquiry`. A Cloudflare Worker
+(`worker/`, entry `worker/src/index.ts`) answers `/api/*` on the domain and
+sends the emails via Resend. It is deployed **manually with wrangler**, separate
+from the Pages deploy — pushing to `main` does **not** deploy the Worker.
+
+**Routes** (bound automatically on deploy, from `worker/wrangler.toml`):
+- `quillartbytk.com/api/*`
+- `www.quillartbytk.com/api/*`
+
+The only secret is **`RESEND_API_KEY`** (read as `env.RESEND_API_KEY`; never in
+the repo).
+
+### First deploy (one-time)
+
+Prerequisites: the Cloudflare proxy is **on** (orange cloud) on the apex DNS
+record, and the Resend domain is **verified** (see Resend section) — otherwise
+the Worker deploys fine but every send fails with a 502.
 
 ```bash
 cd worker
-npx wrangler login        # first time only
+npx wrangler login                      # opens a browser to authorise
+npx wrangler secret put RESEND_API_KEY  # paste the Resend API key when prompted
+npx wrangler deploy                     # builds, deploys, binds both routes
+```
+
+If your Cloudflare login has more than one account, wrangler will ask which to
+use — set `CLOUDFLARE_ACCOUNT_ID`, or uncomment + fill `account_id` in
+`worker/wrangler.toml`.
+
+### Subsequent deploys
+
+```bash
+cd worker
 npx wrangler deploy
 ```
 
-The Worker is bound to `quillartbytk.com/api/*` via the route in `worker/wrangler.toml`.
+### Verify
+
+- Open `https://quillartbytk.com/api/inquiry` — a GET returns a plain
+  `Not found` (the Worker's 404), which confirms the route is bound. Before the
+  Worker is deployed this returns the GitHub Pages 404 page instead.
+- Submit the form at `https://quillartbytk.com/contact` — you get the success
+  message, an email arrives at `tracey@quillartbytk.com`, and the sender
+  receives an auto-reply.
 
 ### Viewing Worker logs
 
@@ -26,7 +62,7 @@ cd worker
 npx wrangler tail
 ```
 
-Shows real-time console output from production. Useful for debugging email send failures.
+Real-time console output from production. Useful for debugging email failures.
 
 ## Resend (email provider)
 
@@ -34,9 +70,9 @@ The inquiry form backend sends emails via [Resend](https://resend.com). Free tie
 
 - **Account**: signed up under Tracey's email
 - **API key**: stored as a Cloudflare Worker secret (never in the repo)
-- **Sending address**: `inquiries@quillartbytk.com` (virtual, Resend handles delivery)
-- **Destination**: `quillartbytk@gmail.com` (Tracey's inbox)
-- **DNS records**: SPF, DKIM, and DMARC records on `quillartbytk.com` in Cloudflare, required for Resend domain verification
+- **Sending address (From)**: `inquiries@quillartbytk.com` (virtual, Resend handles delivery)
+- **Destination (To)**: `tracey@quillartbytk.com` → forwarded to the gmail inbox via Cloudflare Email Routing
+- **DNS records**: SPF, DKIM, and DMARC records on `quillartbytk.com` in Cloudflare, required for Resend domain verification — the From domain won't send until these verify green
 
 ### Rotating the Resend API key
 
@@ -61,9 +97,10 @@ All email DNS records must be **DNS only** (grey cloud):
 - TXT at `resend._domainkey.quillartbytk.com` → DKIM public key
 - TXT at `_dmarc.quillartbytk.com` → DMARC policy
 
-### Email routing (optional)
-Cloudflare Email Routing forwards `inquiries@quillartbytk.com` → `quillartbytk@gmail.com`
-(catches direct replies to the sending address).
+### Email routing
+Cloudflare Email Routing forwards domain mailboxes to the gmail inbox:
+- `tracey@quillartbytk.com` → gmail (where inquiry notifications land)
+- `inquiries@quillartbytk.com` → gmail (catches direct replies to the From address)
 
 ## Local development
 - `npm run dev` — Astro site only. Form will error against a missing Worker endpoint.
