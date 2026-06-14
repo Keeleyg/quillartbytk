@@ -549,8 +549,22 @@ app.delete('/api/products/:slug/images', requireAuth, async (req, res) => {
     if (!list.includes(path)) return res.status(404).json({ error: 'Image not found on this product' });
     p.data.images[role] = list.filter((x) => x !== path);
 
-    const m = String(path).match(/images\/(.+)$/);
-    if (m) { const file = join(IMAGES_DIR, m[1]); if (existsSync(file)) await unlink(file).catch(() => {}); }
+    // Don't hard-delete — move the file out to the images/ root so it can be
+    // managed (or permanently removed) by hand later.
+    const m = String(path).match(/images\/([^/]+)\/(.+)$/);
+    if (m) {
+      const srcFile = join(IMAGES_DIR, m[1], m[2]);
+      if (existsSync(srcFile)) {
+        const dot = m[2].lastIndexOf('.');
+        const stem = dot >= 0 ? m[2].slice(0, dot) : m[2];
+        const ext = dot >= 0 ? m[2].slice(dot) : '';
+        let dest = join(IMAGES_DIR, `${m[1]}-${stem}${ext}`);
+        let n = 2;
+        while (existsSync(dest)) dest = join(IMAGES_DIR, `${m[1]}-${stem}-${n++}${ext}`);
+        await copyFile(srcFile, dest);
+        await unlink(srcFile).catch(() => {});
+      }
+    }
 
     await writeProduct(req.params.slug, p.data, p.body);
     await commitDraft(`Remove ${role} image from ${p.data.title} (${p.data.id})`,

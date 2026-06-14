@@ -425,14 +425,14 @@ document.querySelectorAll('input[type="file"]').forEach((inp) => {
   });
 });
 async function deleteImage(role, path) {
-  if (!confirm('Remove this image from the draft?')) return;
+  if (!confirm('Remove this image from this item?\n\nThe file is moved to the images/ folder (not deleted) so you can manage it yourself.')) return;
   setStatus('Removing image…', 'busy');
   try {
     const data = await api(`/api/products/${current.slug}/images`, { method: 'DELETE', body: { role, path } });
     current.images = data.images;
     renderImages(data.images);
     if (data.draft) renderDraft(data.draft);
-    setStatus('Image removed from draft.', 'ok');
+    setStatus('Removed — file moved to the images/ folder.', 'ok');
   } catch (e) { setStatus(e.message, 'err'); }
 }
 
