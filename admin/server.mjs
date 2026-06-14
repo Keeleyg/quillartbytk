@@ -656,6 +656,30 @@ app.post('/api/products/:slug/move-angle', requireAuth, async (req, res) => {
   }
 });
 
+/* ---- reorder angle / process images ------------------------------- */
+app.post('/api/products/:slug/reorder-images', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const p = await readProduct(req.params.slug);
+    if (!p) return res.status(404).json({ error: 'Not found' });
+    const { role, order } = req.body || {};
+    if (!['angles', 'process'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+    if (!Array.isArray(order)) return res.status(400).json({ error: 'Bad order' });
+    const cur = p.data.images[role] ?? [];
+    // order must be a permutation of the current images (same set, no dupes)
+    if (order.length !== cur.length || new Set(order).size !== order.length || !order.every((x) => cur.includes(x))) {
+      return res.status(400).json({ error: 'Order does not match the current images' });
+    }
+    p.data.images[role] = order;
+    await writeProduct(req.params.slug, p.data, p.body);
+    await commitDraft(`Reorder ${role} images for ${p.data.title} (${p.data.id})`,
+      [`src/content/products/${req.params.slug}.md`]);
+    res.json({ ok: true, images: imagesView(p.data), draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
+  }
+});
+
 /* ---- events: helpers ---------------------------------------------- */
 async function readEvents() {
   if (!existsSync(EVENTS_PATH)) return [];

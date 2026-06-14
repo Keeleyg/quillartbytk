@@ -8,6 +8,7 @@ let meta = null;
 let products = [];
 let current = null;
 let chips = { palette: [], frames: [] };
+let dragData = null; // active image drag payload (dataTransfer is unreadable during dragover)
 
 /* ---------------- API helper ---------------- */
 async function api(path, { method = 'GET', body } = {}) {
@@ -358,12 +359,58 @@ function renderImgGrid(el, items, role) {
       card.querySelector('.del').addEventListener('click', () => deleteImage(role, img.path));
       card.querySelector('.mkmain').addEventListener('click', () => setMainImage(img.path));
       card.addEventListener('dragstart', (ev) => {
-        ev.dataTransfer.setData('text/plain', JSON.stringify({ path: img.path, role, fromSlug: current.slug }));
+        dragData = { path: img.path, role, fromSlug: current.slug };
+        ev.dataTransfer.setData('text/plain', JSON.stringify(dragData));
         ev.dataTransfer.effectAllowed = 'move';
+      });
+      card.addEventListener('dragend', () => { dragData = null; card.classList.remove('reorder-over'); });
+      // Drop onto another thumbnail in the same grid to resequence.
+      card.addEventListener('dragover', (e) => {
+        const d = dragData;
+        if (d && d.role === role && d.fromSlug === current.slug && d.path !== img.path) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          card.classList.add('reorder-over');
+        }
+      });
+      card.addEventListener('dragleave', () => card.classList.remove('reorder-over'));
+      card.addEventListener('drop', (e) => {
+        card.classList.remove('reorder-over');
+        const d = dragData || parseDrag(e);
+        if (!d || d.role !== role || d.fromSlug !== current.slug || d.path === img.path) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = card.getBoundingClientRect();
+        const after = (e.clientX - rect.left) > rect.width / 2;
+        const order = buildReorder(role, d.path, img.path, after);
+        if (order) reorderImages(role, order);
       });
     }
     el.appendChild(card);
   });
+}
+
+function buildReorder(role, draggedPath, targetPath, after) {
+  const order = current.images[role].map((i) => i.path);
+  const from = order.indexOf(draggedPath);
+  if (from < 0) return null;
+  order.splice(from, 1);
+  let to = order.indexOf(targetPath);
+  if (to < 0) return null;
+  if (after) to++;
+  order.splice(to, 0, draggedPath);
+  return order;
+}
+async function reorderImages(role, order) {
+  if (!current) return;
+  setStatus('Reordering…', 'busy');
+  try {
+    const data = await api(`/api/products/${current.slug}/reorder-images`, { method: 'POST', body: { role, order } });
+    current.images = data.images;
+    renderImages(data.images);
+    if (data.draft) renderDraft(data.draft);
+    setStatus('Order updated.', 'ok');
+  } catch (e) { setStatus(e.message, 'err'); }
 }
 
 async function setMainImage(path) {

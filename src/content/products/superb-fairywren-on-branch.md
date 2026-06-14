@@ -1,20 +1,24 @@
 ---
 id: P006
-title: "Superb Fairywren on Branch"
+title: Superb Fairywren on Branch
 category: framed
-themes: [birds]
+themes:
+  - birds
 status: sold
+hidden: false
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+lead_time: null
 images:
-  main: ../../../images/P006/main.jpg
+  main: ../../../images/P006/angle-2.jpg
   angles:
     - ../../../images/P006/angle-1.jpg
-    - ../../../images/P006/angle-2.jpg
+    - ../../../images/P006/main.jpg
   process: []
 confidence: high
 ---
