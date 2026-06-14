@@ -1,15 +1,20 @@
 ---
 id: P012
-title: "Yellow-tailed Black Cockatoo (Pale)"
+title: Yellow-tailed Black Cockatoo (Pale)
 category: framed
-themes: [birds, australiana]
+themes:
+  - birds
+  - australiana
 status: available
+hidden: true
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+lead_time: null
 images:
   main: ../../../images/P012/main.jpg
   angles:
@@ -17,7 +22,6 @@ images:
   process: []
 confidence: high
 ---
-
 A Yellow-tailed Black Cockatoo with softer grey-toned plumage and golden
 detailing, perched on a branch with paired green leaves. The yellow
 cheek patch and banded yellow tail remain prominent. A more muted

@@ -1,15 +1,19 @@
 ---
 id: P013
-title: "Boho Rainbow, Sun and Clouds Triptych"
+title: 'Boho Rainbow, Sun and Clouds Triptych'
 category: framed
-themes: [nursery]
+themes:
+  - nursery
 status: available
+hidden: true
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+lead_time: null
 images:
   main: ../../../images/P013/main.jpg
   angles:
@@ -17,7 +21,6 @@ images:
   process: []
 confidence: high
 ---
-
 A soft pastel nursery triptych in a single wide frame: an earth-toned
 rainbow on the left, a peachy sun with multicolour rays in the centre,
 and a peach cloud raining tiny multicolour hearts on the right. Warm,
