@@ -332,13 +332,50 @@ function renderImgGrid(el, items, role) {
   el.innerHTML = '';
   items.forEach((img) => {
     const card = document.createElement('div');
-    card.className = 'img-card';
-    const delBtn = role === 'main' ? '' : `<button class="del" title="Delete" type="button">×</button>`;
-    card.innerHTML = `<img src="${img.url}?t=${Date.now()}" alt="" />${delBtn}`;
-    if (role !== 'main') card.querySelector('.del').addEventListener('click', () => deleteImage(role, img.path));
+    card.className = 'img-card' + (role === 'main' ? ' is-main' : '');
+    if (role === 'main') {
+      card.innerHTML = `<img src="${img.url}?t=${Date.now()}" alt="" /><span class="main-tag">main</span>`;
+    } else {
+      card.draggable = true;
+      card.innerHTML =
+        `<img src="${img.url}?t=${Date.now()}" alt="" />` +
+        `<button class="mkmain" title="Make this the main image" type="button">★</button>` +
+        `<button class="del" title="Delete" type="button">×</button>`;
+      card.querySelector('.del').addEventListener('click', () => deleteImage(role, img.path));
+      card.querySelector('.mkmain').addEventListener('click', () => setMainImage(img.path));
+      card.addEventListener('dragstart', (ev) => {
+        ev.dataTransfer.setData('text/plain', img.path);
+        ev.dataTransfer.effectAllowed = 'move';
+      });
+    }
     el.appendChild(card);
   });
 }
+
+async function setMainImage(path) {
+  if (!current) return;
+  setStatus('Updating main image…', 'busy');
+  try {
+    const data = await api(`/api/products/${current.slug}/main-image`, { method: 'POST', body: { path } });
+    current.images = data.images;
+    renderImages(data.images);
+    if (data.draft) renderDraft(data.draft);
+    setStatus('Main image updated.', 'ok');
+  } catch (e) { setStatus(e.message, 'err'); }
+}
+
+// Main image slot is a drop target — drop an angle/process thumb onto it.
+(function setupMainDropZone() {
+  const z = $('#img-main');
+  z.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; z.classList.add('drop-hover'); });
+  z.addEventListener('dragleave', () => z.classList.remove('drop-hover'));
+  z.addEventListener('drop', (e) => {
+    e.preventDefault();
+    z.classList.remove('drop-hover');
+    const path = e.dataTransfer.getData('text/plain');
+    if (path) setMainImage(path);
+  });
+})();
 
 document.querySelectorAll('input[type="file"]').forEach((inp) => {
   inp.addEventListener('change', async () => {

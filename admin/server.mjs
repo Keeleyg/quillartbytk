@@ -561,6 +561,42 @@ app.delete('/api/products/:slug/images', requireAuth, async (req, res) => {
   }
 });
 
+/* ---- promote an existing image to be the main image (swap) -------- */
+app.post('/api/products/:slug/main-image', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const p = await readProduct(req.params.slug);
+    if (!p) return res.status(404).json({ error: 'Not found' });
+    const { path } = req.body || {};
+    if (!path) return res.status(400).json({ error: 'No image specified' });
+
+    const cur = p.data.images;
+    if (cur.main === path) return res.json({ ok: true, images: imagesView(p.data) }); // already main
+    const oldMain = String(cur.main || '').trim();
+
+    if ((cur.angles ?? []).includes(path)) {
+      // True swap: the angle and the main exchange places.
+      const idx = cur.angles.indexOf(path);
+      cur.main = path;
+      if (oldMain) cur.angles[idx] = oldMain;
+      else cur.angles.splice(idx, 1);
+    } else if ((cur.process ?? []).includes(path)) {
+      cur.process = cur.process.filter((x) => x !== path);
+      cur.main = path;
+      if (oldMain) cur.angles = [oldMain, ...(cur.angles ?? [])];
+    } else {
+      return res.status(404).json({ error: 'Image not found on this product' });
+    }
+
+    await writeProduct(req.params.slug, p.data, p.body);
+    await commitDraft(`Set main image for ${p.data.title} (${p.data.id})`,
+      [`src/content/products/${req.params.slug}.md`, `images/${p.data.id}`]);
+    res.json({ ok: true, images: imagesView(p.data), draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
+  }
+});
+
 /* ---- startup: resume an existing draft ---------------------------- */
 async function reconcileBranch() {
   try {

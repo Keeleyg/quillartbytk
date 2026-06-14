@@ -153,14 +153,27 @@ a { color: var(--accent); }
 .img-section { margin-top: 0.8rem; padding: 0.8rem; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
 .img-section h4 { margin: 0 0 0.6rem; font-size: 0.9rem; }
 .img-grid { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 0.6rem; }
+#img-main { min-height: 96px; border-radius: 8px; transition: outline 0.12s, background 0.12s; }
+#img-main.drop-hover { outline: 2px dashed var(--accent); outline-offset: 3px; background: var(--accent-soft); }
 .img-card { position: relative; width: 90px; height: 90px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-.img-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.img-card .del {
-  position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; border-radius: 50%;
-  border: none; background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 0.9rem;
-  display: grid; place-items: center; line-height: 1;
+.img-card[draggable="true"] { cursor: grab; }
+.img-card[draggable="true"]:active { cursor: grabbing; }
+.img-card.is-main { border-color: var(--accent); }
+.img-card img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.img-card .main-tag {
+  position: absolute; bottom: 0; left: 0; right: 0; text-align: center; font-size: 0.6rem;
+  background: var(--accent); color: #fff; padding: 1px 0; letter-spacing: 0.04em;
 }
+.img-card .del, .img-card .mkmain {
+  position: absolute; top: 3px; width: 22px; height: 22px; border-radius: 50%;
+  border: none; background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; font-size: 0.9rem;
+  display: grid; place-items: center; line-height: 1; opacity: 0; transition: opacity 0.12s;
+}
+.img-card .del { right: 3px; }
+.img-card .mkmain { left: 3px; font-size: 0.8rem; }
+.img-card:hover .del, .img-card:hover .mkmain { opacity: 1; }
 .img-card .del:hover { background: var(--danger); }
+.img-card .mkmain:hover { background: var(--accent); }
 .upload-btn { position: relative; overflow: hidden; }
 
 /* Actions */
