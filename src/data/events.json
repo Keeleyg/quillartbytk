@@ -27,6 +27,7 @@
     "stallNumber": "",
     "url": "https://www.brisstyle.com.au/markets",
     "status": "confirmed",
+    "hidden": true,
     "description": "Quarterly showcase of Brisbane's best independent designers and makers."
   }
 ]
