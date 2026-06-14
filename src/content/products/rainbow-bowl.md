@@ -1,15 +1,19 @@
 ---
 id: P002
-title: "Rainbow Quilled Bowl"
+title: Rainbow Quilled Bowl
 category: homewares
-themes: [patterns]
-status: sold
+themes:
+  - patterns
+status: available
+hidden: false
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+lead_time: null
 images:
   main: ../../../images/P002/main.jpg
   angles:
@@ -18,8 +22,4 @@ images:
   process: []
 confidence: high
 ---
-
-A decorative hand-rolled paper bowl in a full rainbow palette. The
-interior features a concentric rainbow disc at the base, surrounded by
-densely packed pastel coils of varying sizes. A joyful, sculptural
-piece.
+A decorative hand-rolled paper bowl in a full rainbow palette. Bowl has been glued and varnished and is of rigid construction.

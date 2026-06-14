@@ -1,15 +1,19 @@
 ---
 id: P004
-title: "Earth Tones Clock"
+title: Earth Tones Clock
 category: clocks
-themes: [patterns]
+themes:
+  - patterns
 status: sold
+hidden: false
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+lead_time: null
 images:
   main: ../../../images/P004/main.jpg
   angles:
@@ -17,7 +21,6 @@ images:
   process: []
 confidence: high
 ---
-
 A wall clock with a quilled paper face in warm earth tones - chocolate
-browns, soft creams, gold and black. The central spiral radiates outward
-through a ring of varied paper coils. Slim brass hands.
+browns and soft creams with gold colour hands.
+Smooth motion and silent clock mechanism (no ticking)
