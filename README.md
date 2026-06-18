@@ -24,6 +24,7 @@ Product‑catalogue, store, and commission website for **[quillartbytk.com](http
 - [Admin tool (gallery editor)](#admin-tool-gallery-editor)
 - [Zeller POS Lite sync](#zeller-pos-lite-sync)
 - [Deployment](#deployment)
+- [Cloudflare & Resend configuration](#cloudflare--resend-configuration)
 - [Operational runbook](#operational-runbook)
 
 ---
@@ -303,6 +304,81 @@ Tracey sells in person at markets using **Zeller POS Lite**, which has no catalo
 - **Custom domain:** `public/CNAME` contains `quillartbytk.com`, preserving the apex domain across deploys. There is **no `base` path** — the site serves from the domain root.
 - **DNS/CDN:** Cloudflare proxies the apex (and `www`) to GitHub Pages, SSL mode **Full**, with the Worker routed on `/api/*`.
 - **Worker:** deployed separately with `npx wrangler deploy` from `worker/` (see above). First‑deploy notes are in `docs/deploy.md`.
+
+---
+
+## Cloudflare & Resend configuration
+
+The domain, the Worker, item‑reservation storage, and email all depend on a one‑time setup in **Cloudflare** and **Resend**. The full first‑deploy walkthrough is in [`docs/deploy.md`](docs/deploy.md); this is the reference for *what* must exist.
+
+### Cloudflare
+
+The `quillartbytk.com` zone is on Cloudflare, which provides DNS, the CDN/proxy, the Worker, KV storage, and inbound email forwarding.
+
+**1. DNS — site.** The apex (and `www`) point to GitHub Pages and must be **proxied** (orange cloud) so the Worker route can intercept `/api/*`:
+
+| Type | Name | Content | Proxy |
+|------|------|---------|-------|
+| CNAME | `@` (apex) | `<github-username>.github.io` (CNAME flattening) | **Proxied** 🟠 |
+| CNAME | `www` | `<github-username>.github.io` | **Proxied** 🟠 |
+
+- **SSL/TLS mode: Full** (GitHub Pages serves HTTPS to the origin).
+- Enable **Always Use HTTPS**.
+- The apex CNAME‑flattening approach is what's in use; the classic alternative is four `A` records to GitHub's Pages IPs (`185.199.108–111.153`). Either works — keep the proxy on.
+
+**2. Worker.** Deployed manually with Wrangler from [`worker/`](worker/) (a push to `main` does **not** deploy it). Routes are bound automatically from `worker/wrangler.toml`:
+
+- `quillartbytk.com/api/*`
+- `www.quillartbytk.com/api/*`
+
+If the Cloudflare login has multiple accounts, set `CLOUDFLARE_ACCOUNT_ID` (or uncomment `account_id` in `wrangler.toml`).
+
+```bash
+cd worker
+npx wrangler login            # one-time browser auth
+npx wrangler deploy           # build + deploy + bind routes
+npx wrangler tail             # live production logs (debugging)
+```
+
+**3. KV namespace (reservations).** The `RESERVATIONS` namespace stores the item "seat map". Create it once and put the returned id in `worker/wrangler.toml` under `[[kv_namespaces]]` (the id is **not** a secret):
+
+```bash
+cd worker
+npx wrangler kv namespace create RESERVATIONS
+```
+
+**4. Worker secrets** (stored in Cloudflare, never in the repo):
+
+| Secret | Used for | Set with |
+|--------|----------|----------|
+| `RESEND_API_KEY` | Sending email via Resend | `npx wrangler secret put RESEND_API_KEY` |
+| `ADMIN_TOKEN` | Auth for `/api/admin/*` (must equal `workerAdminToken` in `admin/credentials.json`) | `npx wrangler secret put ADMIN_TOKEN` |
+
+For local Worker dev (`cd worker && npx wrangler dev`), put the same values in **`worker/.dev.vars`** (gitignored).
+
+**5. Email routing.** **Cloudflare Email Routing** forwards `tracey@quillartbytk.com` → the Gmail inbox. This is the only real mailbox on the domain; `inquiries@quillartbytk.com` does **not** exist and is never used.
+
+**6. Web analytics (optional).** [`src/layouts/Base.astro`](src/layouts/Base.astro) includes a Cloudflare Web Analytics beacon that loads **only in production builds**. Replace the placeholder `REPLACE_WITH_YOUR_CF_ANALYTICS_TOKEN` with the real token from Cloudflare → **Analytics & Logs → Web Analytics**. Until then it's a harmless no‑op.
+
+### Resend (email provider)
+
+Outbound email (inquiry alerts, order notifications, auto‑replies, order confirmations) is sent via **[Resend](https://resend.com)**. Free tier: 100 emails/day, 3,000/month.
+
+- **Account:** signed up under Tracey's email.
+- **API key:** stored only as the Worker secret `RESEND_API_KEY` (above).
+- **From / To:** everything uses **`tracey@quillartbytk.com`** — it must be on the Resend‑**verified** domain. Notifications set `reply_to` to the customer; auto‑replies set `reply_to` to Tracey.
+- **Domain verification — DNS records** (added in Cloudflare, all **DNS‑only / grey cloud**). The From domain won't send until these verify green:
+
+| Type | Name | Purpose |
+|------|------|---------|
+| MX | `send.quillartbytk.com` | Resend (SES) endpoint |
+| TXT | `send.quillartbytk.com` | SPF |
+| TXT | `resend._domainkey.quillartbytk.com` | DKIM public key |
+| TXT | `_dmarc.quillartbytk.com` | DMARC policy |
+
+> If a deployed Worker returns **502** on send, the usual cause is the Resend domain not being verified (or the apex proxy being off).
+
+**Rotating the Resend key:** create a new key in Resend → API Keys; `cd worker && npx wrangler secret put RESEND_API_KEY`; update `worker/.dev.vars`; delete the old key.
 
 ---
 
