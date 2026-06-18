@@ -14,7 +14,7 @@ export const VALID_CATEGORIES = [
 ] as const;
 
 export const VALID_STATUS = [
-  'available', 'draft', 'order', 'hidden', 'sold',
+  'available', 'order', 'sold',
 ] as const;
 
 /* ------------------------------------------------------------------ */
@@ -27,7 +27,7 @@ const products = defineCollection({
     title: z.string(),
     category: z.enum(VALID_CATEGORIES),
     themes: z.array(z.enum(VALID_THEMES)).min(1),
-    status: z.enum(VALID_STATUS).default('draft'),
+    status: z.enum(VALID_STATUS).default('available'),
     hidden: z.boolean().default(false),
     featured: z.boolean().default(false),
     collection: z.string().nullable().default(null),

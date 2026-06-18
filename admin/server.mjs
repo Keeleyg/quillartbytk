@@ -53,7 +53,7 @@ const VALID_THEMES = [
   'animals', 'nautical', 'names', 'seasonal', 'australiana', 'pets',
 ];
 const VALID_CATEGORIES = ['framed', 'clocks', 'canvas', 'cards', 'homewares'];
-const VALID_STATUS = ['available', 'draft', 'order', 'hidden', 'sold'];
+const VALID_STATUS = ['available', 'order', 'sold'];
 
 /* ---- git helpers --------------------------------------------------- */
 async function git(args) {
@@ -482,7 +482,7 @@ app.post('/api/products', requireAuth, async (req, res) => {
     const id = await nextProductId();
     const slug = await uniqueSlug(slugify(title));
     const data = {
-      id, title, category: 'framed', themes: ['flowers'], status: 'draft',
+      id, title, category: 'framed', themes: ['flowers'], status: 'available',
       hidden: true, featured: false, collection: null,
       commission_example: false, multi_frame: false,
       palette_variants: [], frame_options: [], price: null, lead_time: null,
