@@ -454,6 +454,51 @@ app.get('/api/products', requireAuth, async (_req, res) => {
   res.json(items);
 });
 
+/* ---- Zeller POS Lite catalogue export (CSV) -------------------------
+   Generates an item-import file matching Zeller's template columns
+   (Dashboard → All Items → Manage → Import Items). Includes only the
+   pieces currently for sale (status 'available', not hidden) so Tracey's
+   in-person POS Lite catalogue mirrors the website Store. Export AFTER
+   publishing so it reflects what's live. */
+function csvCell(v) {
+  const s = v === null || v === undefined ? '' : String(v);
+  return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+const ZELLER_CSV_HEADER = [
+  'Item Name', 'Description', 'Category', 'Price', 'GST Applicable',
+  'SKU', 'GTIN', 'Enable for Invoices', 'Available',
+  'Attribute Set 1', 'Attribute 1', 'Attribute Set 2', 'Attribute 2',
+  'Attribute Set 3', 'Attribute 3',
+];
+app.get('/api/zeller-csv', requireAuth, async (_req, res) => {
+  const rows = [ZELLER_CSV_HEADER];
+  for (const f of await listMarkdown(PRODUCTS_DIR)) {
+    try {
+      const { data, content } = matter(await readFile(join(PRODUCTS_DIR, f), 'utf8'));
+      const hidden = data.hidden === true || data.status === 'hidden';
+      if (hidden || data.status !== 'available') continue;
+      // Standard price (online-only sale prices are not pushed to the stall).
+      const price = data.price === null || data.price === undefined ? '' : data.price;
+      // First non-empty line of the body makes a handy stall description.
+      const desc = (content || '')
+        .replace(/<[^>]*>/g, ' ')
+        .split(/\r?\n/).map((l) => l.trim()).filter(Boolean)[0]?.slice(0, 250) ?? '';
+      const cat = data.category
+        ? data.category.charAt(0).toUpperCase() + data.category.slice(1)
+        : '';
+      rows.push([
+        data.title ?? '', desc, cat, price, 'No',
+        data.id ?? '', '', 'Yes', 'Yes',
+        '', '', '', '', '', '',
+      ]);
+    } catch { /* skip unreadable files */ }
+  }
+  const csv = rows.map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="zeller-pos-items.csv"');
+  res.send(csv);
+});
+
 app.get('/api/products/:slug', requireAuth, async (req, res) => {
   const p = await readProduct(req.params.slug);
   if (!p) return res.status(404).json({ error: 'Not found' });

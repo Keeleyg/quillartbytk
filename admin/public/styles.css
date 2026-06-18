@@ -72,6 +72,7 @@ a { color: var(--accent); }
   position: sticky; top: 0; z-index: 10;
 }
 .topbar-left { display: flex; align-items: center; gap: 0.7rem; }
+.topbar-right { display: flex; align-items: center; gap: 0.5rem; }
 .badge {
   font-size: 0.72rem; padding: 0.15rem 0.55rem; border-radius: 999px;
   background: var(--accent-soft); color: var(--accent); font-family: ui-monospace, monospace;

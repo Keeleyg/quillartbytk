@@ -53,6 +53,34 @@ $('#login-form').addEventListener('submit', async (e) => {
 });
 $('#logout-btn').addEventListener('click', logout);
 
+/* ---------------- Zeller POS Lite CSV export ---------------- */
+$('#zeller-csv-btn').addEventListener('click', async () => {
+  const btn = $('#zeller-csv-btn');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Preparing…';
+  try {
+    const res = await fetch('/api/zeller-csv', {
+      headers: token ? { Authorization: 'Bearer ' + token } : {},
+    });
+    if (!res.ok) throw new Error('Export failed (' + res.status + ')');
+    const blob = await res.blob();
+    const dlUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = dlUrl;
+    a.download = 'zeller-pos-items.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(dlUrl);
+  } catch (e) {
+    alert('Could not export Zeller CSV: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+});
+
 /* ---------------- Boot ---------------- */
 async function boot() {
   showApp();
