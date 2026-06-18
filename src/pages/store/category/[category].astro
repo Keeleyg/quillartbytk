@@ -1,0 +1,39 @@
+---
+import Base from '@/layouts/Base.astro';
+import FilterNav from '@/components/FilterNav.astro';
+import ProductGrid from '@/components/ProductGrid.astro';
+import { getCollection } from 'astro:content';
+import { VALID_CATEGORIES } from '@/content.config';
+import { categoryLabel } from '@/lib/images';
+import { isAvailable } from '@/lib/products';
+
+export function getStaticPaths() {
+  return VALID_CATEGORIES.map((cat) => ({
+    params: { category: cat },
+  }));
+}
+
+const { category } = Astro.params;
+const allProducts = await getCollection('products');
+
+const products = allProducts
+  .filter((p) => p.data.category === category && isAvailable(p))
+  .sort((a, b) => a.data.id.localeCompare(b.data.id));
+
+const label = categoryLabel(category!);
+---
+
+<Base title={`Store — ${label}`} description={`Buy ${label.toLowerCase()} — handmade quilled paper art available now.`}>
+  <section class="py-16 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-3xl sm:text-4xl font-serif font-semibold text-ink mb-8">Store — {label}</h1>
+      <div class="mb-10">
+        <FilterNav base="store" currentCategory={category} />
+      </div>
+      <ProductGrid
+        products={products}
+        emptyMessage={`No ${label.toLowerCase()} available to buy right now — check back soon, or browse the Gallery.`}
+      />
+    </div>
+  </section>
+</Base>

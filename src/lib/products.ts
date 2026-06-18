@@ -15,6 +15,11 @@ export function isVisible(p: Product): boolean {
   return !isHidden(p);
 }
 
+/** Buyable now: visible AND status "available" (the Store filter). */
+export function isAvailable(p: Product): boolean {
+  return !isHidden(p) && p.data.status === 'available';
+}
+
 /** Set of visible product ids — handy for filtering collection members. */
 export function visibleIdSet(products: Product[]): Set<string> {
   return new Set(products.filter(isVisible).map((p) => p.data.id));

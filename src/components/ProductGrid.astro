@@ -15,9 +15,10 @@ interface Product {
 
 interface Props {
   products: Product[];
+  emptyMessage?: string;
 }
 
-const { products } = Astro.props;
+const { products, emptyMessage = 'No products to show yet.' } = Astro.props;
 ---
 
 {products.length > 0 ? (
@@ -34,5 +35,5 @@ const { products } = Astro.props;
     ))}
   </div>
 ) : (
-  <p class="text-center text-muted py-12">No products to show yet.</p>
+  <p class="text-center text-muted py-12">{emptyMessage}</p>
 )}
