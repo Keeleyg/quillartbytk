@@ -5,25 +5,25 @@ category: framed
 themes:
   - birds
   - australiana
-status: sold
-hidden: true
+status: available
+hidden: false
 featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 70
 lead_time: null
 images:
   main: ../../../images/P011/main.jpg
   angles:
-    - ../../../images/P011/angle-1.jpg
+    - ../../../images/P011/angle-2.jpg
+    - ../../../images/P011/angle-3.jpg
   process: []
 confidence: high
 ---
-A striking Yellow-tailed Black Cockatoo rendered in quilled paper,
-perched on a branch with deep green foliage. The bird's distinctive
-yellow cheek patch and intricately scalloped black-and-yellow plumage
-are beautifully detailed. The long banded tail trails dramatically
-below. Presented in a clean white shadow-box frame.
+A Yellow-tailed Black Cockatoo rendered in quilled paper,
+perched on a branch with deep green foliage. 
+Presented in an oak effect shadow-box frame.
+Size 23x28cm
