@@ -1,6 +1,6 @@
 ---
 id: P009
-title: Pair of Fairywrens on Flowering Branch
+title: Pair of Superb Fairywrens
 category: framed
 themes:
   - birds
@@ -13,7 +13,7 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 90
 lead_time: null
 images:
   main: ../../../images/P009/main.jpg
