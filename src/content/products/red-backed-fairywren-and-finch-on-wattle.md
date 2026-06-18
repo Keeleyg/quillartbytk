@@ -1,10 +1,9 @@
 ---
 id: P010
-title: Red-backed Fairywren and Finch on Wattle
+title: Mini Superb Fairywren
 category: framed
 themes:
   - birds
-  - flowers
 status: sold
 hidden: false
 featured: false
@@ -13,7 +12,7 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 60
 lead_time: null
 images:
   main: ../../../images/P010/main.jpg

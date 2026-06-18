@@ -1,6 +1,6 @@
 ---
 id: P001
-title: Apple Tree
+title: Quilled Apple Tree
 category: framed
 themes:
   - trees
@@ -12,7 +12,7 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 110
 lead_time: null
 images:
   main: ../../../images/P001/main.jpg
@@ -22,7 +22,4 @@ images:
   process: []
 confidence: high
 ---
-A vibrant quilled apple tree in a white shadow-box frame. The lush
-canopy is built from layered paper coils in varied greens, scattered
-with red accents that read as fruit. A richly textured dark brown trunk
-anchors the piece against a clean white background.
+A vibrant quilled apple tree in a white shadow-box frame.

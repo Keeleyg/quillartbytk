@@ -5,7 +5,7 @@ category: framed
 themes:
   - animals
 status: available
-hidden: true
+hidden: false
 featured: false
 collection: null
 commission_example: false

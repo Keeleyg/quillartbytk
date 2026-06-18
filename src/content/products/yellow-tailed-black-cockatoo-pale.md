@@ -1,11 +1,11 @@
 ---
 id: P012
-title: Yellow-tailed Black Cockatoo (Pale)
+title: Quilled fish
 category: framed
 themes:
-  - birds
-  - australiana
-status: sold
+  - animals
+  - nautical
+status: available
 hidden: true
 featured: false
 collection: null
@@ -16,13 +16,9 @@ frame_options: []
 price: 50
 lead_time: null
 images:
-  main: ../../../images/P012/angle-1.jpg
+  main: ../../../images/P012/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-A Yellow-tailed Black Cockatoo with softer grey-toned plumage and golden
-detailing, perched on a branch with paired green leaves. The yellow
-cheek patch and banded yellow tail remain prominent. A more muted
-variation of the cockatoo design, presented in a light oak frame with
-white matting.
+

@@ -13,7 +13,7 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 100
 lead_time: null
 images:
   main: ../../../images/P035/angle-1.jpg

@@ -4,7 +4,6 @@ title: Pair of Superb Fairywrens
 category: framed
 themes:
   - birds
-  - flowers
 status: sold
 hidden: false
 featured: false
