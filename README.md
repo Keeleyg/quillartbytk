@@ -177,7 +177,7 @@ Curated groupings live in `src/content/collections/<slug>/index.md` with their o
 
 ### Events
 
-Markets and fairs live in `src/data/events.json` (array). Each: `id`, `name`, `date` (`YYYY-MM-DD`), `venue`, `stallNumber`, `url`, `status` (`confirmed`/`tentative`/`cancelled`), `hidden`, `description`. Edited via the admin **Events** tab. Past‑dated events move to a "past" section automatically.
+Markets and fairs live in `src/data/events.json` (array). Each: `id`, `name`, `date` (`YYYY-MM-DD` start date), `endDate` (optional `YYYY-MM-DD` — set it for **multi‑day** events; blank = single day), `venue`, `stallNumber`, `url`, `status` (`confirmed`/`tentative`/`cancelled`), `hidden`, `description`. Edited via the admin **Events** tab. A multi‑day event stays in "Upcoming" until its `endDate` has passed; otherwise events move to "past" automatically.
 
 ### Images
 

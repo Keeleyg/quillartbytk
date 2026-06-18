@@ -268,17 +268,21 @@
             </label>
 
             <div class="grid-2">
-              <label class="field">Date
+              <label class="field">Start date
                 <input id="ev-date" type="date" />
               </label>
-              <label class="field">Status
-                <select id="ev-status">
-                  <option value="confirmed">confirmed</option>
-                  <option value="tentative">tentative</option>
-                  <option value="cancelled">cancelled</option>
-                </select>
+              <label class="field">End date <small class="muted">(optional — multi-day)</small>
+                <input id="ev-end-date" type="date" />
               </label>
             </div>
+
+            <label class="field">Status
+              <select id="ev-status">
+                <option value="confirmed">confirmed</option>
+                <option value="tentative">tentative</option>
+                <option value="cancelled">cancelled</option>
+              </select>
+            </label>
 
             <label class="field">Venue
               <input id="ev-venue" type="text" placeholder="e.g. Stanley Street Plaza, South Bank" />

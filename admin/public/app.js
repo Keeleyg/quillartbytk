@@ -668,7 +668,7 @@ function renderEventList() {
     btn.innerHTML = `
       <span>
         <span class="pi-title">${escapeHtml(ev.name)}${ev.hidden ? ' <span class="pi-tag hidden">hidden</span>' : ''}</span><br/>
-        <span class="pi-meta">${ev.date || '— no date'} · ${ev.status || ''}</span>
+        <span class="pi-meta">${ev.date ? (ev.endDate ? ev.date + ' – ' + ev.endDate : ev.date) : '— no date'} · ${ev.status || ''}</span>
       </span>`;
     btn.addEventListener('click', () => selectEvent(ev.id));
     wrap.appendChild(btn);
@@ -686,6 +686,7 @@ function selectEvent(id) {
   $('#ev-id').textContent = '#' + currentEvent.id;
   $('#ev-name').value = currentEvent.name || '';
   $('#ev-date').value = currentEvent.date || '';
+  $('#ev-end-date').value = currentEvent.endDate || '';
   $('#ev-venue').value = currentEvent.venue || '';
   $('#ev-stall').value = currentEvent.stallNumber || '';
   $('#ev-url').value = currentEvent.url || '';
@@ -740,6 +741,7 @@ $('#event-form').addEventListener('submit', async (e) => {
   const payload = {
     name: $('#ev-name').value,
     date: $('#ev-date').value,
+    endDate: $('#ev-end-date').value,
     venue: $('#ev-venue').value,
     stallNumber: $('#ev-stall').value,
     url: $('#ev-url').value,

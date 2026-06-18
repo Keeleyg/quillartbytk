@@ -806,7 +806,7 @@ app.post('/api/events', requireAuth, async (req, res) => {
     for (const e of evs) { const n = parseInt(e.id, 10); if (!Number.isNaN(n) && n > max) max = n; }
     const id = String(max + 1).padStart(3, '0');
     const name = (req.body?.name && String(req.body.name).trim()) || 'New event';
-    const ev = { id, name, date: '', venue: '', stallNumber: '', url: '', status: 'tentative', hidden: true, description: '' };
+    const ev = { id, name, date: '', endDate: '', venue: '', stallNumber: '', url: '', status: 'tentative', hidden: true, description: '' };
     evs.push(ev);
     await writeEvents(evs);
     await commitDraft(`Create event ${name}`, ['src/data/events.json']);
@@ -827,12 +827,17 @@ app.put('/api/events/:id', requireAuth, async (req, res) => {
     const status = ['confirmed', 'tentative', 'cancelled'].includes(b.status) ? b.status : 'confirmed';
     const date = b.date ? String(b.date).trim() : '';
     if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Date must be YYYY-MM-DD' });
+    const endDate = b.endDate ? String(b.endDate).trim() : '';
+    if (endDate && !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) return res.status(400).json({ error: 'End date must be YYYY-MM-DD' });
+    if (endDate && !date) return res.status(400).json({ error: 'Add a start date before an end date.' });
+    if (endDate && date && endDate < date) return res.status(400).json({ error: 'End date must be on or after the start date.' });
     const hidden = !!b.hidden;
     if (!hidden && !date) return res.status(400).json({ error: 'Add a date before making the event visible.' });
     const ev = {
       id: evs[i].id,
       name: String(b.name).trim(),
       date,
+      endDate,
       venue: b.venue ? String(b.venue).trim() : '',
       stallNumber: b.stallNumber ? String(b.stallNumber).trim() : '',
       url: b.url ? String(b.url).trim() : '',

@@ -7,6 +7,8 @@ interface MarketEvent {
   id: string;
   name: string;
   date: string;
+  /** Optional end date — when set, the event runs date → endDate (multi-day). */
+  endDate?: string;
   venue: string;
   stallNumber: string;
   url: string;
@@ -18,23 +20,44 @@ interface MarketEvent {
 // Hidden events are removed from the page entirely.
 const events = (eventsData as MarketEvent[]).filter((e) => !e.hidden);
 
-// Split into upcoming and past based on build date
+// A multi-day event stays "upcoming" until its END date has passed.
+const endOf = (e: MarketEvent) => e.endDate || e.date;
 const today = new Date().toISOString().slice(0, 10);
 const upcoming = events
-  .filter((e) => e.date >= today)
+  .filter((e) => endOf(e) >= today)
   .sort((a, b) => a.date.localeCompare(b.date));
 const past = events
-  .filter((e) => e.date < today)
+  .filter((e) => endOf(e) < today)
   .sort((a, b) => b.date.localeCompare(a.date));
 
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-AU', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+function fmtDay(d: Date, opts: Intl.DateTimeFormatOptions): string {
+  return d.toLocaleDateString('en-AU', opts);
+}
+
+// Single day → "Saturday, 4 July 2026".
+// Multi-day → a compact range collapsing the shared month/year, e.g.
+//   "Sat 4 – Sun 5 July 2026", "Fri 28 Nov – Tue 2 Dec 2026",
+//   "Tue 30 Dec 2026 – Fri 2 Jan 2027".
+function formatEventDate(startStr: string, endStr?: string): string {
+  const start = new Date(startStr + 'T00:00:00');
+  if (!endStr || endStr === startStr) {
+    return fmtDay(start, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  const end = new Date(endStr + 'T00:00:00');
+  const sameYear = start.getFullYear() === end.getFullYear();
+  const sameMonth = sameYear && start.getMonth() === end.getMonth();
+  const wd = (d: Date) => fmtDay(d, { weekday: 'short' });
+  if (sameMonth) {
+    const month = fmtDay(start, { month: 'long' });
+    return `${wd(start)} ${start.getDate()} – ${wd(end)} ${end.getDate()} ${month} ${start.getFullYear()}`;
+  }
+  if (sameYear) {
+    const sM = fmtDay(start, { month: 'short' });
+    const eM = fmtDay(end, { month: 'short' });
+    return `${wd(start)} ${start.getDate()} ${sM} – ${wd(end)} ${end.getDate()} ${eM} ${start.getFullYear()}`;
+  }
+  const full = (d: Date) => fmtDay(d, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  return `${full(start)} – ${full(end)}`;
 }
 ---
 
@@ -86,7 +109,7 @@ function formatDate(dateStr: string): string {
                   <svg class="w-4 h-4 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
                   </svg>
-                  {formatDate(evt.date)}
+                  {formatEventDate(evt.date, evt.endDate)}
                 </p>
                 <p class="text-sm text-muted flex items-center gap-2">
                   <svg class="w-4 h-4 text-muted flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -142,7 +165,7 @@ function formatDate(dateStr: string): string {
             <article class="rounded-lg border border-border/50 bg-paper p-6 opacity-60">
               <h3 class="text-lg font-serif font-semibold text-ink">{evt.name}</h3>
               <div class="mt-3 space-y-1">
-                <p class="text-sm text-muted">{formatDate(evt.date)}</p>
+                <p class="text-sm text-muted">{formatEventDate(evt.date, evt.endDate)}</p>
                 <p class="text-sm text-muted">{evt.venue}</p>
               </div>
             </article>
