@@ -13,7 +13,7 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 60
+price: 75
 lead_time: null
 images:
   main: ../../../images/P005/main.jpg
@@ -23,5 +23,6 @@ confidence: high
 ---
 A colourful small wall clock with a quilled rainbow spiral face
 surrounded by colourful paper coils. The hour and minute hand are a
-coloured pencil and a small flower is the second hand.
+coloured pencil and the second hand is a small flower.
 Smooth and silent clock mechanism (no ticking)
+Diameter 150mm

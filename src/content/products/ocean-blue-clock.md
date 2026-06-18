@@ -1,10 +1,10 @@
 ---
 id: P003
-title: Ocean Blue Clock
+title: Ocean Blue Quilled Clock
 category: clocks
 themes:
   - patterns
-status: sold
+status: available
 hidden: false
 featured: false
 collection: null
@@ -12,7 +12,7 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 90
 lead_time: null
 images:
   main: ../../../images/P003/main.jpg
@@ -24,3 +24,4 @@ confidence: high
 ---
 A circular wall clock with a quilled paper face in shades of blue with white hands.
 Smooth motion, silent clock mechanism. (no ticking)
+Diameter 180mm
