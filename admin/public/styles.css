@@ -123,8 +123,6 @@ a { color: var(--accent); }
 .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
 .s-available { background: var(--ok); }
 .s-order { background: #d98a2b; }
-.s-draft { background: var(--muted); }
-.s-hidden { background: #999; }
 .s-sold { background: var(--danger); }
 
 /* Editor */

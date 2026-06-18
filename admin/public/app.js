@@ -71,7 +71,7 @@ function buildFilters() {
     '<option value="">All themes</option>' + meta.themes.map((t) => `<option value="${t}">${t}</option>`).join('');
   $('#filter-status').innerHTML =
     '<option value="">All statuses</option>' + meta.statuses.map((s) => `<option value="${s}">${s}</option>`).join('');
-  ['#filter-category', '#filter-theme', '#filter-status'].forEach((sel) =>
+  ['#filter-category', '#filter-theme', '#filter-status', '#filter-visibility'].forEach((sel) =>
     $(sel).addEventListener('change', applyFilters));
 }
 function applyFilters() {
@@ -79,13 +79,16 @@ function applyFilters() {
   const cat = $('#filter-category').value;
   const theme = $('#filter-theme').value;
   const status = $('#filter-status').value;
+  const vis = $('#filter-visibility').value;
   let list = products;
   if (q) list = list.filter((p) => p.title.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.category.includes(q));
   if (cat) list = list.filter((p) => p.category === cat);
   if (theme) list = list.filter((p) => (p.themes || []).includes(theme));
   if (status) list = list.filter((p) => p.status === status);
+  if (vis === 'visible') list = list.filter((p) => !p.hidden);
+  else if (vis === 'hidden') list = list.filter((p) => p.hidden);
   renderProductList(list);
-  const active = !!(q || cat || theme || status);
+  const active = !!(q || cat || theme || status || vis);
   $('#filter-clear').hidden = !active;
   $('#filter-count').textContent = active ? `Showing ${list.length} of ${products.length}` : '';
 }
@@ -238,6 +241,7 @@ $('#filter-clear').addEventListener('click', () => {
   $('#filter-category').value = '';
   $('#filter-theme').value = '';
   $('#filter-status').value = '';
+  $('#filter-visibility').value = '';
   applyFilters();
 });
 
