@@ -4,7 +4,7 @@ import ProductGrid from '@/components/ProductGrid.astro';
 import Lightbox from '@/components/Lightbox.astro';
 import { getCollection, render } from 'astro:content';
 import { resolveProductImage, categoryLabel, titleCase, url } from '@/lib/images';
-import { isVisible, priceLabel } from '@/lib/products';
+import { isVisible, priceLabel, isOnSale } from '@/lib/products';
 
 export async function getStaticPaths() {
   const products = await getCollection('products');
@@ -30,6 +30,7 @@ const allThumbs = [mainSrc, ...angleSrcs, ...processSrcs];
 // Price display
 const priceDisplay = priceLabel(product);
 const isSold = data.status === 'sold';
+const onSale = isOnSale(product);
 
 // Card details block only renders if the card has at least one detail set.
 const hasCardDetails =
@@ -83,13 +84,18 @@ const ogImage = mainSrc;
         <div>
           <!-- Main image -->
           <div
-            class="aspect-auto max-h-[80vh] overflow-hidden rounded-lg bg-border/30 cursor-zoom-in"
+            class="relative aspect-auto max-h-[80vh] overflow-hidden rounded-lg bg-border/30 cursor-zoom-in"
             data-lightbox-src={mainSrc}
             data-lightbox-alt={data.title}
             role="button"
             tabindex="0"
             aria-label={`View ${data.title} full size`}
           >
+            {onSale && (
+              <span class="absolute top-3 left-3 z-10 bg-yellow-400 text-ink text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded shadow-sm">
+                Sale
+              </span>
+            )}
             <img
               src={mainSrc}
               alt={data.title}
@@ -144,7 +150,15 @@ const ogImage = mainSrc;
           </div>
 
           <!-- Price -->
-          <p class="mt-6 text-2xl font-semibold text-ink">{priceDisplay}</p>
+          {onSale ? (
+            <p class="mt-6 text-2xl text-ink">
+              <span class="line-through text-muted text-xl">${data.price}</span>
+              <span class="ml-2 font-bold">${data.sale_price}</span>
+              <span class="ml-2 align-middle bg-yellow-400 text-ink text-xs font-bold uppercase tracking-wide px-2 py-0.5 rounded">Sale</span>
+            </p>
+          ) : (
+            <p class="mt-6 text-2xl font-semibold text-ink">{priceDisplay}</p>
+          )}
 
           <!-- Made to order badge -->
           {data.status === 'order' && (

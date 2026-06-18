@@ -8,6 +8,7 @@ interface Product {
     title: string;
     category: string;
     price: number | null;
+    sale_price?: number | null;
     status: string;
     images: { main: string };
   };
@@ -29,6 +30,7 @@ const { products, emptyMessage = 'No products to show yet.' } = Astro.props;
         title={product.data.title}
         category={product.data.category}
         price={product.data.price}
+        salePrice={product.data.sale_price}
         status={product.data.status}
         mainImage={product.data.images.main}
       />

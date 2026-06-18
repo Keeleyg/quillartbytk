@@ -157,6 +157,7 @@ async function writeProduct(slug, data, body) {
     palette_variants: data.palette_variants ?? [],
     frame_options: data.frame_options ?? [],
     price: data.price ?? null,
+    sale_price: data.sale_price ?? null,
     lead_time: data.lead_time ?? null,
   };
   // Card-only attributes — written only for cards, omitted everywhere else.
@@ -464,7 +465,7 @@ app.get('/api/products/:slug', requireAuth, async (req, res) => {
     collection: p.data.collection ?? null,
     commission_example: !!p.data.commission_example, multi_frame: !!p.data.multi_frame,
     palette_variants: p.data.palette_variants ?? [], frame_options: p.data.frame_options ?? [],
-    price: p.data.price ?? null, lead_time: p.data.lead_time ?? null,
+    price: p.data.price ?? null, sale_price: p.data.sale_price ?? null, lead_time: p.data.lead_time ?? null,
     card_occasion: p.data.card_occasion ?? '', card_size: p.data.card_size ?? '',
     card_envelope_colour: p.data.card_envelope_colour ?? '',
     card_blank_inside: p.data.card_blank_inside ?? false,
@@ -516,6 +517,15 @@ app.put('/api/products/:slug', requireAuth, async (req, res) => {
       if (Number.isNaN(n)) return res.status(400).json({ error: 'Price must be a number' });
       price = n;
     }
+    let salePrice = null;
+    if (b.sale_price !== null && b.sale_price !== '' && b.sale_price !== undefined) {
+      const n = Number(b.sale_price);
+      if (Number.isNaN(n)) return res.status(400).json({ error: 'Sale price must be a number' });
+      salePrice = n;
+    }
+    if (salePrice != null && price != null && salePrice >= price) {
+      return res.status(400).json({ error: 'Sale price must be lower than the normal price.' });
+    }
     const leadTime = b.lead_time && String(b.lead_time).trim() ? String(b.lead_time).trim() : null;
     const collection = b.collection && String(b.collection).trim() ? String(b.collection).trim() : null;
     const hidden = !!b.hidden;
@@ -531,7 +541,7 @@ app.put('/api/products/:slug', requireAuth, async (req, res) => {
       collection, commission_example: !!b.commission_example, multi_frame: !!b.multi_frame,
       palette_variants: Array.isArray(b.palette_variants) ? b.palette_variants.map(String) : [],
       frame_options: Array.isArray(b.frame_options) ? b.frame_options.map(String) : [],
-      price, lead_time: leadTime,
+      price, sale_price: salePrice, lead_time: leadTime,
       // Card fields (writeProduct only persists them when category === 'cards')
       card_occasion: b.card_occasion ? String(b.card_occasion).trim() : '',
       card_size: b.card_size ? String(b.card_size).trim() : '',

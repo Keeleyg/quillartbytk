@@ -36,6 +36,7 @@ const products = defineCollection({
     palette_variants: z.array(z.string()).default([]),
     frame_options: z.array(z.string()).default([]),
     price: z.number().nullable().default(null),
+    sale_price: z.number().nullable().default(null),
     lead_time: z.string().nullable().default(null),
     /* Card-only attributes (omitted for non-card categories) */
     card_occasion: z.string().optional(),

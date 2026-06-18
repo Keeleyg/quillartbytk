@@ -275,6 +275,7 @@ async function selectProduct(slug) {
   $('#f-body').value = current.body || '';
   $('#f-status').value = current.status;
   $('#f-price').value = current.price ?? '';
+  $('#f-sale-price').value = current.sale_price ?? '';
   $('#f-lead').value = current.lead_time ?? '';
   $('#f-collection').value = current.collection ?? '';
   $('#f-commission').checked = current.commission_example;
@@ -548,6 +549,7 @@ $('#editor-form').addEventListener('submit', async (e) => {
     hidden: isHiddenSelected(),
     featured: $('#f-featured').checked,
     price: $('#f-price').value === '' ? null : Number($('#f-price').value),
+    sale_price: $('#f-sale-price').value === '' ? null : Number($('#f-sale-price').value),
     lead_time: $('#f-lead').value,
     collection: $('#f-collection').value,
     commission_example: $('#f-commission').checked,

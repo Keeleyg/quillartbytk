@@ -6,12 +6,15 @@ interface Props {
   title: string;
   category: string;
   price: number | null;
+  salePrice?: number | null;
   status: string;
   mainImage: string;
 }
 
-const { slug, title, category, price, status, mainImage } = Astro.props;
+const { slug, title, category, price, salePrice = null, status, mainImage } = Astro.props;
 const imgSrc = resolveProductImage(mainImage);
+
+const onSale = status === 'available' && price != null && salePrice != null;
 const priceDisplay =
   status === 'sold' ? 'Sold' : price != null ? `$${price}` : status === 'order' ? 'Made to order' : 'Inquire';
 ---
@@ -20,7 +23,12 @@ const priceDisplay =
   href={url(`/products/${slug}`)}
   class="group block no-underline"
 >
-  <div class="aspect-square overflow-hidden rounded-lg bg-border/30">
+  <div class="relative aspect-square overflow-hidden rounded-lg bg-border/30">
+    {onSale && (
+      <span class="absolute top-2 left-2 z-10 bg-yellow-400 text-ink text-[0.65rem] font-bold uppercase tracking-wide px-2 py-0.5 rounded shadow-sm">
+        Sale
+      </span>
+    )}
     <img
       src={imgSrc}
       alt={title}
@@ -34,6 +42,13 @@ const priceDisplay =
       {title}
     </h3>
     <p class="text-xs text-muted">{categoryLabel(category)}</p>
-    <p class="text-sm font-medium text-ink">{priceDisplay}</p>
+    {onSale ? (
+      <p class="text-sm">
+        <span class="line-through text-muted">${price}</span>
+        <span class="ml-1.5 font-bold text-ink">${salePrice}</span>
+      </p>
+    ) : (
+      <p class="text-sm font-medium text-ink">{priceDisplay}</p>
+    )}
   </div>
 </a>
