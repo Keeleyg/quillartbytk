@@ -68,7 +68,8 @@ const canBuy = buyable && status === 'available' && effectivePrice != null;
       href={productHref}
       label="Add to cart"
       addedLabel="In cart ✓"
-      class="mt-2 w-full inline-flex items-center justify-center px-3 py-1.5 border border-ink text-ink text-xs font-medium rounded-md no-underline hover:bg-ink hover:text-paper transition duration-200 cursor-pointer"
+      reservedLabel="Reserved"
+      class="mt-2 w-full inline-flex items-center justify-center px-3 py-1.5 border border-ink text-ink text-xs font-medium rounded-md no-underline hover:bg-ink hover:text-paper transition duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink"
     />
   )}
 </div>

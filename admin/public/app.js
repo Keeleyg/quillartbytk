@@ -630,12 +630,16 @@ function escapeHtml(s) {
 function showTab(name) {
   $('#gallery-tab').hidden = name !== 'gallery';
   $('#events-tab').hidden = name !== 'events';
+  $('#orders-tab').hidden = name !== 'orders';
   $('#tab-gallery').classList.toggle('active', name === 'gallery');
   $('#tab-events').classList.toggle('active', name === 'events');
+  $('#tab-orders').classList.toggle('active', name === 'orders');
   if (name === 'events' && events === null) loadEventList();
+  if (name === 'orders') loadOrders();
 }
 $('#tab-gallery').addEventListener('click', () => showTab('gallery'));
 $('#tab-events').addEventListener('click', () => showTab('events'));
+$('#tab-orders').addEventListener('click', () => showTab('orders'));
 
 /* ================= Events editor ================= */
 let events = null;
@@ -759,6 +763,86 @@ $('#event-form').addEventListener('submit', async (e) => {
     btn.disabled = false;
   }
 });
+
+/* ================= Orders / checkout holds ================= */
+const ordersList = $('#orders-list');
+const ordersStatus = $('#orders-status');
+
+function fmtWhen(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+  } catch { return iso; }
+}
+
+async function loadOrders() {
+  ordersStatus.textContent = 'Loading…';
+  ordersList.innerHTML = '';
+  let data;
+  try {
+    data = await api('/api/orders');
+  } catch (e) {
+    ordersStatus.textContent = 'Could not load holds: ' + e.message;
+    return;
+  }
+  if (data.configured === false) {
+    ordersStatus.innerHTML =
+      'Checkout holds aren’t connected yet. Add <code>"workerAdminToken"</code> to <code>admin/credentials.json</code> ' +
+      '(matching the Worker’s <code>ADMIN_TOKEN</code> secret), then restart the admin tool.';
+    return;
+  }
+  const orders = data.orders || [];
+  if (!orders.length) {
+    ordersStatus.textContent = 'No active holds — nothing is reserved right now.';
+    return;
+  }
+  ordersStatus.textContent = orders.length + ' active hold' + (orders.length === 1 ? '' : 's') + '.';
+  orders.forEach((o) => ordersList.appendChild(orderCard(o)));
+}
+
+function orderCard(o) {
+  const card = document.createElement('div');
+  card.className = 'order-card';
+  const items = (o.items || [])
+    .map((it) =>
+      `<li>${escapeHtml(it.title)}` +
+      (it.id ? ` <span class="muted mono">${escapeHtml(it.id)}</span>` : '') +
+      (typeof it.price === 'number' ? ` — $${it.price}` : '') +
+      `</li>`)
+    .join('');
+  card.innerHTML =
+    `<div class="order-main">
+       <div class="order-top">
+         <span class="order-ref mono">#${escapeHtml(o.ref || '')}</span>
+         <span class="muted small">${escapeHtml(fmtWhen(o.placedAt))}</span>
+       </div>
+       <div class="order-cust">${escapeHtml(o.name || '')} · <a href="mailto:${escapeHtml(o.email || '')}">${escapeHtml(o.email || '')}</a></div>
+       <ul class="order-items">${items}</ul>
+     </div>
+     <div class="order-actions">
+       <button type="button" class="btn btn-sm btn-danger" data-release="${escapeHtml(o.ref || '')}">Release back to sale</button>
+     </div>`;
+  return card;
+}
+
+ordersList.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-release]');
+  if (!btn) return;
+  const ref = btn.getAttribute('data-release');
+  if (!confirm('Release this order’s pieces back to sale?\n\nThe items become available to other buyers again, and this buyer’s payment link will no longer match an active hold.')) return;
+  btn.disabled = true;
+  btn.textContent = 'Releasing…';
+  try {
+    await api('/api/orders/release', { method: 'POST', body: { ref } });
+    await loadOrders();
+  } catch (err) {
+    alert('Could not release: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Release back to sale';
+  }
+});
+
+$('#orders-refresh').addEventListener('click', loadOrders);
 
 /* ---------------- start ---------------- */
 if (token) boot().catch(() => showLogin());

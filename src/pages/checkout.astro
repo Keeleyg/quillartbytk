@@ -157,6 +157,11 @@ const inputClass =
           var price = document.createElement('span');
           price.className = 'text-sm text-muted flex-shrink-0';
           price.textContent = (typeof it.price === 'number') ? window.Cart.money(it.price) : '—';
+          if (window.Cart.isReserved(it.id)) {
+            li.classList.add('opacity-60');
+            price.textContent = 'Reserved';
+            price.className = 'text-sm text-accent flex-shrink-0';
+          }
           li.appendChild(name);
           li.appendChild(price);
           summaryList.appendChild(li);
@@ -184,6 +189,14 @@ const inputClass =
 
         var items = window.Cart.read();
         if (!items.length) { renderSummary(); return; }
+
+        var reservedNow = items.filter(function (i) { return window.Cart.isReserved(i.id); });
+        if (reservedNow.length) {
+          reservedNow.forEach(function (i) { window.Cart.remove(i.id); });
+          renderSummary();
+          showError('Some pieces were just reserved by another buyer and have been removed. Please review your order and try again.');
+          return;
+        }
 
         var payload = {
           customer: {
@@ -213,6 +226,14 @@ const inputClass =
           });
           var data = {};
           try { data = await res.json(); } catch (e2) {}
+          if (res.status === 409 && data && Array.isArray(data.reserved)) {
+            data.reserved.forEach(function (id) { window.Cart.remove(id); });
+            renderSummary();
+            showError(data.error || 'Some pieces were just reserved by another buyer and have been removed from your order. Please review and try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Place order';
+            return;
+          }
           if (!res.ok || !data.ok) {
             throw new Error(data.error || 'Something went wrong placing your order. Please try again.');
           }
@@ -229,6 +250,10 @@ const inputClass =
 
       document.addEventListener('cart:change', function () {
         if (!successEl.hidden) return; // don't disrupt the success screen
+        renderSummary();
+      });
+      document.addEventListener('reservations:loaded', function () {
+        if (!successEl.hidden) return;
         renderSummary();
       });
       renderSummary();

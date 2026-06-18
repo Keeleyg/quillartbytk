@@ -102,6 +102,12 @@ if (!existsSync(CREDS_PATH)) {
   process.exit(1);
 }
 const creds = JSON.parse(await readFile(CREDS_PATH, 'utf8'));
+
+/* Live site + Worker admin token, for managing Store checkout holds.
+   workerAdminToken must match the ADMIN_TOKEN secret on the deployed Worker. */
+const LIVE_BASE = (process.env.ADMIN_LIVE_BASE || creds.liveBase || 'https://quillartbytk.com').replace(/\/$/, '');
+const WORKER_ADMIN_TOKEN = process.env.ADMIN_WORKER_TOKEN || creds.workerAdminToken || '';
+
 const sessions = new Map();
 const SESSION_MS = 8 * 60 * 60 * 1000;
 
@@ -840,6 +846,44 @@ app.put('/api/events/:id', requireAuth, async (req, res) => {
     res.json({ ok: true, event: ev, draft: await draftStatus() });
   } catch (err) {
     res.status(500).json({ error: String(err.message || err) });
+  }
+});
+
+/* ---- store orders / checkout holds (proxied to the live Worker) --- */
+app.get('/api/orders', requireAuth, async (_req, res) => {
+  if (!WORKER_ADMIN_TOKEN) return res.json({ configured: false, orders: [] });
+  try {
+    const r = await fetch(`${LIVE_BASE}/api/admin/orders`, {
+      headers: { 'X-Admin-Token': WORKER_ADMIN_TOKEN },
+    });
+    if (r.status === 401) {
+      return res.status(401).json({ error: 'The live site rejected the admin token. Check workerAdminToken matches the deployed Worker secret.' });
+    }
+    if (!r.ok) return res.status(502).json({ error: `Live site error ${r.status}` });
+    const data = await r.json();
+    res.json({ configured: true, orders: Array.isArray(data.orders) ? data.orders : [] });
+  } catch (err) {
+    res.status(502).json({ error: 'Could not reach the live site (are you online?). ' + String(err.message || err) });
+  }
+});
+
+app.post('/api/orders/release', requireAuth, async (req, res) => {
+  if (!WORKER_ADMIN_TOKEN) return res.status(400).json({ error: 'Worker admin token not configured.' });
+  const ref = req.body && typeof req.body.ref === 'string' ? req.body.ref : '';
+  if (!ref) return res.status(400).json({ error: 'Missing order ref' });
+  try {
+    const r = await fetch(`${LIVE_BASE}/api/admin/release`, {
+      method: 'POST',
+      headers: { 'X-Admin-Token': WORKER_ADMIN_TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref }),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok || !data.ok) {
+      return res.status(r.status === 401 ? 401 : 502).json({ error: data.error || `Live site error ${r.status}` });
+    }
+    res.json({ ok: true, released: data.released || [] });
+  } catch (err) {
+    res.status(502).json({ error: 'Could not reach the live site. ' + String(err.message || err) });
   }
 });
 

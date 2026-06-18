@@ -17,3 +17,9 @@ zone_name = "quillartbytk.com"
 [[routes]]
 pattern = "www.quillartbytk.com/api/*"
 zone_name = "quillartbytk.com"
+
+# KV namespace holding item reservations (the "seat map").
+# id is filled in by `wrangler kv namespace create RESERVATIONS`.
+[[kv_namespaces]]
+binding = "RESERVATIONS"
+id = "7ae0a07718524edf877147c1944da445"

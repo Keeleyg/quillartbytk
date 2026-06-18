@@ -1,5 +1,6 @@
 import type { Env } from './index';
 import { sendOrderNotification, sendOrderConfirmation } from './email';
+import { reserveOrder } from './reservations';
 
 export interface OrderItem {
   id: string;
@@ -20,6 +21,8 @@ export interface OrderData {
   items: OrderItem[];
   notes: string;
   subtotal: number;
+  /** Short reference shared with Tracey + the reservation record. */
+  ref?: string;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -93,13 +96,36 @@ export async function handleOrder(
   const subtotal = items.reduce((sum, it) => sum + (it.price ?? 0), 0);
   const notes = str(payload.notes, 2000);
 
+  const ref = crypto.randomUUID().slice(0, 8);
   const data: OrderData = {
     customer: { name, email, phone },
     shipping: { line1, line2, suburb, state, postcode, country },
     items,
     notes,
     subtotal,
+    ref,
   };
+
+  // Reserve the pieces BEFORE emailing. If another buyer just claimed any of
+  // them, stop here and tell the customer which ones are gone.
+  const reservation = await reserveOrder(env, {
+    ref,
+    name,
+    email,
+    placedAt: new Date().toISOString(),
+    items,
+  });
+  if (!reservation.ok) {
+    return jsonResponse(
+      {
+        ok: false,
+        error:
+          'Sorry — one or more of your pieces was just reserved by another buyer and is no longer available.',
+        reserved: reservation.reserved,
+      },
+      409,
+    );
+  }
 
   // Notify Tracey (required — failure is reported to the customer)
   try {

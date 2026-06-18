@@ -75,6 +75,14 @@ import { url } from '@/lib/images';
         mid.appendChild(name);
         mid.appendChild(price);
 
+        if (window.Cart.isReserved(it.id)) {
+          li.classList.add('opacity-60');
+          var warn = document.createElement('p');
+          warn.className = 'mt-1 text-xs text-accent';
+          warn.textContent = 'Just reserved by another buyer — please remove.';
+          mid.appendChild(warn);
+        }
+
         var rm = document.createElement('button');
         rm.type = 'button';
         rm.setAttribute('data-remove', it.id);
@@ -109,6 +117,7 @@ import { url } from '@/lib/images';
       });
 
       document.addEventListener('cart:change', render);
+      document.addEventListener('reservations:loaded', render);
       render();
     })();
   </script>

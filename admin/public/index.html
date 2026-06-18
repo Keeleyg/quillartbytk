@@ -29,6 +29,7 @@
         <nav class="tabs" aria-label="Sections">
           <button id="tab-gallery" type="button" class="tab active">Gallery</button>
           <button id="tab-events" type="button" class="tab">Events</button>
+          <button id="tab-orders" type="button" class="tab">Orders</button>
         </nav>
         <span id="branch-badge" class="badge" title="Editing branch"></span>
       </div>
@@ -305,6 +306,20 @@
         </main>
       </div>
     </div><!-- /events-tab -->
+
+    <div id="orders-tab" hidden>
+      <div class="orders-wrap">
+        <div class="orders-head">
+          <div>
+            <h2>Checkout holds</h2>
+            <p class="muted small">Pieces a buyer reserved by placing an order — they're hidden from sale for everyone else until you release them. <strong>Release</strong> when a buyer hasn't paid (puts the piece back on sale), or after you've marked the piece <em>Sold</em> in the Gallery. There is no automatic timeout — you're in full control.</p>
+          </div>
+          <button id="orders-refresh" type="button" class="btn btn-sm">↻ Refresh</button>
+        </div>
+        <div id="orders-status" class="muted small"></div>
+        <div id="orders-list" class="orders-list"></div>
+      </div>
+    </div><!-- /orders-tab -->
   </div>
 
   <script src="./app.js"></script>

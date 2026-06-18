@@ -96,6 +96,7 @@
     if (!btn) return;
     e.preventDefault();
     var id = btn.getAttribute('data-id');
+    if (RESERVED.has(id)) { markButtonReserved(btn); return; }
     if (has(id)) {
       // Second click on an in-cart item → go to the cart
       window.location.href = btn.getAttribute('data-cart-url') || '/cart';
@@ -114,15 +115,60 @@
 
   document.addEventListener('cart:change', reflectAll);
 
+  /* ---- live reservations (the "seat map") ------------------------ *
+   * One-of-a-kind pieces are held the moment another buyer places an  *
+   * order, so we fetch the reserved list and lock those items here.   */
+  var RESERVED = new Set();
+
+  function isReserved(id) { return RESERVED.has(id); }
+
+  function markButtonReserved(b) {
+    b.disabled = true;
+    b.classList.add('reserved');
+    b.textContent = b.getAttribute('data-reserved-label') || 'Reserved';
+    var card = b.parentElement;
+    if (card) {
+      var imgWrap = card.querySelector('.aspect-square');
+      if (imgWrap && !imgWrap.querySelector('[data-reserved-badge]')) {
+        var badge = document.createElement('span');
+        badge.setAttribute('data-reserved-badge', '');
+        badge.className = 'absolute top-2 right-2 z-10 bg-ink text-paper text-[0.65rem] font-bold uppercase tracking-wide px-2 py-0.5 rounded shadow-sm';
+        badge.textContent = 'Reserved';
+        imgWrap.appendChild(badge);
+      }
+    }
+  }
+
+  function applyReservations() {
+    var btns = document.querySelectorAll('[data-add-to-cart]');
+    for (var i = 0; i < btns.length; i++) {
+      if (RESERVED.has(btns[i].getAttribute('data-id'))) markButtonReserved(btns[i]);
+    }
+  }
+
+  function fetchReservations() {
+    fetch('/api/reservations', { headers: { Accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (!d || !Array.isArray(d.ids)) return;
+        RESERVED = new Set(d.ids);
+        applyReservations();
+        document.dispatchEvent(new CustomEvent('reservations:loaded', { detail: d.ids }));
+      })
+      .catch(function () { /* offline / local dev — leave items buyable */ });
+  }
+
+  function init() { updateBadges(); reflectAll(); fetchReservations(); }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { updateBadges(); reflectAll(); });
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    updateBadges();
-    reflectAll();
+    init();
   }
 
   window.Cart = {
     read: read, add: add, remove: remove, clear: clear,
     has: has, count: count, subtotal: subtotal, money: money,
+    isReserved: isReserved,
+    reservedIds: function () { return Array.from(RESERVED); },
   };
 })();

@@ -184,7 +184,7 @@ function addressLines(s: OrderData['shipping']): string[] {
 
 export async function sendOrderNotification(data: OrderData, env: Env): Promise<void> {
   const n = data.items.length;
-  const subjectLine = `New order: ${n} item${n === 1 ? '' : 's'} — ${money(data.subtotal)} (${data.customer.name})`;
+  const subjectLine = `New order: ${n} item${n === 1 ? '' : 's'} — ${money(data.subtotal)} (${data.customer.name}${data.ref ? ` · #${data.ref}` : ''})`;
 
   // Plain text
   const itemLinesText = data.items.map(
@@ -193,6 +193,7 @@ export async function sendOrderNotification(data: OrderData, env: Env): Promise<
   const lines: string[] = [
     'New order from your website Store:',
     '',
+    ...(data.ref ? [`Order ref: #${data.ref}`, ''] : []),
     'Items:',
     ...itemLinesText,
     '',
@@ -242,6 +243,7 @@ export async function sendOrderNotification(data: OrderData, env: Env): Promise<
       </tr>
     </table>
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:20px 0 0;font-size:14px;line-height:1.5;">
+      ${data.ref ? `<tr><td style="padding:4px 0;font-weight:600;vertical-align:top;width:90px;">Ref:</td><td style="padding:4px 0;">#${escapeHtml(data.ref)}</td></tr>` : ''}
       <tr><td style="padding:4px 0;font-weight:600;vertical-align:top;width:90px;">Name:</td><td style="padding:4px 0;">${escapeHtml(data.customer.name)}</td></tr>
       <tr><td style="padding:4px 0;font-weight:600;vertical-align:top;">Email:</td><td style="padding:4px 0;"><a href="mailto:${escapeHtml(data.customer.email)}" style="color:#8b3a3a;">${escapeHtml(data.customer.email)}</a></td></tr>
       ${data.customer.phone ? `<tr><td style="padding:4px 0;font-weight:600;vertical-align:top;">Phone:</td><td style="padding:4px 0;">${escapeHtml(data.customer.phone)}</td></tr>` : ''}
