@@ -12,7 +12,7 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 90
 lead_time: null
 images:
   main: ../../../images/P006/angle-2.jpg
@@ -23,5 +23,5 @@ images:
 confidence: high
 ---
 A male and female Superb Fairywren beautifully rendered in quilled paper, perched
-on a textured brown branch with green foliage. 
-White Shadow Bos Frame 20 x 25cm
+on a wattle branch.
+White Shadow Box Frame 20 x 25cm
