@@ -1,383 +1,325 @@
-# Quillart by TK — Product Catalog
-
-Static product catalog and commission portal for [quillartbytk.com](https://quillartbytk.com), hosted on GitHub Pages with a custom domain via Cloudflare DNS.
-
-> **Spelling note:** The brand is **Quillart** (one word, no space) — not "Quill Art". Use "Quillart by TK" everywhere.
-
-## Quick Start
-
-1. Clone this repo
-2. Open `index.html` in a browser (or use a local server like `npx serve`)
-3. Edit `products.json` to add/update artworks
-4. Edit `events.json` to manage upcoming markets and events
-5. Commit and push — GitHub Pages deploys automatically
-
-## How the site works
-
-The gallery is primarily a **portfolio of commissionable styles**. Most items have `"status": "order"` — visitors can commission that style (as-is or with variations) via a mailto button. The rare in-stock piece has `"status": "available"` and gets a firm price with a "Purchase" button.
-
-There's also a dedicated [commission page](commission.html) for fully bespoke briefs where the customer describes what they want from scratch, and an [events page](events.html) listing upcoming markets where customers can see pieces in person.
-
-All enquiries go through mailto links — no form backend, no payment integration. You create Zeller Invoices manually after discussing with the customer.
-
-## Adding a New Artwork (Non-Cards)
-
-1. **Add the image** to `images/` using the naming convention `piece-{id}.jpg` (see `images/README.md` for specs)
-2. **Add an entry** to `products.json`:
-
-```json
-{
-  "id": "004",
-  "title": "Your Artwork Title",
-  "description": "A detailed description of the piece.",
-  "dimensions": "30cm x 40cm",
-  "medium": "Quilled paper on canvas",
-  "price": 250,
-  "currency": "AUD",
-  "status": "order",
-  "leadTimeWeeks": 3,
-  "image": "images/piece-004.jpg",
-  "dateAdded": "2026-06-01"
-}
-```
-
-3. **Commit and push** to deploy
-
-### Status Values
-
-| Status      | Default? | Card button              | Price display     | Effect                                  |
-|-------------|----------|--------------------------|-------------------|-----------------------------------------|
-| `order`     | **Yes**  | "Commission this style"  | "from $X AUD"    | Guide price, mailto with commission brief |
-| `available` | Rare     | "Purchase"               | "$X AUD"          | Firm price, mailto requesting Zeller Invoice |
-| `reserved`  | —        | (none)                   | "from $X AUD"    | "Currently reserved" shown              |
-| `sold`      | —        | (none)                   | "$X AUD"          | "Sold" badge                            |
-
-**`order` is the default.** Only set `available` when a piece is genuinely in stock and ready to ship.
-
-### Optional: `priceIsFirm`
-
-By default, `available` items have firm prices and everything else is a guide. To override this (rare), add `"priceIsFirm": true` or `"priceIsFirm": false` to a product entry. When absent, the value is derived from status.
-
-### Optional: `leadTimeWeeks`
-
-Per-item lead time for commission pieces. If omitted, falls back to `config.defaultLeadTimeWeeks` (currently 3 weeks). Only relevant for `order` status items.
-
-For adding **greeting card** products, see [Cards (Greeting Cards)](#cards-greeting-cards) below.
-
-## Image Roles
-
-Each product image can be tagged with a **role** that controls where and how it appears:
-
-| Role | Meaning | Where it shows |
-|------|---------|---------------|
-| `main` | Primary / hero image | Gallery thumbnail, lightbox hero, JSON-LD |
-| `angle` | Alternate view of the finished piece | Lightbox image strip, JSON-LD |
-| `process` | Work-in-progress / making-of shot | Lightbox "Watch it come together" section only |
-
-### Image entry format
-
-Images in the `images` array use `{filename, role}` objects:
-
-```json
-"images": [
-  {"filename": "images/piece-004.jpg", "role": "main"},
-  {"filename": "images/piece-004-side.jpg", "role": "angle"},
-  {"filename": "images/piece-004-wip-01.jpg", "role": "process"},
-  {"filename": "images/piece-004-wip-02.jpg", "role": "process"}
-]
-```
-
-### Rules
-
-- Every product needs exactly **one** `main` image. If omitted, the first `angle` image is used as a fallback. If neither exists, the product is skipped from the gallery with a console error.
-- **Process images never appear as gallery thumbnails** — even if they're the only images on the product.
-- JSON-LD structured data includes `main` and `angle` images only; `process` images are excluded.
-- Products without an `images` array fall back to `item.image` (treated as `main`).
-
-### Process section in lightbox
-
-When a product has process images, the lightbox shows a "Watch it come together" section below the main details. Process photos are displayed as numbered steps (Step 1, Step 2, etc.) with smaller thumbnails. Clicking a step shows it in the main lightbox image area; a "← Back to finished piece" link returns to the main image.
-
-> **Coming soon:** The Heidi name piece (P037) will be the first product with process photos, documenting the quilling journey from sketch to finished frame. Process shots are currently surfaced only within the per-product lightbox — featuring them on the commission page as evidence of the craft involved is a candidate for the final catalog consolidation pass.
-
-## Cards (Greeting Cards)
-
-Cards use a different data shape from regular artworks. One product entry represents a **card occasion** (e.g. "Valentine's Day Cards") containing multiple **design variants** underneath. Each card has per-unit pricing and optional bulk tiers.
-
-These fields are **only meaningful when `category` is `"cards"`**. Non-card products ignore them entirely.
-
-### Card product example
-
-```json
-{
-  "id": "C001",
-  "title": "Valentine's Day Cards",
-  "description": "Handmade quilled Valentine's Day greeting cards...",
-  "dimensions": "A6 (10.5cm x 14.8cm)",
-  "medium": "Quilled paper on premium cardstock",
-  "price": 8,
-  "unitPrice": 8,
-  "currency": "AUD",
-  "status": "order",
-  "category": "cards",
-  "image": "images/card-C001-V1-01.jpg",
-  "images": [
-    {"filename": "images/card-C001-V1-01.jpg", "role": "main"},
-    {"filename": "images/card-C001-V1-02.jpg", "role": "angle"},
-    {"filename": "images/card-C001-V2-01.jpg", "role": "angle"}
-  ],
-  "variants": [
-    {
-      "id": "V1",
-      "name": "Filigree Heart",
-      "description": "A classic heart shape in graduated reds and pinks.",
-      "imageIndexes": [0, 1]
-    },
-    {
-      "id": "V2",
-      "name": "Rose Bouquet",
-      "description": "Quilled roses with gold accents.",
-      "imageIndexes": [2]
-    }
-  ],
-  "bulkTiers": [
-    {"quantity": 5, "totalPrice": 35},
-    {"quantity": 10, "totalPrice": 65}
-  ],
-  "dateAdded": "2026-05-19"
-}
-```
-
-### Card-specific fields
-
-| Field | Type | Required | Fallback |
-|-------|------|----------|----------|
-| `unitPrice` | number | No | `CONFIG.cards.defaultUnitPrice` (currently $8) |
-| `images` | string[] | No | `[item.image]` (single hero image) |
-| `variants` | object[] | No | Entire `images` array treated as one anonymous design |
-| `bulkTiers` | object[] | No | No bulk pricing shown |
-
-**`price`** and **`unitPrice`** are typically the same number. `price` is kept for JSON-LD crawlers; `unitPrice` is the explicit per-card price the UI reads.
-
-### Adding a variant
-
-1. Add the variant's images to `images/` using `card-{id}-{variantId}-{nn}.jpg` naming
-2. Append the image paths to the product's `images` array
-3. Add a variant object to `variants` with `imageIndexes` pointing at the new images' positions in the array
-
-### Bulk tiers
-
-Each tier is `{"quantity": N, "totalPrice": M}`. The first tier is shown on the gallery card; all tiers are shown in the lightbox. Tiers should be sorted ascending by quantity.
-
-### How cards display differently
-
-- **Gallery card:** "From $8 AUD each" + "or 5 for $35 AUD" + "Order cards" button
-- **Lightbox:** Per-unit price, bulk tier pills, "Designs" section with variant cards (thumbnail + name + description + ID badge), filterable image strip, "Order cards" mailto
-- **Mailto:** Lists all variant IDs and names for the buyer to indicate quantities
-- **JSON-LD:** `UnitPriceSpecification` with `referenceQuantity` of 1 (bulk tiers are not expressed in JSON-LD)
-
-### Config defaults
-
-`CONFIG.cards` in `config.js`:
-
-| Field | Default | Meaning |
-|-------|---------|---------|
-| `defaultUnitPrice` | 8 | Fallback per-card price when `unitPrice` is omitted |
-| `suggestBulkAt` | 3 | UI hint threshold for bulk pricing suggestions |
-
-## Managing Events
-
-Edit `events.json` to add, update, or mark events. The events page and the commission page's "Meet us in person" section both read from this file.
-
-### Event schema
-
-```json
-{
-  "id": "market-001",
-  "name": "Sunrise Markets",
-  "date": "2026-07-12",
-  "venue": "Main Street Hall, Springfield",
-  "stallNumber": "Stall 14",
-  "url": "https://example.com/sunrise-markets",
-  "status": "confirmed",
-  "description": "Come see the full range in person."
-}
-```
-
-| Field         | Required | Notes |
-|---------------|----------|-------|
-| `id`          | Yes      | Unique ID. Used for deep-link anchors (`events.html#event-{id}`) |
-| `name`        | Yes      | Event / market name |
-| `date`        | Yes      | `YYYY-MM-DD` format. Used to sort and split upcoming vs past |
-| `venue`       | Yes      | Location description |
-| `stallNumber` | No       | Stall or site number if known |
-| `url`         | No       | External link to the event's own page |
-| `status`      | Yes      | `confirmed`, `tentative`, or `cancelled` |
-| `description` | No       | Short description shown on the event card |
-
-### Event statuses
-
-- **`confirmed`** — shows normally
-- **`tentative`** — shows with a "Date to be confirmed" badge
-- **`cancelled`** — shows greyed out with a "Cancelled" badge; excluded from the commission page markets list
-
-### Where events appear
-
-- **events.html** — all events, split into upcoming and past sections
-- **commission.html** — "Meet us in person" section shows up to 3 upcoming non-cancelled events. Section hides automatically when there are none.
-
-### Past events
-
-Events with dates before today automatically move to the "Past events" section on the events page. No manual cleanup needed — just leave old entries in the file as a record.
-
-## Site Configuration
-
-Edit `config.js` to change:
-
-| Field | What it controls |
-|-------|-----------------|
-| `siteTitle` | Site name in header |
-| `tagline` | Subtitle below site name |
-| `email` | All mailto enquiry links |
-| `baseUrl` | Canonical URLs and JSON-LD |
-| `social.facebook` | Footer Facebook link |
-| `defaultOgImage` | Default Open Graph image path |
-| `defaultLeadTimeWeeks` | Fallback lead time for gallery commissions (number, e.g. `3`) |
-| `customCommissionLeadTime` | Lead time shown on the custom commission page and mailto (free-text string) |
-| `deposit` | Deposit fraction mentioned on commission page (e.g. `0.5` = 50%) |
-| `cards.defaultUnitPrice` | Fallback per-card price when product omits `unitPrice` (default: `8`) |
-| `cards.suggestBulkAt` | Quantity threshold for bulk pricing UI hint (default: `3`) |
-| `categories` | Array of `{id, label}` objects for product categories (format/medium) |
-| `themes` | Array of `{id, label}` objects for product themes (subject matter) |
-| `commission.introBlurb` | Intro paragraph on commission.html |
-| `commission.leadTimeDisclaimer` | Disclaimer shown after the lead time on commission page |
-| `commission.marketsBlurb` | Intro text for the markets section on commission page |
-
-### Lead time fields
-
-- **`defaultLeadTimeWeeks`** (number): Used for `order`-status gallery items. Appears in the commission mailto body as "Lead time understood: ~X weeks."
-- **`customCommissionLeadTime`** (string): Used on the commission page and in the custom commission mailto. This is a free-text string — you can write `"4-8 weeks"`, `"currently 6+ weeks — taking bookings for February"`, or whatever suits the current queue.
-
-### Pricing note
-
-- **"from $X AUD"** is shown for all non-available items. The word "from" signals the price is a guide.
-- **"$X AUD"** (no "from") is shown for available/in-stock items. This is the firm, pay-this-now price.
-- The commission page includes a note explaining that gallery prices are guides and in-stock pieces are the only firm prices.
-
-### Categories & themes
-
-Products can be tagged with a `category` (format/medium) and one or more `theme` values (subject matter). Both lists are defined in `config.js` and drive the filter UI, JSON-LD keywords, and URL hash state.
-
-**Categories** — what the piece physically is:
-
-| ID | Meaning |
-|----|---------|
-| `framed` | Framed under glass |
-| `clocks` | Clock face pieces |
-| `canvas` | Quilled paper on canvas |
-| `cards` | Greeting cards |
-| `homewares` | Sculptural / functional pieces (bowls, vessels, anything 3D and non-wall-mounted) |
-
-**Themes** — what the piece depicts:
-
-| ID | Meaning |
-|----|---------|
-| `birds` | Bird subjects |
-| `animals` | Non-bird, non-insect creatures (cats, fish, sea life, mammals) |
-| `insects` | Bees, mantises, butterflies, and other arthropods — often rendered in a "natural history specimen" style with scientific labelling |
-| `nautical` | Ocean and water motifs — whales, seahorses, lighthouses, waves |
-| `flowers` | Floral subjects |
-| `trees` | Tree / branch subjects |
-| `nursery` | Baby / nursery themed |
-| `names` | Name or word art |
-| `patterns` | Abstract or non-representational designs without a clear subject (e.g. pattern-based clocks, mandalas) |
-| `seasonal` | Seasonal and holiday pieces (Christmas, Valentine's, St Patrick's) |
-| `australiana` | Native Australian species, flora, and motifs |
-| `pets` | Pet-themed pieces (paw prints, pet portraits) |
-
-To add a new category or theme, add a `{id, label}` object to the relevant array in `config.js`. The filter UI picks up additions automatically.
-
-## Logo
-
-The site logo lives at `images/logo.jpg`. It appears in:
-
-- The header on every page (inline with the wordmark)
-- The hero section on the gallery (index) page
-- Open Graph / Twitter Card image meta tags
-
-When a higher-resolution version is available, consider:
-
-- Adding a `logo-og.jpg` at 1200x630 for better social sharing previews
-- Providing a PNG or SVG version for crisper rendering at small sizes
-- Regenerating `favicon.svg` to match the logo
-
-## Copyright
-
-The footer displays: **© {year} Quillart by TK. All rights reserved. E&OE.**
-
-- The year updates automatically via JavaScript in `config.js` (targets `.copyright-year` elements)
-- Each HTML file has a hardcoded fallback year (currently 2026) for no-JS scenarios
-- JSON-LD `copyrightHolder` is the **Organization** "Quillart by TK" (not the individual artist name)
-- The artist's legal name "Tracey Keeley" (alternateName "TK") appears only in JSON-LD `Person` entities (e.g. the `provider` on the commission page Service schema)
-
-## File Structure
+# Quillart by TK — quillartbytk.com
+
+Product‑catalogue, store, and commission website for **[quillartbytk.com](https://quillartbytk.com)** — handmade quilled paper art by Tracey ("TK"). Built with **Astro** (static output), deployed to **GitHub Pages** on the apex domain via **Cloudflare**, with a small **Cloudflare Worker** API for the contact form, store orders, and item reservations, plus a **local‑only admin tool** for editing the catalogue.
+
+> **Spelling:** the brand is **Quillart** — one word, no space. Always "Quillart by TK", never "Quill Art".
+
+---
+
+## Contents
+
+- [Architecture at a glance](#architecture-at-a-glance)
+- [Tech stack](#tech-stack)
+- [Repository layout](#repository-layout)
+- [Local development](#local-development)
+- [Content model](#content-model)
+  - [Products](#products)
+  - [Collections](#collections)
+  - [Events](#events)
+  - [Images](#images)
+- [Pages & site map](#pages--site-map)
+- [Store, cart & checkout](#store-cart--checkout)
+- [Item reservations (the "seat map")](#item-reservations-the-seat-map)
+- [Cloudflare Worker API](#cloudflare-worker-api)
+- [Admin tool (gallery editor)](#admin-tool-gallery-editor)
+- [Zeller POS Lite sync](#zeller-pos-lite-sync)
+- [Deployment](#deployment)
+- [Operational runbook](#operational-runbook)
+
+---
+
+## Architecture at a glance
+
+Three independent parts:
+
+| Part | What it is | Where it runs |
+|------|-----------|---------------|
+| **Static site** | Astro builds `src/` into static HTML/CSS/JS | GitHub Pages → `quillartbytk.com` |
+| **Worker API** | Cloudflare Worker handling `/api/*` (contact, orders, reservations) | Cloudflare edge, routed on `quillartbytk.com/api/*` |
+| **Admin tool** | Local Express app to edit the catalogue + manage holds | Tracey's / the owner's laptop only (`localhost:4399`) |
+
+The site itself is **100% static** — there is no server rendering. Anything dynamic (sending an email, placing an order, holding an item) is a client‑side `fetch` to the Worker.
 
 ```
-├── index.html         Main gallery page with hero section
-├── commission.html    Custom commission landing page (includes markets)
-├── events.html        Upcoming markets and events listing
-├── about.html         About the artist
-├── 404.html           Custom error page
-├── styles.css         All styles
-├── script.js          Gallery, lightbox, filters, SEO
-├── config.js          Site settings (edit for config)
-├── products.json      Product data (edit regularly)
-├── events.json        Event/market data (edit regularly)
-├── images/            Product photos and logo
-│   ├── logo.jpg       Site logo
-│   └── README.md      Image naming and specs
-├── robots.txt         Search engine crawling rules
-├── sitemap.xml        Static sitemap
-├── favicon.svg        Monogram favicon
-└── README.md          This file
+Visitor ──HTML──▶ GitHub Pages (static site)
+   │
+   └──fetch /api/*──▶ Cloudflare Worker ──▶ Resend (email) + KV (reservations)
+
+Owner ──▶ Admin tool (localhost) ──git──▶ GitHub (main) ──▶ Pages rebuild
+                     └──HTTPS /api/admin/*──▶ Worker (view/release holds)
 ```
 
-## SEO
+---
 
-- Each product is deep-linkable via URL hash (e.g., `quillartbytk.com/#item=001`)
-- Each event is deep-linkable via anchor (e.g., `quillartbytk.com/events#event-market-001`)
-- JSON-LD structured data: site-wide `WebSite`, per-page `ItemList`, per-item `Product`, and `Service` on the commission page
-- `order` items use `schema.org/MadeToOrder` availability and include a `priceSpecification` noting the price is a guide
-- `copyrightYear` is injected dynamically into the WebSite JSON-LD
-- Open Graph and Twitter Card tags on all pages
-- Products are indexed via JSON-LD on the index page rather than separate URLs
+## Tech stack
 
-## Domain & Hosting
+- **[Astro](https://astro.build) ^6.3.5**, `output: 'static'`.
+- **Tailwind CSS v4** via `@tailwindcss/vite` (no separate config file; utility classes in components).
+- **Astro content collections** (`glob` loader) with **Zod** schema validation — see [`src/content.config.ts`](src/content.config.ts).
+- **`@astrojs/sitemap`** integration; a custom `copyImages` integration and `imageServer` dev plugin live in [`astro.config.mjs`](astro.config.mjs).
+- **Cloudflare Workers** (TypeScript) + **Workers KV** + **[Resend](https://resend.com)** for email — see [`worker/`](worker/).
+- **Express 5** for the local admin tool — see [`admin/`](admin/).
+- Fonts: Inter + Fraunces (variable, self‑hosted via `@fontsource-variable`).
 
-- **Hosting:** GitHub Pages (auto-deploys from the default branch)
-- **Domain:** `quillartbytk.com` (add CNAME file when ready)
-- **DNS:** Managed via Cloudflare — point A records to GitHub Pages IPs and CNAME `www` to `<username>.github.io`
+No client framework — interactivity is small vanilla‑JS `<script>` blocks and [`public/cart.js`](public/cart.js).
 
-### GitHub Pages DNS Setup (Cloudflare)
+---
 
-| Type  | Name  | Content              |
-|-------|-------|----------------------|
-| A     | @     | 185.199.108.153      |
-| A     | @     | 185.199.109.153      |
-| A     | @     | 185.199.110.153      |
-| A     | @     | 185.199.111.153      |
-| CNAME | www   | `<username>.github.io` |
+## Repository layout
 
-Replace `<username>` with your GitHub username. Set Cloudflare SSL mode to **Full** and enable **Always Use HTTPS**.
+```
+quillartbytk/
+├── astro.config.mjs          Astro config (site, integrations, image copy/serve)
+├── package.json              Scripts: dev / build / preview / admin / admin:setup
+├── src/
+│   ├── content.config.ts     Zod schema for products + collections (source of truth)
+│   ├── content/
+│   │   ├── products/*.md      One markdown file per piece (frontmatter = data)
+│   │   └── collections/<slug>/index.md   Curated collections (+ their images)
+│   ├── data/events.json      Markets & events
+│   ├── layouts/Base.astro    HTML shell (head, header, footer, cart.js)
+│   ├── components/           Header, Footer, ProductCard, ProductGrid, FilterNav,
+│   │                         AddToCart, Lightbox, SEO, …
+│   ├── lib/
+│   │   ├── products.ts       Visibility / availability / price helpers
+│   │   └── images.ts         url() base helper, image path resolution, labels
+│   └── pages/                Routes (see “Pages & site map”)
+├── public/
+│   ├── cart.js               Client cart + reservation logic (loaded site‑wide)
+│   ├── CNAME                 quillartbytk.com (keeps the custom domain on deploy)
+│   ├── logo.jpg, favicon.svg, robots.txt
+├── images/
+│   └── P###/                 Per‑product image folders (main.jpg, angle‑*.jpg, …)
+├── worker/                   Cloudflare Worker (the /api/* backend)
+│   ├── src/{index,inquiry,order,reservations,email}.ts
+│   └── wrangler.toml         Routes, KV binding
+├── admin/                    Local‑only gallery editor (NOT deployed)
+│   ├── server.mjs            Express server + git draft/publish workflow
+│   ├── setup.mjs             One‑time credential setup (npm run admin:setup)
+│   ├── public/               Admin UI (index.html, app.js, styles.css)
+│   └── credentials.json      Login + worker token (GITIGNORED — never committed)
+├── docs/                     Deploy notes + Tracey's setup/user guide (DOCX)
+└── .github/workflows/deploy.yml   GitHub Pages build & deploy
+```
 
-## Enquiry Flow
+---
 
-1. **In-stock purchase:** Customer clicks "Purchase" → mailto opens with pre-filled Zeller Invoice request → you create invoice in Zeller
-2. **Gallery commission:** Customer clicks "Commission this style" → mailto opens with variations brief → you discuss, quote, and invoice via Zeller
-3. **Custom commission:** Customer fills out the brief on commission.html → mailto opens → you discuss, quote, and invoice via Zeller
+## Local development
 
-All three flows use mailto links. If this ever starts losing enquiries, the upgrade path is a Cloudflare Worker + R2 form endpoint (out of scope for now).
+```bash
+npm install            # install site deps
+npm run dev            # Astro dev server (hot reload) → http://localhost:4321
+npm run build          # static build into dist/
+npm run preview        # serve the built dist/ locally
+```
 
-## Tech Stack
+The Worker (`/api/*`) is **not** available under `npm run dev` — the contact form, checkout, and reservation badges only work against the deployed Worker on `quillartbytk.com`. To work on the Worker locally, use `cd worker && npx wrangler dev`.
 
-Plain HTML, CSS, and vanilla JavaScript. No build step, no frameworks, no npm.
+---
+
+## Content model
+
+All catalogue data lives in version control as markdown/JSON. Editing is normally done through the [admin tool](#admin-tool-gallery-editor), but the files are plain text and can be hand‑edited.
+
+### Products
+
+One markdown file per piece in `src/content/products/<slug>.md`. The **frontmatter is the data**; the markdown **body is the description**. Schema (validated at build time by [`src/content.config.ts`](src/content.config.ts)):
+
+```markdown
+---
+id: P037                     # required, format P### (stable catalogue id / SKU)
+title: Heidi Name Frame
+category: framed             # framed | clocks | canvas | cards | homewares
+themes: [names, nursery]    # one or more (see theme list below)
+status: available           # available | order | sold   (default: available)
+hidden: false               # true = removed from the whole site
+featured: false             # true = eligible for the home‑page Featured row
+price: 50                   # number or null
+sale_price: null            # number or null — when set (and available), shows a Sale
+lead_time: null             # e.g. "2–3 weeks" (mainly for made‑to‑order)
+collection: null            # slug of a parent collection, or null
+palette_variants: []        # optional list of colourway names
+frame_options: []           # optional list of frame choices
+images:
+  main: P037/main.jpg       # required hero image (path under images/)
+  angles: [P037/angle-1.jpg]
+  process: [P037/wip-1.jpg] # making‑of shots (lightbox “how it’s made” only)
+# Card‑only fields (ignored unless category: cards):
+# card_occasion, card_size, card_envelope_colour,
+# card_blank_inside, card_includes_envelope, card_customisable
+---
+
+Markdown description of the piece shown on its product page.
+```
+
+**Status & visibility** (logic in [`src/lib/products.ts`](src/lib/products.ts)):
+
+| Status | On the Store? | On the Gallery? | Price shown | Buyable |
+|--------|:---:|:---:|---|:---:|
+| `available` | ✅ (if not hidden) | ✅ | `$X` (or strikethrough + sale price) | ✅ Add to cart |
+| `order` | ❌ | ✅ | "Made to order" | ❌ (Inquire) |
+| `sold` | ❌ | ✅ | "Sold" | ❌ (Inquire about similar) |
+
+- **`hidden: true`** removes a piece from the *entire* site (no Store, no Gallery, no product page). This is the only true visibility gate — sold pieces deliberately stay on display as a portfolio.
+- **Sale:** when a piece is `available` *and* has both `price` and `sale_price`, it shows a yellow **"Sale"** sticker, the original price struck through, and the sale price in bold. The cart uses the sale price.
+- **`featured: true`** makes a visible piece eligible for the home‑page Featured row.
+
+**Categories** (what the piece *is*): `framed`, `clocks`, `canvas`, `cards`, `homewares`.
+
+**Themes** (what it *depicts*): `trees`, `misc`, `nursery`, `birds`, `flowers`, `insects`, `animals`, `nautical`, `names`, `seasonal`, `australiana`, `pets`.
+
+> To add a category or theme, edit the `VALID_CATEGORIES` / `VALID_THEMES` arrays in `src/content.config.ts` **and** mirror them in `admin/server.mjs`.
+
+### Collections
+
+Curated groupings live in `src/content/collections/<slug>/index.md` with their own hero/gallery images in the same folder. Frontmatter: `slug`, `title`, `description`, `members` (product ids), `hero`, `gallery`, `themes`, `order`.
+
+### Events
+
+Markets and fairs live in `src/data/events.json` (array). Each: `id`, `name`, `date` (`YYYY-MM-DD`), `venue`, `stallNumber`, `url`, `status` (`confirmed`/`tentative`/`cancelled`), `hidden`, `description`. Edited via the admin **Events** tab. Past‑dated events move to a "past" section automatically.
+
+### Images
+
+- Product images live in **`images/P###/`** (e.g. `images/P037/main.jpg`) and are referenced by frontmatter paths relative to `images/`.
+- At build time the custom `copyImages` integration copies `images/P*/` into `dist/images/`, and collection images into `dist/collections/`. During `npm run dev`, the `imageServer` Vite plugin serves them from disk.
+- Site chrome images (`logo.jpg`, `favicon.svg`, `robots.txt`, `CNAME`, `cart.js`) live in **`public/`** and are copied verbatim.
+
+---
+
+## Pages & site map
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Home — hero, "Shop now", Featured pieces, how‑it's‑made |
+| `/store`, `/store/category/<c>`, `/store/theme/<t>` | **Buyable** pieces only (`available`), with Add to cart |
+| `/gallery`, `/gallery/category/<c>`, `/gallery/theme/<t>` | Full portfolio (all visible pieces) |
+| `/products/<slug>` | Product detail — images, lightbox, price, Add to cart / Inquire |
+| `/collections`, `/collections/<slug>` | Curated collections |
+| `/commissions` | Bespoke commission information |
+| `/events` | Markets & fairs |
+| `/about`, `/contact` | About the artist; contact form (→ `/api/inquiry`) |
+| `/cart`, `/checkout` | Shopping cart and order form |
+| `/404` | Custom not‑found |
+
+---
+
+## Store, cart & checkout
+
+The Store sells one‑of‑a‑kind pieces. Because Zeller has **no hosted online checkout yet**, payment is handled with a **manual Zeller payment‑link flow** that stores **no card or address data on the site**:
+
+1. **Cart** — client‑side only ([`public/cart.js`](public/cart.js), `localStorage`). Each piece is unique, so quantity is always 1 and an item can't be added twice. A header badge shows the count.
+2. **Checkout** (`/checkout`) — collects contact details + AU shipping address, then `POST`s JSON to **`/api/order`**.
+3. The Worker emails **Tracey** the order (items, subtotal, address, order ref) and emails the **customer** a confirmation explaining a secure payment link is on the way. Subtotals **exclude postage** — Tracey sets the final total.
+4. Tracey sends a **Zeller Payment Link / Invoice** for the order + postage. When paid, she marks the piece **Sold** in the admin tool (removing it from the Store).
+
+No payment is ever taken on the site; no card details are collected anywhere.
+
+> **Why manual:** Zeller's e‑commerce checkout and Payment‑Links API are "coming soon" with no date. When they ship, only the final "send link" step changes — the cart, checkout, and order capture are reusable. See `docs/` and the project memory for the decision record.
+
+---
+
+## Item reservations (the "seat map")
+
+To stop two buyers purchasing the same unique piece, items are **locked the moment a buyer clicks "Place order"** — airline‑seat style. Holds are released **manually** by Tracey (there is intentionally **no automatic timeout**).
+
+**How it works:**
+
+- State lives in **Cloudflare KV** (namespace binding `RESERVATIONS`):
+  - `index` → JSON array of reserved item ids (drives storefront badges).
+  - `order:<ref>` → one record per hold: `{ ref, name, email, placedAt, items }`. Only name/email/items are stored — **never the address** (that's in the email only).
+- **`POST /api/order`** reserves all items *before* emailing. If another buyer just claimed any, it returns **409** with the conflicting ids and sends no email; the checkout drops those items and asks the buyer to review.
+- **`GET /api/reservations`** returns the reserved ids; `cart.js` fetches it on every page and shows a **"Reserved"** badge with a disabled Add‑to‑cart on those pieces.
+- The admin **Orders** tab lists active holds and offers **Release back to sale** per order.
+
+Release a hold when a buyer hasn't paid (puts the piece back on sale) or after you've marked the piece Sold in the Gallery.
+
+---
+
+## Cloudflare Worker API
+
+Lives in [`worker/`](worker/), deployed with Wrangler. Routed on `quillartbytk.com/api/*` and `www.quillartbytk.com/api/*` (see `worker/wrangler.toml`).
+
+| Method & path | Auth | Purpose |
+|---------------|------|---------|
+| `POST /api/inquiry` | — | Contact‑form submission → emails Tracey + auto‑reply |
+| `POST /api/order` | — | Place a store order → reserve items + email order/confirmation |
+| `GET /api/reservations` | — | List reserved item ids (storefront badges) |
+| `GET /api/admin/orders` | `X-Admin-Token` | List active holds (for the admin tool) |
+| `POST /api/admin/release` | `X-Admin-Token` | Release a hold back to sale |
+
+**Bindings & secrets** (not in the repo):
+
+- **KV namespace** `RESERVATIONS` — id is committed in `wrangler.toml` (not secret). Create with `npx wrangler kv namespace create RESERVATIONS`.
+- **`RESEND_API_KEY`** secret — for sending email via Resend.
+- **`ADMIN_TOKEN`** secret — shared secret the admin tool sends as `X-Admin-Token`. Set with `npx wrangler secret put ADMIN_TOKEN`; it **must equal** `workerAdminToken` in each `admin/credentials.json`.
+
+**Email:** all mail is sent from and to **`tracey@quillartbytk.com`** (the only real mailbox; forwards to the gmail inbox). Notifications set `reply_to` to the customer; auto‑replies set `reply_to` to Tracey.
+
+**Deploy the Worker:**
+
+```bash
+cd worker
+npm install
+npx wrangler deploy
+```
+
+---
+
+## Admin tool (gallery editor)
+
+A **local‑only** Express app for editing the catalogue without touching markdown by hand. It never runs in production — it edits files on disk and pushes to GitHub.
+
+```bash
+npm run admin:setup     # once per machine — creates admin/credentials.json (login)
+npm run admin           # starts the editor → http://localhost:4399/admin-tool/
+```
+
+**Draft → publish workflow.** Edits accumulate on a local `gallery-edits` branch so nothing goes live until you choose to publish:
+
+- **Editing** writes + commits to the `gallery-edits` draft branch.
+- **Build preview** runs `astro build` and serves `dist/` at the root for review.
+- **Commit (publish)** squash‑merges `gallery-edits` → `main` and pushes (triggering the Pages deploy). Publish is self‑healing (fetches origin and resyncs before merging).
+- **Discard** deletes the draft branch.
+
+**Three tabs:**
+
+- **Gallery** — edit every product attribute (title, category, themes, status, price, sale price, lead time, featured, visibility, card‑specific fields); create new items; manage images (add, swap an angle to main, move an angle to another item, drag‑reorder, and "delete" which *moves* the file to the `images/` root rather than erasing it); sidebar search + filters (category / theme / status / visibility).
+- **Events** — add/edit markets and fairs.
+- **Orders** — view active checkout holds (ref, time, customer, items) and **Release back to sale**. Requires `workerAdminToken` (below).
+
+**Credentials & the Worker token.** `admin/credentials.json` is **gitignored** and holds the login hash plus a `workerAdminToken`. The token must match the Worker's `ADMIN_TOKEN` secret, and **each machine** that runs the admin tool needs the same `workerAdminToken` line, or the Orders tab shows a "not connected" hint. Concurrent editing on two machines is fine for *different* items; the same item can conflict (publish resyncs to resolve cleanly).
+
+---
+
+## Zeller POS Lite sync
+
+Tracey sells in person at markets using **Zeller POS Lite**, which has no catalogue API — it's populated by CSV import. The admin tool's **"⬇ Zeller POS CSV"** button (top bar) downloads `zeller-pos-items.csv` of the pieces currently for sale, in Zeller's import‑template columns (SKU = the product `id`, e.g. `P037`; items flagged "Enable for Invoices"). Import it via the Zeller Dashboard → **All Items → Manage → Import Items**. Export *after* publishing so it mirrors the live Store.
+
+---
+
+## Deployment
+
+- **Site:** pushing to **`main`** triggers [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) — `npm ci`, `npm run build`, then deploy `dist/` to GitHub Pages (Node 22).
+- **Custom domain:** `public/CNAME` contains `quillartbytk.com`, preserving the apex domain across deploys. There is **no `base` path** — the site serves from the domain root.
+- **DNS/CDN:** Cloudflare proxies the apex (and `www`) to GitHub Pages, SSL mode **Full**, with the Worker routed on `/api/*`.
+- **Worker:** deployed separately with `npx wrangler deploy` from `worker/` (see above). First‑deploy notes are in `docs/deploy.md`.
+
+---
+
+## Operational runbook
+
+| Task | How |
+|------|-----|
+| Add / edit a piece | Admin tool → Gallery (or hand‑edit `src/content/products/*.md`), then **Commit** |
+| Put a piece on sale | Set `sale_price` (Gallery tab → Sale price field) on an `available` piece |
+| Mark a piece sold | Set status → `sold`; publish. Then release its hold in **Orders** if one exists |
+| Handle a store order | Order email arrives → send a Zeller payment link for total + postage → mark Sold |
+| Free an unpaid hold | Admin **Orders** tab → **Release back to sale** |
+| Update markets | Admin **Events** tab |
+| Sync POS Lite | Admin top bar → **⬇ Zeller POS CSV** → import in Zeller |
+| Change inquiry email | Edit `FROM` / `ADMIN_EMAIL` in `worker/src/email.ts`, redeploy the Worker |
+| Rotate the admin token | `wrangler secret put ADMIN_TOKEN`, update `workerAdminToken` in every `admin/credentials.json` |
+
+---
+
+© Quillart by TK. Site code maintained in this repository.
