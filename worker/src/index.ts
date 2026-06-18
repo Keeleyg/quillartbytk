@@ -1,4 +1,5 @@
 import { handleInquiry } from './inquiry';
+import { handleOrder } from './order';
 
 export interface Env {
   RESEND_API_KEY: string;
@@ -21,6 +22,10 @@ export default {
 
     if (url.pathname === '/api/inquiry' && request.method === 'POST') {
       return handleInquiry(request, env, ctx);
+    }
+
+    if (url.pathname === '/api/order' && request.method === 'POST') {
+      return handleOrder(request, env, ctx);
     }
 
     return new Response('Not found', { status: 404 });

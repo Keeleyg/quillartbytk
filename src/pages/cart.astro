@@ -1,0 +1,115 @@
+---
+import Base from '@/layouts/Base.astro';
+import { url } from '@/lib/images';
+---
+
+<Base title="Your cart" description="The handmade quilled pieces you've added to your cart.">
+  <section class="py-16 lg:py-24">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-3xl sm:text-4xl font-serif font-semibold text-ink">Your cart</h1>
+
+      <!-- Empty state -->
+      <div id="cart-empty" hidden class="mt-8">
+        <p class="text-muted">Your cart is empty.</p>
+        <a href={url('/store')} class="mt-4 inline-flex items-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200">
+          Browse the Store
+        </a>
+      </div>
+
+      <!-- Populated state -->
+      <div id="cart-full" hidden class="mt-8">
+        <ul id="cart-items" class="divide-y divide-border border-y border-border"></ul>
+
+        <div class="mt-6 flex items-center justify-between">
+          <span class="text-sm text-muted">Subtotal</span>
+          <span id="cart-subtotal" class="text-lg font-semibold text-ink"></span>
+        </div>
+        <p class="mt-2 text-xs text-muted">
+          Postage isn't included above — Tracey will confirm the final total (with postage to your address)
+          in the secure payment link she emails you.
+        </p>
+
+        <div class="mt-8 flex flex-col sm:flex-row gap-3">
+          <a href={url('/checkout')} class="inline-flex items-center justify-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200">
+            Proceed to checkout
+          </a>
+          <a href={url('/store')} class="inline-flex items-center justify-center px-6 py-3 border border-border text-ink text-sm font-medium rounded-lg no-underline hover:border-ink/30 transition duration-200">
+            Continue shopping
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var listEl = document.getElementById('cart-items');
+      var emptyEl = document.getElementById('cart-empty');
+      var fullEl = document.getElementById('cart-full');
+      var subtotalEl = document.getElementById('cart-subtotal');
+
+      function row(it) {
+        var li = document.createElement('li');
+        li.className = 'flex items-center gap-4 py-4';
+
+        var thumb = document.createElement('a');
+        thumb.href = it.url || '#';
+        thumb.className = 'flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-border/30 no-underline';
+        if (it.image) {
+          var img = document.createElement('img');
+          img.src = it.image;
+          img.alt = it.title || '';
+          img.className = 'w-full h-full object-cover';
+          thumb.appendChild(img);
+        }
+
+        var mid = document.createElement('div');
+        mid.className = 'flex-1 min-w-0';
+        var name = document.createElement('a');
+        name.href = it.url || '#';
+        name.className = 'text-sm font-medium text-ink no-underline hover:text-accent';
+        name.textContent = it.title || 'Untitled piece';
+        var price = document.createElement('p');
+        price.className = 'mt-1 text-sm text-muted';
+        price.textContent = (typeof it.price === 'number') ? window.Cart.money(it.price) : 'Price on inquiry';
+        mid.appendChild(name);
+        mid.appendChild(price);
+
+        var rm = document.createElement('button');
+        rm.type = 'button';
+        rm.setAttribute('data-remove', it.id);
+        rm.className = 'flex-shrink-0 text-xs text-muted hover:text-accent underline';
+        rm.textContent = 'Remove';
+
+        li.appendChild(thumb);
+        li.appendChild(mid);
+        li.appendChild(rm);
+        return li;
+      }
+
+      function render() {
+        var items = window.Cart.read();
+        if (!items.length) {
+          emptyEl.hidden = false;
+          fullEl.hidden = true;
+          return;
+        }
+        emptyEl.hidden = true;
+        fullEl.hidden = false;
+        listEl.innerHTML = '';
+        items.forEach(function (it) { listEl.appendChild(row(it)); });
+        subtotalEl.textContent = window.Cart.money(window.Cart.subtotal());
+      }
+
+      listEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-remove]');
+        if (!btn) return;
+        window.Cart.remove(btn.getAttribute('data-remove'));
+        render();
+      });
+
+      document.addEventListener('cart:change', render);
+      render();
+    })();
+  </script>
+</Base>

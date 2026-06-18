@@ -1,5 +1,6 @@
 ---
 import { resolveProductImage, categoryLabel, url } from '@/lib/images';
+import AddToCart from './AddToCart.astro';
 
 interface Props {
   slug: string;
@@ -9,46 +10,65 @@ interface Props {
   salePrice?: number | null;
   status: string;
   mainImage: string;
+  /** When true, available pieces get a compact "Add to cart" button. */
+  buyable?: boolean;
 }
 
-const { slug, title, category, price, salePrice = null, status, mainImage } = Astro.props;
+const { slug, title, category, price, salePrice = null, status, mainImage, buyable = false } = Astro.props;
 const imgSrc = resolveProductImage(mainImage);
+const productHref = url(`/products/${slug}`);
 
 const onSale = status === 'available' && price != null && salePrice != null;
 const priceDisplay =
   status === 'sold' ? 'Sold' : price != null ? `$${price}` : status === 'order' ? 'Made to order' : 'Inquire';
+
+// What the buyer actually pays (sale price wins when on sale).
+const effectivePrice = onSale ? salePrice : price;
+const canBuy = buyable && status === 'available' && effectivePrice != null;
 ---
 
-<a
-  href={url(`/products/${slug}`)}
-  class="group block no-underline"
->
-  <div class="relative aspect-square overflow-hidden rounded-lg bg-border/30">
-    {onSale && (
-      <span class="absolute top-2 left-2 z-10 bg-yellow-400 text-ink text-[0.65rem] font-bold uppercase tracking-wide px-2 py-0.5 rounded shadow-sm">
-        Sale
-      </span>
-    )}
-    <img
-      src={imgSrc}
-      alt={title}
-      loading="lazy"
-      decoding="async"
-      class="w-full h-full object-cover transition duration-200 group-hover:scale-105"
+<div class="group block">
+  <a href={productHref} class="block no-underline">
+    <div class="relative aspect-square overflow-hidden rounded-lg bg-border/30">
+      {onSale && (
+        <span class="absolute top-2 left-2 z-10 bg-yellow-400 text-ink text-[0.65rem] font-bold uppercase tracking-wide px-2 py-0.5 rounded shadow-sm">
+          Sale
+        </span>
+      )}
+      <img
+        src={imgSrc}
+        alt={title}
+        loading="lazy"
+        decoding="async"
+        class="w-full h-full object-cover transition duration-200 group-hover:scale-105"
+      />
+    </div>
+    <div class="mt-3 space-y-1">
+      <h3 class="text-sm font-medium text-ink group-hover:text-accent transition duration-200 line-clamp-2">
+        {title}
+      </h3>
+      <p class="text-xs text-muted">{categoryLabel(category)}</p>
+      {onSale ? (
+        <p class="text-sm">
+          <span class="line-through text-muted">${price}</span>
+          <span class="ml-1.5 font-bold text-ink">${salePrice}</span>
+        </p>
+      ) : (
+        <p class="text-sm font-medium text-ink">{priceDisplay}</p>
+      )}
+    </div>
+  </a>
+
+  {canBuy && (
+    <AddToCart
+      id={slug}
+      title={title}
+      price={effectivePrice}
+      image={imgSrc}
+      href={productHref}
+      label="Add to cart"
+      addedLabel="In cart ✓"
+      class="mt-2 w-full inline-flex items-center justify-center px-3 py-1.5 border border-ink text-ink text-xs font-medium rounded-md no-underline hover:bg-ink hover:text-paper transition duration-200 cursor-pointer"
     />
-  </div>
-  <div class="mt-3 space-y-1">
-    <h3 class="text-sm font-medium text-ink group-hover:text-accent transition duration-200 line-clamp-2">
-      {title}
-    </h3>
-    <p class="text-xs text-muted">{categoryLabel(category)}</p>
-    {onSale ? (
-      <p class="text-sm">
-        <span class="line-through text-muted">${price}</span>
-        <span class="ml-1.5 font-bold text-ink">${salePrice}</span>
-      </p>
-    ) : (
-      <p class="text-sm font-medium text-ink">{priceDisplay}</p>
-    )}
-  </div>
-</a>
+  )}
+</div>

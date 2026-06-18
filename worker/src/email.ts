@@ -1,5 +1,6 @@
 import type { Env } from './index';
 import type { InquiryData } from './inquiry';
+import type { OrderData } from './order';
 
 // All mail is sent from — and inquiry alerts are sent to — Tracey's address,
 // the only real mailbox on the domain (it forwards to the gmail inbox).
@@ -158,6 +159,170 @@ export async function sendAutoReply(data: InquiryData, env: Env): Promise<void> 
       to: data.email,
       reply_to: ADMIN_EMAIL,
       subject: 'Thanks for your inquiry — Quillart by TK',
+      text,
+      html,
+    },
+    env,
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Order emails (Store checkout → manual Zeller payment link)        */
+/* ------------------------------------------------------------------ */
+function money(n: number): string {
+  if (!isFinite(n)) return '$0';
+  return n % 1 === 0 ? `$${n}` : `$${n.toFixed(2)}`;
+}
+
+function addressLines(s: OrderData['shipping']): string[] {
+  const lines = [s.line1];
+  if (s.line2) lines.push(s.line2);
+  lines.push([s.suburb, s.state, s.postcode].filter(Boolean).join(' '));
+  lines.push(s.country);
+  return lines.filter(Boolean);
+}
+
+export async function sendOrderNotification(data: OrderData, env: Env): Promise<void> {
+  const n = data.items.length;
+  const subjectLine = `New order: ${n} item${n === 1 ? '' : 's'} — ${money(data.subtotal)} (${data.customer.name})`;
+
+  // Plain text
+  const itemLinesText = data.items.map(
+    (it) => `  • ${it.title}${it.id ? ` [${it.id}]` : ''} — ${it.price != null ? money(it.price) : 'price TBC'}`,
+  );
+  const lines: string[] = [
+    'New order from your website Store:',
+    '',
+    'Items:',
+    ...itemLinesText,
+    '',
+    `Subtotal (excl. postage): ${money(data.subtotal)}`,
+    '',
+    'Customer:',
+    `  Name: ${data.customer.name}`,
+    `  Email: ${data.customer.email}`,
+  ];
+  if (data.customer.phone) lines.push(`  Phone: ${data.customer.phone}`);
+  lines.push('', 'Ship to:', ...addressLines(data.shipping).map((l) => `  ${l}`));
+  if (data.notes) lines.push('', 'Notes:', data.notes);
+  lines.push(
+    '',
+    '—',
+    `Next step: send ${data.customer.name} a Zeller payment link for ${money(data.subtotal)} + postage.`,
+    'Reply to this email to reach the customer directly.',
+  );
+  const text = lines.join('\n');
+
+  // HTML
+  const itemRowsHtml = data.items
+    .map(
+      (it) => `
+      <tr>
+        <td style="padding:6px 0;font-size:14px;border-bottom:1px solid #f0efed;">${escapeHtml(it.title)}${it.id ? ` <span style="color:#7a7a8a;">[${escapeHtml(it.id)}]</span>` : ''}</td>
+        <td style="padding:6px 0;font-size:14px;text-align:right;border-bottom:1px solid #f0efed;white-space:nowrap;">${it.price != null ? money(it.price) : 'price TBC'}</td>
+      </tr>`,
+    )
+    .join('');
+
+  const addressHtml = addressLines(data.shipping).map(escapeHtml).join('<br>');
+  const notesHtml = data.notes
+    ? `<div style="margin:16px 0 0;padding:16px;background-color:#fdfcfa;border-radius:6px;border:1px solid #e8e7e5;">
+         <p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#7a7a8a;text-transform:uppercase;letter-spacing:0.5px;">Notes</p>
+         <p style="margin:0;font-size:14px;line-height:1.6;">${nl2br(data.notes)}</p>
+       </div>`
+    : '';
+
+  const html = htmlWrapper(`
+    <h2 style="margin:0 0 16px;font-size:18px;font-weight:600;">New order from your Store</h2>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
+      ${itemRowsHtml}
+      <tr>
+        <td style="padding:10px 0 0;font-size:14px;font-weight:700;">Subtotal (excl. postage)</td>
+        <td style="padding:10px 0 0;font-size:14px;font-weight:700;text-align:right;">${money(data.subtotal)}</td>
+      </tr>
+    </table>
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:20px 0 0;font-size:14px;line-height:1.5;">
+      <tr><td style="padding:4px 0;font-weight:600;vertical-align:top;width:90px;">Name:</td><td style="padding:4px 0;">${escapeHtml(data.customer.name)}</td></tr>
+      <tr><td style="padding:4px 0;font-weight:600;vertical-align:top;">Email:</td><td style="padding:4px 0;"><a href="mailto:${escapeHtml(data.customer.email)}" style="color:#8b3a3a;">${escapeHtml(data.customer.email)}</a></td></tr>
+      ${data.customer.phone ? `<tr><td style="padding:4px 0;font-weight:600;vertical-align:top;">Phone:</td><td style="padding:4px 0;">${escapeHtml(data.customer.phone)}</td></tr>` : ''}
+      <tr><td style="padding:4px 0;font-weight:600;vertical-align:top;">Ship to:</td><td style="padding:4px 0;">${addressHtml}</td></tr>
+    </table>
+    ${notesHtml}
+    <div style="margin:20px 0 0;padding:16px;background-color:#fdfcfa;border-radius:6px;border:1px solid #e8e7e5;">
+      <p style="margin:0;font-size:14px;line-height:1.6;"><strong>Next step:</strong> send ${escapeHtml(data.customer.name)} a Zeller payment link for <strong>${money(data.subtotal)} + postage</strong>. Reply to this email to reach them directly.</p>
+    </div>
+  `);
+
+  await sendEmail(
+    { from: FROM, to: ADMIN_EMAIL, reply_to: data.customer.email, subject: subjectLine, text, html },
+    env,
+  );
+}
+
+export async function sendOrderConfirmation(data: OrderData, env: Env): Promise<void> {
+  const itemLinesText = data.items.map(
+    (it) => `  • ${it.title} — ${it.price != null ? money(it.price) : 'price to be confirmed'}`,
+  );
+  const lines: string[] = [
+    `Hi ${data.customer.name},`,
+    '',
+    "Thank you for your order! Here's what you've reserved:",
+    '',
+    ...itemLinesText,
+    '',
+    `Subtotal (excl. postage): ${money(data.subtotal)}`,
+    '',
+    'What happens next: Tracey will email you a secure payment link to pay by card (via Zeller).',
+    'The link will include the final total with postage to your address. Nothing is charged yet,',
+    'and your pieces are set aside for you.',
+    '',
+    'If anything looks off, just reply to this email.',
+    '',
+    'Warm regards,',
+    'Tracey',
+    'Quillart by TK',
+    'https://quillartbytk.com',
+  ];
+  const text = lines.join('\n');
+
+  const itemRowsHtml = data.items
+    .map(
+      (it) => `
+      <tr>
+        <td style="padding:6px 0;font-size:14px;border-bottom:1px solid #f0efed;">${escapeHtml(it.title)}</td>
+        <td style="padding:6px 0;font-size:14px;text-align:right;border-bottom:1px solid #f0efed;white-space:nowrap;">${it.price != null ? money(it.price) : 'TBC'}</td>
+      </tr>`,
+    )
+    .join('');
+
+  const html = htmlWrapper(`
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Hi ${escapeHtml(data.customer.name)},</p>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">Thank you for your order! Here’s what you’ve reserved:</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;margin:0 0 16px;">
+      ${itemRowsHtml}
+      <tr>
+        <td style="padding:10px 0 0;font-size:14px;font-weight:700;">Subtotal (excl. postage)</td>
+        <td style="padding:10px 0 0;font-size:14px;font-weight:700;text-align:right;">${money(data.subtotal)}</td>
+      </tr>
+    </table>
+    <div style="margin:0 0 16px;padding:16px;background-color:#fdfcfa;border-radius:6px;border:1px solid #e8e7e5;">
+      <p style="margin:0;font-size:14px;line-height:1.6;"><strong>What happens next:</strong> Tracey will email you a secure payment link to pay by card. It will include the final total with postage to your address. Nothing is charged yet, and your pieces are set aside for you.</p>
+    </div>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">If anything looks off, just reply to this email.</p>
+    <p style="margin:0;font-size:15px;line-height:1.6;">
+      Warm regards,<br>
+      <strong>Tracey</strong><br>
+      <span style="color:#7a7a8a;">Quillart by TK</span><br>
+      <a href="https://quillartbytk.com" style="color:#8b3a3a;">quillartbytk.com</a>
+    </p>
+  `);
+
+  await sendEmail(
+    {
+      from: FROM,
+      to: data.customer.email,
+      reply_to: ADMIN_EMAIL,
+      subject: 'Your order with Quillart by TK',
       text,
       html,
     },

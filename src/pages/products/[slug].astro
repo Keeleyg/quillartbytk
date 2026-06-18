@@ -1,6 +1,7 @@
 ---
 import Base from '@/layouts/Base.astro';
 import ProductGrid from '@/components/ProductGrid.astro';
+import AddToCart from '@/components/AddToCart.astro';
 import Lightbox from '@/components/Lightbox.astro';
 import { getCollection, render } from 'astro:content';
 import { resolveProductImage, categoryLabel, titleCase, url } from '@/lib/images';
@@ -31,6 +32,10 @@ const allThumbs = [mainSrc, ...angleSrcs, ...processSrcs];
 const priceDisplay = priceLabel(product);
 const isSold = data.status === 'sold';
 const onSale = isOnSale(product);
+
+// Buyable when in stock and priced; sale price wins when on sale.
+const buyPrice = onSale ? data.sale_price : data.price;
+const canBuy = data.status === 'available' && buyPrice != null;
 
 // Card details block only renders if the card has at least one detail set.
 const hasCardDetails =
@@ -243,12 +248,30 @@ const ogImage = mainSrc;
           )}
 
           <!-- CTA -->
-          <a
-            href={url(`/contact?ref=${product.id}`)}
-            class="mt-8 inline-flex items-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
-          >
-            {isSold ? 'Enquire about a similar piece' : 'Inquire about this piece'}
-          </a>
+          {canBuy ? (
+            <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-x-5 gap-y-3">
+              <AddToCart
+                id={product.id}
+                title={data.title}
+                price={buyPrice}
+                image={mainSrc}
+                href={url(`/products/${product.id}`)}
+                label="Add to cart"
+                addedLabel="In cart ✓ — view cart"
+                class="inline-flex items-center justify-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200 cursor-pointer"
+              />
+              <a href={url(`/contact?ref=${product.id}`)} class="text-sm text-accent no-underline hover:underline">
+                Or ask a question first
+              </a>
+            </div>
+          ) : (
+            <a
+              href={url(`/contact?ref=${product.id}`)}
+              class="mt-8 inline-flex items-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200"
+            >
+              {isSold ? 'Enquire about a similar piece' : 'Inquire about this piece'}
+            </a>
+          )}
 
           <!-- Description (first paragraph summary) -->
           <div class="mt-8 prose prose-sm max-w-none text-muted">

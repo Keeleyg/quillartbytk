@@ -1,0 +1,44 @@
+---
+import { url } from '@/lib/images';
+
+interface Props {
+  id: string;
+  title: string;
+  price: number | null;
+  image: string;
+  href: string;
+  /** Tailwind classes for the button (lets call sites size it). */
+  class?: string;
+  /** Idle label, e.g. "Add to cart". */
+  label?: string;
+  /** Label once the item is in the cart. */
+  addedLabel?: string;
+}
+
+const {
+  id,
+  title,
+  price,
+  image,
+  href,
+  class: className = 'inline-flex items-center justify-center px-6 py-3 bg-ink text-paper text-sm font-medium rounded-lg no-underline hover:bg-ink/90 transition duration-200',
+  label = 'Add to cart',
+  addedLabel = 'In cart ✓ — view cart',
+} = Astro.props;
+---
+
+<button
+  type="button"
+  data-add-to-cart
+  data-id={id}
+  data-title={title}
+  data-price={price ?? ''}
+  data-image={image}
+  data-url={href}
+  data-cart-url={url('/cart')}
+  data-idle-label={label}
+  data-added-label={addedLabel}
+  class={className}
+>
+  {label}
+</button>

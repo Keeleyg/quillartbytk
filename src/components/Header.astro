@@ -23,6 +23,8 @@ const currentPath = Astro.url.pathname;
         <span class="font-serif text-xl font-semibold tracking-tight text-ink">Quillart by TK</span>
       </a>
 
+      <!-- Right side: nav + cart + burger -->
+      <div class="flex items-center gap-1 md:gap-5">
       <!-- Desktop nav -->
       <nav class="hidden md:flex items-center gap-6" aria-label="Main navigation">
         {navLinks.map(({ label, href }) => (
@@ -41,6 +43,14 @@ const currentPath = Astro.url.pathname;
         ))}
       </nav>
 
+      <!-- Cart -->
+      <a href={url('/cart')} class="relative p-2 text-muted hover:text-ink no-underline" aria-label="View cart">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
+        </svg>
+        <span data-cart-count hidden class="absolute top-0 right-0 min-w-[1.05rem] h-[1.05rem] px-1 inline-flex items-center justify-center text-[0.65rem] font-bold leading-none rounded-full bg-accent text-paper">0</span>
+      </a>
+
       <!-- Mobile burger -->
       <button
         id="mobile-menu-btn"
@@ -54,7 +64,7 @@ const currentPath = Astro.url.pathname;
           <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-    </div>
+      </div>
   </div>
 
   <!-- Mobile menu -->

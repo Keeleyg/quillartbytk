@@ -17,9 +17,11 @@ interface Product {
 interface Props {
   products: Product[];
   emptyMessage?: string;
+  /** Pass true (e.g. on the Store) to show "Add to cart" on available pieces. */
+  buyable?: boolean;
 }
 
-const { products, emptyMessage = 'No products to show yet.' } = Astro.props;
+const { products, emptyMessage = 'No products to show yet.', buyable = false } = Astro.props;
 ---
 
 {products.length > 0 ? (
@@ -33,6 +35,7 @@ const { products, emptyMessage = 'No products to show yet.' } = Astro.props;
         salePrice={product.data.sale_price}
         status={product.data.status}
         mainImage={product.data.images.main}
+        buyable={buyable}
       />
     ))}
   </div>
