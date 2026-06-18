@@ -2,7 +2,7 @@
 id: P057
 title: "Abstract Sea-Glass Wave Composition"
 category: framed
-themes: [patterns]
+themes: [misc]
 status: sold
 collection: null
 commission_example: false

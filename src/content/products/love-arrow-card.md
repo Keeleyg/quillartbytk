@@ -2,7 +2,7 @@
 id: P076
 title: "\"Love\" Arrow Card"
 category: cards
-themes: [patterns]
+themes: [misc]
 status: sold
 collection: valentines-cards
 commission_example: false

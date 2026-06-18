@@ -2,7 +2,7 @@
 id: P074
 title: "\"Bee Mine\" Valentine's Card"
 category: cards
-themes: [insects, patterns]
+themes: [insects, misc]
 status: sold
 collection: valentines-cards
 commission_example: false

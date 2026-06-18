@@ -3,7 +3,7 @@ id: P116
 title: Quilled Ballerina
 category: framed
 themes:
-  - patterns
+  - misc
 status: sold
 hidden: false
 featured: false

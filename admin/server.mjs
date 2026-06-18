@@ -49,7 +49,7 @@ const NO_PUSH = process.env.ADMIN_NO_PUSH === '1';
 
 /* ---- shared enums (mirror src/content.config.ts) ------------------- */
 const VALID_THEMES = [
-  'trees', 'patterns', 'nursery', 'birds', 'flowers', 'insects',
+  'trees', 'misc', 'nursery', 'birds', 'flowers', 'insects',
   'animals', 'nautical', 'names', 'seasonal', 'australiana', 'pets',
 ];
 const VALID_CATEGORIES = ['framed', 'clocks', 'canvas', 'cards', 'homewares'];

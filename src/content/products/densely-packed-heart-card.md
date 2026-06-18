@@ -2,7 +2,7 @@
 id: P023
 title: "Densely Packed Heart Card"
 category: cards
-themes: [patterns]
+themes: [misc]
 status: sold
 collection: valentines-cards
 commission_example: false

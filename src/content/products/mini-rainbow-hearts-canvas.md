@@ -3,7 +3,7 @@ id: P049
 title: Mini Rainbow & Hearts Canvas
 category: canvas
 themes:
-  - patterns
+  - misc
 status: available
 hidden: false
 featured: false

@@ -2,7 +2,7 @@
 id: P062
 title: "HOME — Quilled Word Art"
 category: framed
-themes: [patterns]
+themes: [misc]
 status: sold
 collection: null
 commission_example: false

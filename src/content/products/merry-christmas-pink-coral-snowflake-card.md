@@ -2,7 +2,7 @@
 id: P094
 title: "Merry Christmas — Pink & Coral Snowflake Card"
 category: cards
-themes: [seasonal, patterns]
+themes: [seasonal, misc]
 status: sold
 collection: christmas-cards
 commission_example: false

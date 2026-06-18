@@ -3,7 +3,7 @@ id: P005
 title: Rainbow Pencil Clock
 category: clocks
 themes:
-  - patterns
+  - misc
   - nursery
 status: available
 hidden: false

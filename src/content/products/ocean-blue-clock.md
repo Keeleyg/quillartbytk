@@ -3,7 +3,7 @@ id: P003
 title: Ocean Blue Quilled Clock
 category: clocks
 themes:
-  - patterns
+  - misc
 status: available
 hidden: false
 featured: false

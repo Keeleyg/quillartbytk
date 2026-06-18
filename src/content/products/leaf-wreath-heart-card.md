@@ -3,7 +3,7 @@ id: P020
 title: Leaf Wreath Heart Card
 category: cards
 themes:
-  - patterns
+  - misc
   - flowers
 status: sold
 hidden: false

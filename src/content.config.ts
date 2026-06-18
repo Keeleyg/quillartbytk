@@ -5,7 +5,7 @@ import { glob } from 'astro/loaders';
 /*  Shared enums — keep in sync with _catalog/STATE.md                */
 /* ------------------------------------------------------------------ */
 export const VALID_THEMES = [
-  'trees', 'patterns', 'nursery', 'birds', 'flowers', 'insects',
+  'trees', 'misc', 'nursery', 'birds', 'flowers', 'insects',
   'animals', 'nautical', 'names', 'seasonal', 'australiana', 'pets',
 ] as const;
 

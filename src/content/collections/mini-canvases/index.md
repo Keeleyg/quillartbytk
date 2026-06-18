@@ -5,7 +5,7 @@ description: "Gift-scale quilled designs on miniature stretched canvases, each w
 members: [P048, P049, P054, P055, P059, P067, P091, P101, P110, P112, P113, P096]
 hero: ./hero.jpg
 gallery: []
-themes: [patterns]
+themes: [misc]
 order: 50
 ---
 

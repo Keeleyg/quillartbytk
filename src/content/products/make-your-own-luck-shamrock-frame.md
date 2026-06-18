@@ -2,7 +2,7 @@
 id: P064
 title: "Make Your Own Luck — Shamrock Frame"
 category: framed
-themes: [patterns, seasonal]
+themes: [misc, seasonal]
 status: sold
 collection: null
 commission_example: false

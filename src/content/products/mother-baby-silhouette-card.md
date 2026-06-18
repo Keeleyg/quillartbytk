@@ -2,7 +2,7 @@
 id: P040
 title: "Mother & Baby Silhouette Card"
 category: cards
-themes: [patterns]
+themes: [misc]
 status: sold
 collection: null
 commission_example: false

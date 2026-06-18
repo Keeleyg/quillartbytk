@@ -3,7 +3,7 @@ id: P117
 title: Rainbow Hearts in a Heart
 category: framed
 themes:
-  - patterns
+  - misc
 status: available
 hidden: false
 featured: false

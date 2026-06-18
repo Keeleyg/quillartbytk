@@ -2,7 +2,7 @@
 id: P092
 title: "Quilled Feather Frame (Palette Variants)"
 category: framed
-themes: [patterns]
+themes: [misc]
 status: sold
 collection: null
 commission_example: false

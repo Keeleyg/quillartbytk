@@ -5,7 +5,7 @@ description: "Handmade quilled cards for Valentine's Day, anniversaries, and lov
 members: [P019, P020, P021, P022, P023, P063, P074, P076, P085, P087, P097, P109]
 hero: ./hero.jpg
 gallery: []
-themes: [patterns]
+themes: [misc]
 order: 90
 ---
 

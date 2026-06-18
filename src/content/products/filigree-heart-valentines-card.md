@@ -3,7 +3,7 @@ id: P019
 title: Filigree Heart Valentine's Card
 category: cards
 themes:
-  - patterns
+  - misc
 status: sold
 hidden: false
 featured: false

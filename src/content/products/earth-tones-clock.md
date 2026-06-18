@@ -3,7 +3,7 @@ id: P004
 title: Earth Tones Clock
 category: clocks
 themes:
-  - patterns
+  - misc
 status: available
 hidden: false
 featured: false

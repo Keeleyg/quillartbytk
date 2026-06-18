@@ -3,7 +3,7 @@ id: P002
 title: Rainbow Quilled Bowl
 category: homewares
 themes:
-  - patterns
+  - misc
 status: available
 hidden: false
 featured: false

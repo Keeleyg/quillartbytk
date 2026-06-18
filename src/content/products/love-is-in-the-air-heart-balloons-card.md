@@ -2,7 +2,7 @@
 id: P085
 title: "\"Love is in the Air\" Heart Balloons Card"
 category: cards
-themes: [patterns]
+themes: [misc]
 status: sold
 collection: valentines-cards
 commission_example: false

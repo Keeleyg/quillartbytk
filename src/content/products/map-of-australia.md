@@ -2,7 +2,7 @@
 id: P078
 title: "Quilled Map of Australia"
 category: framed
-themes: [patterns, australiana]
+themes: [misc, australiana]
 status: sold
 collection: null
 commission_example: false

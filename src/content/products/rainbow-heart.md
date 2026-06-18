@@ -3,7 +3,7 @@ id: P016
 title: Rainbow Hearts
 category: framed
 themes:
-  - patterns
+  - misc
 status: available
 hidden: false
 featured: false

@@ -2,7 +2,7 @@
 id: P111
 title: "Quilled Yin-Yang"
 category: framed
-themes: [patterns]
+themes: [misc]
 status: sold
 collection: null
 commission_example: false
