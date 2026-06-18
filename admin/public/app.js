@@ -60,8 +60,34 @@ async function boot() {
   $('#branch-badge').textContent = 'editing: ' + meta.draft;
   buildStatusSelect();
   buildCollectionSelect();
+  buildFilters();
   await loadProductList();
   await refreshDraft();
+}
+function buildFilters() {
+  $('#filter-category').innerHTML =
+    '<option value="">All categories</option>' + meta.categories.map((c) => `<option value="${c}">${c}</option>`).join('');
+  $('#filter-theme').innerHTML =
+    '<option value="">All themes</option>' + meta.themes.map((t) => `<option value="${t}">${t}</option>`).join('');
+  $('#filter-status').innerHTML =
+    '<option value="">All statuses</option>' + meta.statuses.map((s) => `<option value="${s}">${s}</option>`).join('');
+  ['#filter-category', '#filter-theme', '#filter-status'].forEach((sel) =>
+    $(sel).addEventListener('change', applyFilters));
+}
+function applyFilters() {
+  const q = $('#search').value.toLowerCase().trim();
+  const cat = $('#filter-category').value;
+  const theme = $('#filter-theme').value;
+  const status = $('#filter-status').value;
+  let list = products;
+  if (q) list = list.filter((p) => p.title.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.category.includes(q));
+  if (cat) list = list.filter((p) => p.category === cat);
+  if (theme) list = list.filter((p) => (p.themes || []).includes(theme));
+  if (status) list = list.filter((p) => p.status === status);
+  renderProductList(list);
+  const active = !!(q || cat || theme || status);
+  $('#filter-clear').hidden = !active;
+  $('#filter-count').textContent = active ? `Showing ${list.length} of ${products.length}` : '';
 }
 function buildStatusSelect() {
   $('#f-status').innerHTML = meta.statuses.map((s) => `<option value="${s}">${s}</option>`).join('');
@@ -168,11 +194,15 @@ $('#discard-btn').addEventListener('click', async () => {
 /* ---------------- Product list ---------------- */
 async function loadProductList() {
   products = await api('/api/products');
-  renderProductList(products);
+  applyFilters();
 }
 function renderProductList(list) {
   const wrap = $('#product-list');
   wrap.innerHTML = '';
+  if (!list.length) {
+    wrap.innerHTML = '<p class="filter-count" style="padding:1rem 0.9rem;">No items match.</p>';
+    return;
+  }
   list.forEach((p) => {
     const btn = document.createElement('button');
     btn.className = 'product-item' + (current && current.slug === p.slug ? ' active' : '') + (p.hidden ? ' is-hidden' : '');
@@ -201,10 +231,14 @@ function renderProductList(list) {
     wrap.appendChild(btn);
   });
 }
-$('#search').addEventListener('input', (e) => {
-  const q = e.target.value.toLowerCase().trim();
-  renderProductList(!q ? products : products.filter((p) =>
-    p.title.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.category.includes(q)));
+$('#search').addEventListener('input', applyFilters);
+
+$('#filter-clear').addEventListener('click', () => {
+  $('#search').value = '';
+  $('#filter-category').value = '';
+  $('#filter-theme').value = '';
+  $('#filter-status').value = '';
+  applyFilters();
 });
 
 $('#new-item-btn').addEventListener('click', async () => {

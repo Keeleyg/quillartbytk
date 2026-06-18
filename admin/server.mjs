@@ -442,6 +442,7 @@ app.get('/api/products', requireAuth, async (_req, res) => {
       items.push({
         slug: basename(f, '.md'), id: data.id, title: data.title,
         category: data.category, status: data.status,
+        themes: data.themes ?? [],
         hidden: data.hidden === true || data.status === 'hidden',
         featured: data.featured === true,
         mainUrl: data.images?.main ? toPreviewUrl(data.images.main) : '',

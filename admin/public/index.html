@@ -58,6 +58,13 @@
           <input id="search" type="search" placeholder="Search products…" class="search" />
           <button id="new-item-btn" type="button" class="btn btn-sm btn-primary" title="Add a new piece">＋ New</button>
         </div>
+        <div class="sidebar-filters">
+          <select id="filter-category" class="filter-select" aria-label="Filter by category"></select>
+          <select id="filter-theme" class="filter-select" aria-label="Filter by theme"></select>
+          <select id="filter-status" class="filter-select" aria-label="Filter by status"></select>
+          <button id="filter-clear" type="button" class="filter-clear" title="Clear filters" hidden>clear</button>
+        </div>
+        <div id="filter-count" class="filter-count"></div>
         <div id="product-list" class="product-list"></div>
       </aside>
 
