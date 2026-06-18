@@ -1,26 +1,29 @@
 ---
 id: P126
-title: "Mini Quilled Seahorse (Cute Style)"
+title: Mini Quilled Seahorse
 category: framed
-themes: [nautical]
-status: sold
+themes:
+  - nautical
+status: available
+hidden: false
+featured: false
 collection: mini-sea-creatures
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 40
+lead_time: null
 images:
   main: ../../../images/P126/main.jpg
-  angles: []
+  angles:
+    - ../../../images/P126/angle-1.jpg
   process: []
 confidence: high
 ---
-
-A small framed quilling of a stylised blue seahorse with playful
-exterior spines, pale-mint and lime spiral filigree across the body,
-slender curling tail and dorsal-fin accents, with three small blue and
-mint bubble dots floating above. Mounted in a clean white standard
-shadow-box frame. Smaller, more cartoony companion to the larger
-nautical-series seahorse (P100); part of the mini sea-creatures
-sub-series alongside P125 (Jellyfish) and P127 (Two Fish).
+A small framed quilling of a stylised blue seahorse  
+Mounted in a clean white standard
+shadow-box frame. 
+Size 175x125mm
+Looks great as part of a set of three alongside mini fish and mini jellyfish
+$20 discount applied if purchasing all three

@@ -1,26 +1,29 @@
 ---
 id: P125
-title: "Mini Quilled Jellyfish"
+title: Mini Quilled Jellyfish
 category: framed
-themes: [nautical]
-status: sold
+themes:
+  - nautical
+status: available
+hidden: false
+featured: false
 collection: mini-sea-creatures
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 40
+lead_time: null
 images:
   main: ../../../images/P125/main.jpg
-  angles: []
+  angles:
+    - ../../../images/P125/angle-1.jpg
   process: []
 confidence: high
 ---
-
-A small framed quilling of a serene blue jellyfish — three rounded
-peaked-dome bell segments with deep navy spiral detail, long flowing
-teal and pale-mint tentacles trailing below, and a halo of small blue
-and green bubble dots surrounding the body. Mounted in a clean white
-standard shadow-box frame. Part of the mini sea-creatures sub-series
-alongside P126 (Seahorse) and P127 (Two Fish) — often sold as a
-coordinated trio.
+A small framed quilling of a serene blue jellyfish
+Mounted in a clean white
+standard shadow-box frame. 
+Size 175x125mm
+Looks great as part of a set of three alongside Mini fish and mini Seahorse
+$20 discount applied if purchasing all three
