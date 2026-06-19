@@ -14,6 +14,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P044/angle-6.jpg
@@ -40,4 +41,5 @@ A cheerful framed quilling of a baby panda with balloons held by hand-drawn stri
 Mounted in a white shadow-box frame 20x25cm
 A favourite for baby-girl nurseries; a blue/boy palette variant is available on
 request — please specify when enquiring.
-Discount available when purchasing along with similar style elephant and panda. Please enquire for details.
+Discount available when purchasing along with similar style elephant and monkey.
+Please enquire for details.
