@@ -294,7 +294,20 @@ npm run admin           # starts the editor → http://localhost:4399/admin-tool
 
 ## Zeller POS Lite sync
 
-Tracey sells in person at markets using **Zeller POS Lite**, which has no catalogue API — it's populated by CSV import. The admin tool's **"⬇ Zeller POS CSV"** button (top bar) downloads `zeller-pos-items.csv` of the pieces currently for sale, in Zeller's import‑template columns (SKU = the product `id`, e.g. `P037`; items flagged "Enable for Invoices"). Import it via the Zeller Dashboard → **All Items → Manage → Import Items**. Export *after* publishing so it mirrors the live Store.
+Tracey sells in person at markets using **Zeller POS Lite**, which has no catalogue API — it's populated by CSV import. The admin tool's **"⬇ Zeller POS CSV"** button (top bar) downloads `zeller-pos-items.csv` of the pieces currently for sale (status `available`, not hidden). Import it via the Zeller Dashboard → **All Items → Manage → Import Items**. Export *after* publishing so it mirrors the live Store.
+
+The file matches Zeller's `catalogue-items-template.csv` **exactly** (16 columns), so every column auto‑maps on import. Per‑item mapping:
+
+| Zeller column | Value |
+|---------------|-------|
+| `Item Name` / `Description (Optional)` | Product title / first line of the description |
+| `Category` | Capitalised category (e.g. `Framed`) |
+| `Price` | **Live selling price** — the sale price when on sale, otherwise the standard price |
+| `SKU (Optional)` | The product `id` (e.g. `P037`) |
+| `GST Applicable (Y/N)` | `N` (assumes not GST‑registered — change in code if that changes) |
+| `Enable for Invoices (Y/N)` / `Available` / `Site A` | `Y` (so items are selectable on Zeller Invoices / payment links) |
+
+> "Site A" is the single‑site column from the downloaded template — rename it in `admin/server.mjs` if the Zeller account's site is named differently. Restart `npm run admin` after any export change, then re‑download before importing.
 
 ---
 
