@@ -13,7 +13,8 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 70
+price: 90
+sale_price: 70
 lead_time: null
 images:
   main: ../../../images/P011/main.jpg
