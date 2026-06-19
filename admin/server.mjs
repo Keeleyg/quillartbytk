@@ -74,6 +74,12 @@ async function aheadCount() {
   if (!(await branchExists(DRAFT_BRANCH))) return 0;
   return Number((await git(['rev-list', '--count', `${LIVE_BRANCH}..${DRAFT_BRANCH}`])).trim()) || 0;
 }
+/** Commits on origin/LIVE_BRANCH not yet in the local LIVE_BRANCH. */
+async function behindCount() {
+  try {
+    return Number((await git(['rev-list', '--count', `${LIVE_BRANCH}..origin/${LIVE_BRANCH}`])).trim()) || 0;
+  } catch { return 0; }
+}
 
 /** Make sure we're on the draft branch (creating it off LIVE_BRANCH if needed). */
 async function ensureDraft() {
@@ -419,6 +425,76 @@ app.post('/api/discard', requireAuth, async (_req, res) => {
     res.json({ ok: true, message: 'All unpublished edits discarded.' });
   } catch (err) {
     res.status(500).json({ error: 'Discard failed', detail: String(err.stderr || err.message || err) });
+  }
+});
+
+/* ---- sync local repo with the live branch (origin/main) ----------- */
+app.get('/api/sync-status', requireAuth, async (_req, res) => {
+  if (NO_PUSH) return res.json({ canSync: false, behind: 0, reason: 'push-disabled' });
+  let fetched = true;
+  try {
+    await git(['fetch', 'origin', LIVE_BRANCH]);
+  } catch {
+    fetched = false; // offline — leave the button greyed
+  }
+  const behind = fetched ? await behindCount() : 0;
+  const draftPending = (await branchExists(DRAFT_BRANCH)) ? (await aheadCount()) > 0 : false;
+  res.json({ canSync: behind > 0, behind, draftPending, fetched });
+});
+
+app.post('/api/sync', requireAuth, async (_req, res) => {
+  if (NO_PUSH) return res.status(400).json({ error: 'Sync is disabled.' });
+  try {
+    try {
+      await git(['fetch', 'origin', LIVE_BRANCH]);
+    } catch (fetchErr) {
+      return res.status(502).json({
+        error: 'Sync failed',
+        detail: 'Could not reach GitHub. Check the internet connection and try again.\n\n' +
+          String(fetchErr.stderr || fetchErr.message || fetchErr),
+      });
+    }
+
+    const behind = await behindCount();
+    if (behind === 0) return res.json({ ok: true, synced: 0, message: 'Already up to date with the live site.' });
+
+    // Never clobber in-progress edits.
+    if (!(await treeCleanTracked())) {
+      return res.status(409).json({
+        error: 'Sync blocked',
+        detail: 'There are uncommitted changes in the repo. Commit or discard them, then sync.',
+      });
+    }
+    if ((await branchExists(DRAFT_BRANCH)) && (await aheadCount()) > 0) {
+      return res.status(409).json({
+        error: 'Sync blocked',
+        detail: 'You have unpublished edits. Publish or discard them first, then sync.',
+      });
+    }
+
+    const wasOnDraft = (await currentBranch()) === DRAFT_BRANCH;
+    if (wasOnDraft) await git(['checkout', LIVE_BRANCH]);
+
+    try {
+      await git(['merge', '--ff-only', `origin/${LIVE_BRANCH}`]);
+    } catch (mergeErr) {
+      if (wasOnDraft) await git(['checkout', DRAFT_BRANCH]).catch(() => {});
+      return res.status(500).json({
+        error: 'Sync failed',
+        detail: 'This computer\'s history has diverged from the live site. Publish your changes (which resyncs), or ask for help.\n\n' +
+          String(mergeErr.stderr || mergeErr.message || mergeErr),
+      });
+    }
+
+    // Keep an empty draft branch current so a resumed session shows the latest.
+    if (await branchExists(DRAFT_BRANCH)) {
+      await git(['branch', '-f', DRAFT_BRANCH, LIVE_BRANCH]);
+      if (wasOnDraft) await git(['checkout', DRAFT_BRANCH]);
+    }
+
+    res.json({ ok: true, synced: behind, message: `Synced ${behind} update${behind === 1 ? '' : 's'} from the live site.` });
+  } catch (err) {
+    res.status(500).json({ error: 'Sync failed', detail: String(err.stderr || err.message || err) });
   }
 });
 

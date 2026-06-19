@@ -91,6 +91,7 @@ async function boot() {
   buildFilters();
   await loadProductList();
   await refreshDraft();
+  await refreshSyncStatus();
 }
 function buildFilters() {
   $('#filter-category').innerHTML =
@@ -192,6 +193,7 @@ $('#commit-btn').addEventListener('click', async () => {
     await loadProductList();
     await resetEventsView();
     await refreshDraft();
+    await refreshSyncStatus();
   } catch (e) {
     alert('Publish failed:\n\n' + e.message);
   } finally {
@@ -221,6 +223,58 @@ $('#discard-btn').addEventListener('click', async () => {
     btn.disabled = false; btn.textContent = 'Discard';
   }
 });
+
+/* sync from live (pull origin/main onto this computer) */
+async function refreshSyncStatus() {
+  const btn = $('#sync-btn');
+  if (!btn || btn.dataset.busy === '1') return;
+  try {
+    const s = await api('/api/sync-status');
+    if (s.canSync) {
+      btn.disabled = false;
+      btn.textContent = `↓ Sync from live (${s.behind} new)`;
+      btn.title = `${s.behind} new published change${s.behind === 1 ? '' : 's'} available — click to update this computer.` +
+        (s.draftPending ? ' (Publish or discard your edits first.)' : '');
+    } else {
+      btn.disabled = true;
+      btn.textContent = '↓ Up to date';
+      btn.title = s.reason === 'push-disabled'
+        ? 'Sync is disabled.'
+        : 'This computer already has the latest published changes.';
+    }
+  } catch {
+    btn.disabled = true;
+    btn.textContent = '↓ Up to date';
+  }
+}
+
+$('#sync-btn').addEventListener('click', async () => {
+  const btn = $('#sync-btn');
+  btn.dataset.busy = '1';
+  btn.disabled = true;
+  const label = btn.textContent;
+  btn.textContent = 'Syncing…';
+  try {
+    const r = await api('/api/sync', { method: 'POST' });
+    if (r.synced > 0) {
+      current = null;
+      $('#editor-form').hidden = true;
+      $('#empty-state').hidden = false;
+      await loadProductList();
+      if (events !== null) await loadEventList();
+      await refreshDraft();
+      alert(r.message);
+    }
+  } catch (e) {
+    alert('Sync failed:\n\n' + e.message);
+  } finally {
+    btn.dataset.busy = '';
+    btn.textContent = label;
+    await refreshSyncStatus();
+  }
+});
+
+setInterval(refreshSyncStatus, 120000);
 
 /* ---------------- Product list ---------------- */
 async function loadProductList() {

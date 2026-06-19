@@ -281,6 +281,7 @@ npm run admin           # starts the editor → http://localhost:4399/admin-tool
 - **Build preview** runs `astro build` and serves `dist/` at the root for review.
 - **Commit (publish)** squash‑merges `gallery-edits` → `main` and pushes (triggering the Pages deploy). Publish is self‑healing (fetches origin and resyncs before merging).
 - **Discard** deletes the draft branch.
+- **Sync from live** fast‑forwards this computer's `main` to `origin/main` (pulling in changes published from another machine). The button is **greyed out unless `origin/main` is ahead**, shows the count when there is ("Sync from live (N new)"), polls every 2 min, and refuses while there are unpublished edits (publish or discard first). Each machine has its own clone, so after one machine publishes, the others Sync to catch up.
 
 **Three tabs:**
 
