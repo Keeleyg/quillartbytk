@@ -15,6 +15,7 @@ frame_options:
   - white
   - oak
 price: 50
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P045/main.jpg

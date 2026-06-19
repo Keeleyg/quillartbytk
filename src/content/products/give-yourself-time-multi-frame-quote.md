@@ -1,15 +1,21 @@
 ---
 id: P051
-title: "Give Yourself Time — Multi-Frame Quote"
+title: Give Yourself Time — Multi-Frame Quote
 category: framed
-themes: [insects, misc]
+themes:
+  - misc
+  - insects
 status: sold
+hidden: false
+featured: true
 collection: null
 commission_example: false
 multi_frame: true
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
+lead_time: null
 images:
   main: ../../../images/P051/main.jpg
   angles:
@@ -19,10 +25,15 @@ images:
   process: []
 confidence: high
 notes:
-  - "angle-1: Earlier in-progress photograph showing the first two frames ('Give' and 'Yourself') of the triptych before the 'Time' frame was completed. Useful as a process/behind-the-scenes shot."
-  - "angle-2: Close-up macro of the third frame: the orange-and-black monarch butterfly with the 'Time' label above — shows the dimensional spiral construction of the wings."
+  - >-
+    angle-1: Earlier in-progress photograph showing the first two frames ('Give'
+    and 'Yourself') of the triptych before the 'Time' frame was completed.
+    Useful as a process/behind-the-scenes shot.
+  - >-
+    angle-2: Close-up macro of the third frame: the orange-and-black monarch
+    butterfly with the 'Time' label above — shows the dimensional spiral
+    construction of the wings.
 ---
-
 A three-aperture white shadow-box frame spelling out the message 'Give
 Yourself Time', with each word paired with a stage of butterfly
 metamorphosis: 'Give' with a striped monarch caterpillar on grass,
