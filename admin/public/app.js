@@ -263,7 +263,13 @@ $('#sync-btn').addEventListener('click', async () => {
       await loadProductList();
       if (events !== null) await loadEventList();
       await refreshDraft();
-      alert(r.message);
+      alert(
+        r.message + '\n\n' +
+        '⚠ Important — restart the admin tool now so any updates to the editor itself take effect:\n\n' +
+        '  1. Click the terminal window and press Ctrl + C to stop it.\n' +
+        '  2. Type  npm run admin  and press Enter.\n' +
+        '  3. Refresh this page.'
+      );
     }
   } catch (e) {
     alert('Sync failed:\n\n' + e.message);
