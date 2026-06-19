@@ -1,22 +1,31 @@
 ---
 id: P093
-title: "Merry Christmas — Blue & Gold Snowflake Card"
+title: Merry Christmas — Blue & Gold Snowflake Card
 category: cards
-themes: [seasonal, misc]
+themes:
+  - misc
+  - seasonal
 status: sold
+hidden: true
+featured: false
 collection: christmas-cards
 commission_example: false
 multi_frame: false
-palette_variants: ["blue-and-gold"]
+palette_variants:
+  - blue-and-gold
 frame_options: []
 price: 50
+sale_price: null
+lead_time: null
+card_blank_inside: false
+card_includes_envelope: false
+card_customisable: false
 images:
   main: ../../../images/P093/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-
 A handmade A6 Christmas card featuring an elaborate eight-pointed
 quilled snowflake in deep blue and gold, built from layered teardrop
 loops, tight spirals and starburst points. Surrounded by a scattering of

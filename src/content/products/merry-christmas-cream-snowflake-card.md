@@ -1,22 +1,30 @@
 ---
 id: P065
-title: "Merry Christmas — Cream Snowflake Card"
+title: Merry Christmas — Cream Snowflake Card
 category: cards
-themes: [misc, seasonal]
+themes:
+  - misc
+  - seasonal
 status: sold
+hidden: true
+featured: false
 collection: christmas-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
+lead_time: null
+card_blank_inside: false
+card_includes_envelope: false
+card_customisable: false
 images:
   main: ../../../images/P065/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-
 A handmade A6 Christmas card featuring an elegant six-pointed quilled
 snowflake in cream and ivory tones, mounted on a clean white card with
 the printed greeting 'Merry Christmas' above. A timeless, understated

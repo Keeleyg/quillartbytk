@@ -1,22 +1,30 @@
 ---
 id: P109
-title: "Happy Valentine's Day — Tree of Hearts Card"
+title: Happy Valentine's Day — Tree of Hearts Card
 category: cards
-themes: [trees, misc]
+themes:
+  - trees
+  - misc
 status: sold
+hidden: true
+featured: false
 collection: valentines-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
+lead_time: null
+card_blank_inside: false
+card_includes_envelope: false
+card_customisable: false
 images:
   main: ../../../images/P109/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-
 A handmade square card featuring a delicate printed tree silhouette in
 charcoal with visible roots, its bare branches scattered with twelve
 dimensional quilled hearts in shades of pink, rose and deep red,

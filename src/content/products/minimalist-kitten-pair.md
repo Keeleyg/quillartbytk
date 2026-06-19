@@ -1,6 +1,6 @@
 ---
 id: P015
-title: Minimalist Kitten Pair
+title: Minimalist Kitten
 category: framed
 themes:
   - animals
@@ -13,6 +13,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 30
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P015/main.jpg

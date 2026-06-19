@@ -1,22 +1,30 @@
 ---
 id: P068
-title: "Merry Christmas — Red Stocking Card"
+title: Merry Christmas — Red Stocking Card
 category: cards
-themes: [misc, seasonal]
+themes:
+  - misc
+  - seasonal
 status: sold
+hidden: true
+featured: false
 collection: christmas-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
+lead_time: null
+card_blank_inside: false
+card_includes_envelope: false
+card_customisable: false
 images:
   main: ../../../images/P068/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-
 A handmade A6 Christmas card featuring a quilled traditional Christmas
 stocking — a deep red stocking body filled with intricate spiral
 filigree and topped with a glittery white cuff. The printed greeting

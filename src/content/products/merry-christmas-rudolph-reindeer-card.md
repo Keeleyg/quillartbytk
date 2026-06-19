@@ -1,22 +1,30 @@
 ---
 id: P107
-title: "Merry Christmas — Rudolph Reindeer Card"
+title: Merry Christmas — Rudolph Reindeer Card
 category: cards
-themes: [seasonal, animals]
+themes:
+  - animals
+  - seasonal
 status: sold
+hidden: true
+featured: false
 collection: christmas-cards
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
+lead_time: null
+card_blank_inside: false
+card_includes_envelope: false
+card_customisable: false
 images:
   main: ../../../images/P107/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-
 A handmade A6 Christmas card featuring a quilled cartoon reindeer —
 round brown spiral face, gold filigree antlers, dark brown ears with
 cream centres, googly eyes, and a bright red nose. Topped with a printed

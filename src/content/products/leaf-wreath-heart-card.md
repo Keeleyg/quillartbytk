@@ -6,7 +6,7 @@ themes:
   - misc
   - flowers
 status: sold
-hidden: false
+hidden: true
 featured: false
 collection: valentines-cards
 commission_example: false
@@ -14,6 +14,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
 lead_time: null
 card_blank_inside: false
 card_includes_envelope: false
