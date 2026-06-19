@@ -5,7 +5,7 @@ category: framed
 themes:
   - insects
 status: available
-hidden: true
+hidden: false
 featured: false
 collection: null
 commission_example: false
@@ -13,6 +13,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P132/main.jpg
