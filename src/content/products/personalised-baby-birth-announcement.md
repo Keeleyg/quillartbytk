@@ -1,22 +1,27 @@
 ---
 id: P070
-title: "Personalised Baby Birth Announcement (Sample: Halli Ash)"
+title: 'Personalised Baby Birth Announcement (Sample: Halli Ash)'
 category: framed
-themes: [nursery, names]
+themes:
+  - nursery
+  - names
 status: order
+hidden: false
+featured: false
 collection: commissions
 commission_example: true
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 100
+sale_price: null
+lead_time: null
 images:
   main: ../../../images/P070/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-
 A made-to-order personalised birth announcement frame featuring a
 dimensional quilled teddy bear (palette to suit — this sample shown in
 pink, also available in blue, neutral, or your choice of colours), four

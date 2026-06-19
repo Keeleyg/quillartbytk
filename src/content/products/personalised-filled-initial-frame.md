@@ -1,22 +1,26 @@
 ---
 id: P108
-title: "Personalised Filled Initial Frame (Sample: Blue \"L\")"
+title: 'Personalised Filled Initial Frame (Sample: Blue "L")'
 category: framed
-themes: [names]
+themes:
+  - names
 status: order
+hidden: false
+featured: false
 collection: commissions
 commission_example: true
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 80
+sale_price: null
+lead_time: null
 images:
   main: ../../../images/P108/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-
 A made-to-order personalised initial piece featuring a single tall block
 letter cut as an outline and filled with rolled-paper quilling in the
 customer's chosen palette — the example shown is a serif "L" filled with
