@@ -1,26 +1,25 @@
 ---
 id: P057
-title: "Abstract Sea-Glass Wave Composition"
+title: Abstract Wave Composition
 category: framed
-themes: [misc]
-status: sold
+themes:
+  - misc
+status: available
+hidden: true
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 80
+sale_price: null
+lead_time: null
 images:
   main: ../../../images/P057/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-
-A second large-scale abstract framed quilling in the sea-glass palette —
-sage, eucalyptus, dusty teal, and cream ribbons curl and overlap in a
-denser, more wave-like composition than the calligraphic sea-glass piece
-(P047). Mounted in a clean light oak frame. Pairs naturally with P047 as
-a coordinated pair, or stands alone as a statement piece. A more
-aquatic, ocean-inspired reading than the freer calligraphic sister
-piece.
+An abstract framed quilling in the sea-glass palette —
+Mounted in a clean light oak effect frame.
