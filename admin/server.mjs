@@ -470,11 +470,13 @@ function csvCell(v) {
   const s = v === null || v === undefined ? '' : String(v);
   return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
+// Columns match Zeller's POS Lite "catalogue-items-template.csv" exactly,
+// including the trailing per-site column ("Site A" on a single-site account).
 const ZELLER_CSV_HEADER = [
-  'Item Name', 'Description', 'Category', 'Price', 'GST Applicable',
-  'SKU', 'GTIN', 'Enable for Invoices', 'Available',
+  'Item Name', 'Description (Optional)', 'Category', 'Price', 'GST Applicable (Y/N)',
+  'SKU (Optional)', 'GTIN (Optional)', 'Enable for Invoices (Y/N)', 'Available',
   'Attribute Set 1', 'Attribute 1', 'Attribute Set 2', 'Attribute 2',
-  'Attribute Set 3', 'Attribute 3',
+  'Attribute Set 3', 'Attribute 3', 'Site A',
 ];
 app.get('/api/zeller-csv', requireAuth, async (_req, res) => {
   const rows = [ZELLER_CSV_HEADER];
@@ -496,9 +498,9 @@ app.get('/api/zeller-csv', requireAuth, async (_req, res) => {
         ? data.category.charAt(0).toUpperCase() + data.category.slice(1)
         : '';
       rows.push([
-        data.title ?? '', desc, cat, price, 'No',
-        data.id ?? '', '', 'Yes', 'Yes',
-        '', '', '', '', '', '',
+        data.title ?? '', desc, cat, price, 'N',
+        data.id ?? '', '', 'Y', 'Y',
+        '', '', '', '', '', '', 'Y',
       ]);
     } catch { /* skip unreadable files */ }
   }
