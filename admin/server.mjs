@@ -483,8 +483,11 @@ app.get('/api/zeller-csv', requireAuth, async (_req, res) => {
       const { data, content } = matter(await readFile(join(PRODUCTS_DIR, f), 'utf8'));
       const hidden = data.hidden === true || data.status === 'hidden';
       if (hidden || data.status !== 'available') continue;
-      // Standard price (online-only sale prices are not pushed to the stall).
-      const price = data.price === null || data.price === undefined ? '' : data.price;
+      // Use the live selling price: the sale price when on sale, otherwise the
+      // standard price — so the stall charges what the website shows.
+      const onSale = data.price != null && data.sale_price != null;
+      const sellPrice = onSale ? data.sale_price : data.price;
+      const price = sellPrice === null || sellPrice === undefined ? '' : sellPrice;
       // First non-empty line of the body makes a handy stall description.
       const desc = (content || '')
         .replace(/<[^>]*>/g, ' ')
