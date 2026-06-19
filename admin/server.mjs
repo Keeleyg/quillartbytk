@@ -224,7 +224,7 @@ async function nextProductId() {
       if (!Number.isNaN(n) && n > max) max = n;
     } catch { /* skip */ }
   }
-  if (max + 1 > 999) throw new Error('Product id limit reached (P999).');
+  // Zero-padded to 3 digits up to P999, then naturally grows: P1000, P1001, …
   return 'P' + String(max + 1).padStart(3, '0');
 }
 
@@ -255,7 +255,7 @@ async function changedProducts() {
       out.set(slug, hit || { slug, title: slug, id: '' });
       continue;
     }
-    m = line.match(/^images\/(P\d{3})\//);
+    m = line.match(/^images\/(P\d{3,})\//);
     if (m && byId.has(m[1])) { const p = byId.get(m[1]); out.set(p.slug, p); }
     if (line === 'src/data/events.json') {
       out.set('__events__', { slug: '__events__', title: 'Markets & events', id: 'events' });
@@ -456,7 +456,7 @@ app.get('/api/products', requireAuth, async (_req, res) => {
       });
     } catch { /* skip */ }
   }
-  items.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  items.sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
   res.json(items);
 });
 

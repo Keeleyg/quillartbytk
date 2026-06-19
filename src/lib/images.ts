@@ -14,7 +14,7 @@ const base = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '');
  */
 export function resolveProductImage(relativePath: string): string {
   // Strip leading ../ segments and normalise to {base}/images/...
-  const match = relativePath.match(/images\/(P\d{3}\/.+)$/);
+  const match = relativePath.match(/images\/(P\d{3,}\/.+)$/);
   if (match) return `${base}/images/${match[1]}`;
   // Fallback: strip all leading dots/slashes
   return `${base}/` + relativePath.replace(/^[./\\]+/, '');

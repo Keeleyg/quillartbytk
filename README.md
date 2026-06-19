@@ -128,7 +128,7 @@ One markdown file per piece in `src/content/products/<slug>.md`. The **frontmatt
 
 ```markdown
 ---
-id: P037                     # required, format P### (stable catalogue id / SKU)
+id: P037                     # required, format P### (3+ digits; P001–P999 then P1000…) — stable catalogue id / SKU
 title: Heidi Name Frame
 category: framed             # framed | clocks | canvas | cards | homewares
 themes: [names, nursery]    # one or more (see theme list below)

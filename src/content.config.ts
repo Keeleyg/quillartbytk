@@ -23,7 +23,7 @@ export const VALID_STATUS = [
 const products = defineCollection({
   loader: glob({ pattern: '**/*.md', base: 'src/content/products' }),
   schema: z.object({
-    id: z.string().regex(/^P\d{3}$/),
+    id: z.string().regex(/^P\d{3,}$/), // P001–P999, then P1000, P1001, …
     title: z.string(),
     category: z.enum(VALID_CATEGORIES),
     themes: z.array(z.enum(VALID_THEMES)).min(1),
