@@ -1,6 +1,6 @@
 ---
 id: P006
-title: Red Backed Superb Fairywren on Branch
+title: Red Backed Fairywren on Branch
 category: framed
 themes:
   - birds
@@ -13,6 +13,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 90
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P006/angle-2.jpg
