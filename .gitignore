@@ -15,3 +15,9 @@ worker/.dev.vars
 
 # Admin tool credentials (local-only, never commit)
 admin/credentials.json
+# Scratch/working files
+_catalog/
+
+# Orphaned images soft-deleted via admin tool (moved to images/ root)
+/images/*.jpg
+/images/*.png
