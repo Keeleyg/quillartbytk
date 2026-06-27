@@ -3,22 +3,24 @@ id: P135
 title: Red Paw Print in Heart Framed
 category: framed
 themes:
-  - flowers
+  - pets
 status: available
-hidden: true
+hidden: false
 featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: null
-sale_price: null
+price: 50
+sale_price: 40
 lead_time: null
 images:
-  main: ''
+  main: ../../../images/P135/main.jpg
   angles: []
   process: []
 confidence: high
 ---
-Describe this piece…
+A delicately quilled white heart with a paw print in shades of red.
+Housed in a small white square shadow box frame. 
+10x10cm
