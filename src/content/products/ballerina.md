@@ -4,7 +4,7 @@ title: Quilled Ballerina
 category: framed
 themes:
   - misc
-status: sold
+status: available
 hidden: false
 featured: false
 collection: null
@@ -12,7 +12,8 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 40
+price: 60
+sale_price: 45
 lead_time: null
 images:
   main: ../../../images/P116/main.jpg
