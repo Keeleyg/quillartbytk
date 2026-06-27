@@ -6,7 +6,7 @@ themes:
   - misc
 status: available
 hidden: false
-featured: true
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
