@@ -6,13 +6,14 @@ themes:
   - flowers
 status: sold
 hidden: false
-featured: true
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 70
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P028/main.jpg
@@ -22,6 +23,4 @@ confidence: high
 ---
 A single quilled sunflower with layered yellow and orange petals, a
 dense dark-brown spiral centre, and swirling green leaves and tendrils
-filling the surrounding space. Mounted in a white shadow-box frame. A
-cheerful, warm piece suited to kitchens, dining rooms or bright living
-spaces.
+filling the surrounding space. Mounted in a white shadow-box frame.
