@@ -7,12 +7,13 @@ themes:
 status: sold
 hidden: false
 featured: false
-collection: null
+collection: aussie-birds
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 90
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P009/main.jpg
