@@ -6,13 +6,13 @@ themes:
   - misc
 status: sold
 hidden: false
-featured: false
+featured: true
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 100
+price: 118
 sale_price: null
 lead_time: null
 images:
@@ -32,7 +32,5 @@ notes:
     filigree detail.
 ---
 A large landscape-oriented framed quilling spelling 'HOME' in ornate
-dimensional capitals. Each letter is constructed from layered quilled
-spirals in a cream, ivory, charcoal and dark brown palette
-Mounted on a clean white background with a deep chocolate-brown
-wooden outer frame and cream inner mat.
+dimensional capitals. 
+Mounted in a deep chocolate-brown shadow box frame
