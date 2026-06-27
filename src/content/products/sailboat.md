@@ -7,7 +7,7 @@ themes:
 status: sold
 hidden: false
 featured: false
-collection: nautical
+collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
