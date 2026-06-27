@@ -4,7 +4,7 @@ title: Framed Quilled Sailboat
 category: framed
 themes:
   - nautical
-status: available
+status: sold
 hidden: false
 featured: false
 collection: nautical
@@ -13,6 +13,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P030/main.jpg
