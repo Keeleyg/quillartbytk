@@ -1,6 +1,6 @@
 ---
 id: P140
-title: Quilled Red Mazda MX5
+title: Quilled Red Mazda MX5 Car
 category: framed
 themes:
   - misc
