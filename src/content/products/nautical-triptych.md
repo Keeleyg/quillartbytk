@@ -4,7 +4,7 @@ title: Nautical Triptych
 category: framed
 themes:
   - nautical
-status: available
+status: sold
 hidden: false
 featured: true
 collection: null
