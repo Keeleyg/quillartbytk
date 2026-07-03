@@ -1,15 +1,23 @@
 ---
 id: P069
-title: "Quilled Snowflake Christmas Bauble"
+title: Quilled Snowflake Christmas Bauble
 category: homewares
-themes: [misc, seasonal]
+themes:
+  - misc
+  - seasonal
 status: sold
+hidden: true
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
-palette_variants: ["pink-and-mauve", "white-and-silver"]
+palette_variants:
+  - pink-and-mauve
+  - white-and-silver
 frame_options: []
 price: 50
+sale_price: null
+lead_time: null
 images:
   main: ../../../images/P069/main.jpg
   angles:
@@ -17,9 +25,11 @@ images:
   process: []
 confidence: high
 notes:
-  - "angle-1: White/silver palette variant — quilled snowflake in white-and-pale-lilac tones with silver glitter at the base, versus the main pink/mauve example. Formalise as paletteVariants at consolidation."
+  - >-
+    angle-1: White/silver palette variant — quilled snowflake in
+    white-and-pale-lilac tones with silver glitter at the base, versus the main
+    pink/mauve example. Formalise as paletteVariants at consolidation.
 ---
-
 A delicate Christmas tree ornament: a clear plastic bauble containing a
 quilled pink-and-mauve six-pointed snowflake suspended inside, with a
 scattering of magenta glitter at the base of the bauble and a soft grey
