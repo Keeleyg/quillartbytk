@@ -6,7 +6,7 @@ themes:
   - animals
   - names
 status: sold
-hidden: false
+hidden: true
 featured: false
 collection: null
 commission_example: false
@@ -14,6 +14,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 100
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P035/angle-1.jpg
