@@ -5,7 +5,7 @@ category: framed
 themes:
   - nautical
 status: sold
-hidden: true
+hidden: false
 featured: true
 collection: null
 commission_example: false
