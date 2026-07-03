@@ -7,13 +7,14 @@ themes:
   - australiana
 status: sold
 hidden: false
-featured: false
+featured: true
 collection: native-bees
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P014/angle-3.jpg
@@ -22,9 +23,7 @@ images:
   process: []
 confidence: high
 ---
-A paper quilled Australian
-native Blue Banded Bee (Amegilla cingulata), featuring detailed
+A paper quilled Australian native Blue Banded Bee (Amegilla cingulata), featuring detailed
 gold-bronze body work, translucent layered wings, and the species'
-distinctive electric blue abdominal stripes. Includes a scientific name
-plaque. 
-Presented in a white shadow box frame 20x25cm
+distinctive electric blue abdominal stripes. 
+Presented in a white shadow box frame 23x28cm

@@ -4,9 +4,10 @@ title: Pair of Superb Fairywrens
 category: framed
 themes:
   - birds
+  - australiana
 status: sold
 hidden: false
-featured: false
+featured: true
 collection: aussie-birds
 commission_example: false
 multi_frame: false
@@ -25,4 +26,4 @@ confidence: high
 ---
 A male and female Superb Fairywren perched together on a
 flowering branch with delicate pink blossoms and green leaves. 
-White shadow box frame sized 20x25cm
+White shadow box frame sized 23x28cm

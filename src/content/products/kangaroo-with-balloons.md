@@ -15,6 +15,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P046/main.jpg
@@ -32,6 +33,6 @@ notes:
     blue teddy bear — shows scale and the boy-nursery styling context.
 ---
 A cheerful framed quilling of a baby kangaroo with balloons held by hand-drawn strings tied to his tail.  
-Mounted in a white shadow-box frame 20x25cm
+Mounted in a white shadow-box frame 23x28cm
 A favourite for baby-boy nurseries; a pink or neutral palette variant is available on
 request — please specify when enquiring.

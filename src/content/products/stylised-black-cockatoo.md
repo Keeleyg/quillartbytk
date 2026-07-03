@@ -23,4 +23,5 @@ images:
   process: []
 confidence: high
 ---
-A unique commission made for a Shoebill obsessed customer. I loved making this very different creation.
+A unique commission made for a Shoebill obsessed customer. 
+I loved making this very different creation.

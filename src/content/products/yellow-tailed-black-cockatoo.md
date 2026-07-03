@@ -19,12 +19,12 @@ lead_time: null
 images:
   main: ../../../images/P011/main.jpg
   angles:
+    - ../../../images/P011/angle-1.jpg
     - ../../../images/P011/angle-2.jpg
-    - ../../../images/P011/angle-3.jpg
   process: []
 confidence: high
 ---
 A Yellow-tailed Black Cockatoo rendered in quilled paper,
 perched on a branch with deep green foliage. 
-Presented in an oak effect shadow-box frame.
+Presented in an white shadow-box frame.
 Size 23x28cm

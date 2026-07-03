@@ -4,6 +4,7 @@ title: Red Backed Fairywren on Branch
 category: framed
 themes:
   - birds
+  - australiana
 status: available
 hidden: false
 featured: false
@@ -25,4 +26,4 @@ confidence: high
 ---
 A male and female Superb Fairywren beautifully rendered in quilled paper, perched
 on a wattle branch.
-White Shadow Box Frame 20 x 25cm
+White Shadow Box Frame 23 x 28cm

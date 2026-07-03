@@ -33,7 +33,7 @@ notes:
     two woven rattan daisies — useful for showing scale and styling context.
 ---
 A cheerful framed quilling of a baby elephant with balloons held by hand-drawn strings tied to her tail.  
-Mounted in a white shadow-box frame 20x25cm
+Mounted in a white shadow-box frame 23x28cm
 A favourite for baby-girl nurseries; a blue/boy palette variant is available on
 request — please specify when enquiring.
 Discount available when purchasing along with similar style Monkey and Panda.
