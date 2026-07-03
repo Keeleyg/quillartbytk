@@ -175,6 +175,10 @@ Markdown description of the piece shown on its product page.
 
 Curated groupings live in `src/content/collections/<slug>/index.md` with their own hero/gallery images in the same folder. Frontmatter: `slug`, `title`, `description`, `members` (product ids), `hero`, `gallery`, `themes`, `order`.
 
+- **Member order is the display order.** A collection page renders its pieces in the exact order of the `members` array — reordering in the admin **Collections** tab is what sets the order on the site.
+- **Empty collections are hidden everywhere.** A collection whose members resolve to *no* renderable pieces (all missing, e.g. P103/P104 awaiting photos, or all `hidden`) is omitted from `/collections`, the home‑page teasers and the product‑page "Part of the …" link, and its `/collections/<slug>` page is not generated (404). It reappears automatically once it has one visible member. The single source of truth for this rule is [`src/lib/collections.ts`](src/lib/collections.ts) (`renderableMembers` / `hasRenderableMembers`), shared by all three call sites.
+- Membership is edited via the admin **Collections** tab (below); the `members` array is the only thing that changes on a members save.
+
 ### Events
 
 Markets and fairs live in `src/data/events.json` (array). Each: `id`, `name`, `date` (`YYYY-MM-DD` start date), `endDate` (optional `YYYY-MM-DD` — set it for **multi‑day** events; blank = single day), `venue`, `stallNumber`, `url`, `status` (`confirmed`/`tentative`/`cancelled`), `hidden`, `description`. Edited via the admin **Events** tab. A multi‑day event stays in "Upcoming" until its `endDate` has passed; otherwise events move to "past" automatically.
@@ -283,9 +287,10 @@ npm run admin           # starts the editor → http://localhost:4399/admin-tool
 - **Discard** deletes the draft branch.
 - **Sync from live** fast‑forwards this computer's `main` to `origin/main` (pulling in changes published from another machine). The button is **greyed out unless `origin/main` is ahead**, shows the count when there is ("Sync from live (N new)"), polls every 2 min, and refuses while there are unpublished edits (publish or discard first). Each machine has its own clone, so after one machine publishes, the others Sync to catch up. Because a sync can also pull in updates to the admin tool's own code, the post‑sync popup prompts you to **restart `npm run admin`** (and refresh the page) so those take effect.
 
-**Three tabs:**
+**Four tabs:**
 
 - **Gallery** — edit every product attribute (title, category, themes, status, price, sale price, lead time, featured, visibility, card‑specific fields); create new items; manage images (add, swap an angle to main, move an angle to another item, drag‑reorder, and "delete" which *moves* the file to the `images/` root rather than erasing it); sidebar search + filters (category / theme / status / visibility).
+- **Collections** — manage which pieces belong to each collection without hand‑editing frontmatter. Pick a collection (the list shows its member count and flags any that are "hidden on site (empty)"), then use the two‑pane view: the left **All pieces** pool has the *same* search + filters as the Gallery tab, and the right **Pieces in this collection** list is the live display order — drag to reorder, drag a piece in from the pool (or click **＋ Add**), and **Remove** takes a piece out of the collection only (it stays in the gallery). Hidden pieces and IDs still awaiting photos (P103/P104) are shown and never dropped. **＋ New** creates an empty collection (title → auto‑slug, description, order, hero image); it stays hidden on the site until it has a visible member.
 - **Events** — add/edit markets and fairs.
 - **Orders** — view active checkout holds (ref, time, customer, items) and **Release back to sale**. Requires `workerAdminToken` (below).
 
@@ -405,6 +410,8 @@ Outbound email (inquiry alerts, order notifications, auto‑replies, order confi
 | Mark a piece sold | Set status → `sold`; publish. Then release its hold in **Orders** if one exists |
 | Handle a store order | Order email arrives → send a Zeller payment link for total + postage → mark Sold |
 | Free an unpaid hold | Admin **Orders** tab → **Release back to sale** |
+| Manage a collection's pieces / order | Admin **Collections** tab → drag to add/reorder, **Remove** to take out, **Save to draft** → **Commit** |
+| Add a new collection | Admin **Collections** tab → **＋ New** (title, description, order, hero image); add members to make it appear |
 | Update markets | Admin **Events** tab |
 | Sync POS Lite | Admin top bar → **⬇ Zeller POS CSV** → import in Zeller |
 | Change inquiry email | Edit `FROM` / `ADMIN_EMAIL` in `worker/src/email.ts`, redeploy the Worker |
