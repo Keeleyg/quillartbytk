@@ -15,7 +15,7 @@ frame_options:
   - white
   - black
 price: 90
-sale_price: 74
+sale_price: 75
 lead_time: null
 images:
   main: ../../../images/P124/angle-3.jpg
