@@ -13,7 +13,7 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: null
 sale_price: null
 lead_time: null
 images:
