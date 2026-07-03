@@ -6,7 +6,7 @@ themes:
   - flowers
   - names
 status: available
-hidden: true
+hidden: false
 featured: false
 collection: null
 commission_example: false
@@ -14,6 +14,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P038/angle-1.jpg
