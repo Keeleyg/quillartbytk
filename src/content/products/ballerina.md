@@ -13,7 +13,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 60
-sale_price: 45
+sale_price: 40
 lead_time: null
 images:
   main: ../../../images/P116/main.jpg

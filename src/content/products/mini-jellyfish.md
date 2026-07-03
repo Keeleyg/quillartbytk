@@ -13,6 +13,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 40
+sale_price: 35
 lead_time: null
 images:
   main: ../../../images/P125/main.jpg

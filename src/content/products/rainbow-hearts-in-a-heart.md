@@ -12,7 +12,8 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 35
+price: 40
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P117/main.jpg

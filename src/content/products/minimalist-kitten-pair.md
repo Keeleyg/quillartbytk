@@ -12,8 +12,8 @@ commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
-price: 30
-sale_price: null
+price: 40
+sale_price: 35
 lead_time: null
 images:
   main: ../../../images/P015/main.jpg

@@ -13,7 +13,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 90
-sale_price: 60
+sale_price: 50
 lead_time: null
 images:
   main: ../../../images/P132/main.jpg
