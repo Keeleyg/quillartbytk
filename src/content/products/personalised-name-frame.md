@@ -5,7 +5,7 @@ category: framed
 themes:
   - names
 status: order
-hidden: true
+hidden: false
 featured: false
 collection: null
 commission_example: true
@@ -22,4 +22,5 @@ images:
   process: []
 confidence: high
 ---
-Describe this piece…
+A made-to-order personalised name piece featuring crisp white block
+letters set against a lavish background
