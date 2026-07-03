@@ -2,7 +2,7 @@
 slug: aussie-birds
 title: "Australian Birds"
 description: "A series of native Australian birds in matching oak shadow-box frames."
-members: [P138, P011, P006, P080, P082, P083, P118, P119, P123]
+members: [P138, P006, P011, P080, P082, P083, P118, P119, P123]
 hero: ./hero.jpg
 gallery:
   - ./pair.jpg
