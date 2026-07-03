@@ -4,7 +4,7 @@ title: Rainbow Hearts in a Heart
 category: framed
 themes:
   - misc
-status: available
+status: sold
 hidden: false
 featured: false
 collection: null
