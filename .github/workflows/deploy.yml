@@ -39,3 +39,20 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # GitHub Pages occasionally returns "Deployment failed, try again later" — a
+  # platform-side flake that leaves the build succeeded but the site not updated.
+  # This job automatically re-runs the deploy (after a short wait) so a publish
+  # never silently stays off the live site and no manual re-run is needed.
+  deploy-retry:
+    needs: deploy
+    if: failure()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Wait before retrying the Pages deployment
+        run: sleep 60
+      - id: deployment
+        uses: actions/deploy-pages@v4
