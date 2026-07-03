@@ -6,13 +6,14 @@ themes:
   - trees
 status: sold
 hidden: false
-featured: true
+featured: false
 collection: null
 commission_example: false
 multi_frame: false
 palette_variants: []
 frame_options: []
 price: 110
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P001/main.jpg
