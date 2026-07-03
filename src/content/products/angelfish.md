@@ -5,7 +5,7 @@ category: framed
 themes:
   - nautical
 status: available
-hidden: false
+hidden: true
 featured: false
 collection: nautical
 commission_example: false
@@ -13,6 +13,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 50
+sale_price: null
 lead_time: null
 images:
   main: ../../../images/P129/main.jpg
