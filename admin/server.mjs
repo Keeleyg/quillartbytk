@@ -246,12 +246,93 @@ async function indexProducts() {
   return byId;
 }
 
-/** Products changed on the draft branch vs live. */
+/* ---- collection helpers ------------------------------------------- */
+function collectionSlugify(s) {
+  return (
+    String(s).toLowerCase().trim()
+      .replace(/['"’]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) || 'collection'
+  );
+}
+/** Directory names of every collection that has an index.md. */
+async function listCollectionSlugs() {
+  const out = [];
+  try {
+    for (const d of await readdir(COLLECTIONS_DIR, { withFileTypes: true })) {
+      if (d.isDirectory() && existsSync(join(COLLECTIONS_DIR, d.name, 'index.md'))) out.push(d.name);
+    }
+  } catch { /* none */ }
+  return out;
+}
+/** slug -> title, for labelling collection changes in the draft bar. */
+async function indexCollectionTitles() {
+  const m = new Map();
+  for (const slug of await listCollectionSlugs()) {
+    try {
+      const { data } = matter(await readFile(join(COLLECTIONS_DIR, slug, 'index.md'), 'utf8'));
+      m.set(slug, data.title ?? slug);
+    } catch { /* skip */ }
+  }
+  return m;
+}
+async function readCollection(slug) {
+  const file = join(COLLECTIONS_DIR, slug, 'index.md');
+  if (!existsSync(file)) return null;
+  const raw = await readFile(file, 'utf8');
+  const { data, content } = matter(raw);
+  return { slug, file, raw, data, body: content };
+}
+function formatMembersLine(members) {
+  return members.length ? `members: [${members.join(', ')}]` : 'members: []';
+}
+/**
+ * Replace ONLY the `members:` line inside a collection file's frontmatter,
+ * leaving every other field, the key order, the YAML style (flow-array,
+ * unquoted IDs) and the markdown body byte-for-byte untouched. This keeps
+ * diffs to the single line that changed and guarantees an unchanged save is
+ * a no-op (round-trip identical, orphan IDs like P103/P104 preserved).
+ */
+function setCollectionMembersRaw(raw, members) {
+  const line = formatMembersLine(members);
+  // Isolate the frontmatter block so a `---` or `members:` in the body is safe.
+  const fm = raw.match(/^(﻿?---[ \t]*\r?\n)([\s\S]*?)(\r?\n---[ \t]*(?:\r?\n|$))([\s\S]*)$/);
+  if (!fm) throw new Error('Collection file has no frontmatter block.');
+  const [, open, front, close, body] = fm;
+  // Matches flow (`members: [..]` / `members: []`) or block (`members:\n  - X`).
+  const memberRe = /^members:[ \t]*(?:\[[^\]]*\])?[ \t]*(?:\r?\n[ \t]+-[^\n]*)*/m;
+  if (!memberRe.test(front)) throw new Error('No members field to update in this collection.');
+  return open + front.replace(memberRe, line) + close + body;
+}
+function yamlDoubleQuote(s) {
+  return '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+}
+/** Build a new collection index.md matching the hand-authored YAML style. */
+function buildCollectionMd({ slug, title, description, hero, order }) {
+  return [
+    '---',
+    `slug: ${slug}`,
+    `title: ${yamlDoubleQuote(title)}`,
+    `description: ${yamlDoubleQuote(description || '')}`,
+    'members: []',
+    `hero: ${hero}`,
+    'gallery: []',
+    'themes: []',
+    `order: ${order}`,
+    '---',
+    '',
+    '',
+  ].join('\n');
+}
+
+/** Products (and events, and collections) changed on the draft branch vs live. */
 async function changedProducts() {
   if (!(await branchExists(DRAFT_BRANCH))) return [];
   const diff = (await git(['diff', '--name-only', `${LIVE_BRANCH}...${DRAFT_BRANCH}`])).trim();
   if (!diff) return [];
   const byId = await indexProducts();
+  const colTitles = await indexCollectionTitles();
   const out = new Map();
   for (const line of diff.split('\n')) {
     let m = line.match(/^src\/content\/products\/(.+)\.md$/);
@@ -259,6 +340,12 @@ async function changedProducts() {
       const slug = m[1];
       const hit = [...byId.values()].find((p) => p.slug === slug);
       out.set(slug, hit || { slug, title: slug, id: '' });
+      continue;
+    }
+    m = line.match(/^src\/content\/collections\/([^/]+)\//);
+    if (m) {
+      const key = '__col_' + m[1];
+      if (!out.has(key)) out.set(key, { slug: key, title: colTitles.get(m[1]) || m[1], id: '' });
       continue;
     }
     m = line.match(/^images\/(P\d{3,})\//);
@@ -970,6 +1057,108 @@ app.post('/api/orders/release', requireAuth, async (req, res) => {
     res.json({ ok: true, released: data.released || [] });
   } catch (err) {
     res.status(502).json({ error: 'Could not reach the live site. ' + String(err.message || err) });
+  }
+});
+
+/* ---- collections: list / edit members / create -------------------- */
+app.get('/api/collections', requireAuth, async (_req, res) => {
+  const items = [];
+  for (const slug of await listCollectionSlugs()) {
+    const c = await readCollection(slug);
+    if (!c) continue;
+    items.push({
+      slug,
+      title: c.data.title ?? slug,
+      description: c.data.description ?? '',
+      order: typeof c.data.order === 'number' ? c.data.order : 100,
+      hero: c.data.hero ?? '',
+      members: Array.isArray(c.data.members) ? c.data.members.map(String) : [],
+    });
+  }
+  items.sort((a, b) => a.order - b.order);
+  res.json(items);
+});
+
+// Save a collection's members (order + membership). Nothing else is touched;
+// an unchanged save is a byte-for-byte no-op and orphan IDs are preserved.
+app.put('/api/collections/:slug', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const slug = req.params.slug;
+    const c = await readCollection(slug);
+    if (!c) return res.status(404).json({ error: 'Collection not found' });
+    if (!Array.isArray(req.body?.members)) return res.status(400).json({ error: 'members must be an array' });
+
+    // Normalise: trim, keep order, drop blanks, dedupe (first wins). Any P-ID is
+    // allowed — including IDs with no published product yet (e.g. P103/P104).
+    const seen = new Set();
+    const members = [];
+    for (const raw of req.body.members) {
+      const id = String(raw).trim();
+      if (!id || seen.has(id)) continue;
+      if (!/^P\d{3,}$/.test(id)) return res.status(400).json({ error: `Not a valid piece ID: ${id}` });
+      seen.add(id);
+      members.push(id);
+    }
+
+    const next = setCollectionMembersRaw(c.raw, members);
+    if (next !== c.raw) {
+      await writeFile(c.file, next, 'utf8');
+      await commitDraft(`Update ${c.data.title ?? slug} collection`, [`src/content/collections/${slug}/index.md`]);
+    }
+    res.json({ ok: true, slug, members, draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
+  }
+});
+
+// Create a new (empty) collection. Empty collections are hidden on the site
+// until they get renderable members, so this is safe to publish immediately.
+app.post('/api/collections', requireAuth, async (req, res) => {
+  try {
+    await ensureDraft();
+    const b = req.body || {};
+    const title = String(b.title || '').trim();
+    if (!title) return res.status(400).json({ error: 'Title is required' });
+
+    const slug = collectionSlugify(b.slug ? b.slug : title);
+    const existing = new Set(await listCollectionSlugs());
+    if (existing.has(slug)) {
+      return res.status(409).json({ error: `A collection with the address “${slug}” already exists — pick a different title or address.` });
+    }
+
+    // Default order = max existing + 10 (matches the files' 10-spacing).
+    let maxOrder = 0;
+    for (const s of existing) {
+      const c = await readCollection(s);
+      if (c && typeof c.data.order === 'number' && c.data.order > maxOrder) maxOrder = c.data.order;
+    }
+    let order = maxOrder + 10;
+    if (b.order !== undefined && b.order !== null && b.order !== '') {
+      const n = Number(b.order);
+      if (!Number.isNaN(n)) order = n;
+    }
+
+    // Hero image is required (the schema needs one and the card renders it once
+    // the collection has members). Reuse the Gallery tab's base64-upload path.
+    if (!b.heroDataBase64) return res.status(400).json({ error: 'A hero image is required.' });
+    let ext = extname(String(b.heroFilename || '')).toLowerCase();
+    if (!/^\.(jpe?g|png|webp|avif)$/.test(ext)) ext = '.jpg';
+
+    const dir = join(COLLECTIONS_DIR, slug);
+    await mkdir(dir, { recursive: true });
+    const heroName = `hero${ext}`;
+    const buf = Buffer.from(String(b.heroDataBase64).replace(/^data:[^,]+,/, ''), 'base64');
+    await writeFile(join(dir, heroName), buf);
+
+    const md = buildCollectionMd({
+      slug, title, description: String(b.description || '').trim(), hero: `./${heroName}`, order,
+    });
+    await writeFile(join(dir, 'index.md'), md, 'utf8');
+    await commitDraft(`Create ${title} collection`, [`src/content/collections/${slug}`]);
+    res.json({ ok: true, slug, draft: await draftStatus() });
+  } catch (err) {
+    res.status(500).json({ error: String(err.message || err) });
   }
 });
 

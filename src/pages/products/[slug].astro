@@ -6,6 +6,7 @@ import Lightbox from '@/components/Lightbox.astro';
 import { getCollection, render } from 'astro:content';
 import { resolveProductImage, categoryLabel, titleCase, url } from '@/lib/images';
 import { isVisible, priceLabel, isOnSale } from '@/lib/products';
+import { hasRenderableMembers } from '@/lib/collections';
 
 export async function getStaticPaths() {
   const products = await getCollection('products');
@@ -46,14 +47,17 @@ const hasCardDetails =
     data.card_includes_envelope === true ||
     data.card_customisable === true);
 
-// Collection info
-const allCollections = await getCollection('collections');
-const parentCollection = data.collection
-  ? allCollections.find((c) => c.data.slug === data.collection)
-  : null;
-
 // Related products: same collection first, then theme intersection
 const allProducts = await getCollection('products');
+
+// Collection info — only link to the parent collection when it actually has a
+// page (i.e. has renderable members). Empty collections 404, so no dead link.
+const allCollections = await getCollection('collections');
+const parentCollection = data.collection
+  ? allCollections.find(
+      (c) => c.data.slug === data.collection && hasRenderableMembers(c, allProducts),
+    ) ?? null
+  : null;
 const visible = allProducts.filter((p) => p.data.id !== data.id && isVisible(p));
 
 let related: typeof visible = [];

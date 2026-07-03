@@ -28,6 +28,7 @@
         <strong>Admin</strong>
         <nav class="tabs" aria-label="Sections">
           <button id="tab-gallery" type="button" class="tab active">Gallery</button>
+          <button id="tab-collections" type="button" class="tab">Collections</button>
           <button id="tab-events" type="button" class="tab">Events</button>
           <button id="tab-orders" type="button" class="tab">Orders</button>
         </nav>
@@ -236,6 +237,106 @@
       </main>
     </div>
     </div><!-- /gallery-tab -->
+
+    <!-- Collections tab -->
+    <div id="collections-tab" hidden>
+      <div class="col-layout">
+        <aside class="sidebar col-sidebar">
+          <div class="sidebar-head">
+            <strong class="col-side-title">Collections</strong>
+            <button id="col-new-btn" type="button" class="btn btn-sm btn-primary" title="Create a new collection">＋ New</button>
+          </div>
+          <p class="filter-count">Sorted by display order. A collection with no visible pieces is hidden on the website.</p>
+          <div id="collection-list" class="product-list"></div>
+        </aside>
+
+        <main class="editor col-editor">
+          <div id="col-empty-state" class="empty-state">
+            <p>Select a collection on the left to manage its pieces, or add a new one.</p>
+          </div>
+
+          <div id="col-workspace" hidden>
+            <div class="editor-head">
+              <div>
+                <h2 id="col-title">—</h2>
+                <span id="col-meta" class="muted small"></span>
+              </div>
+              <div class="col-save-wrap">
+                <span id="col-save-status" class="save-status"></span>
+                <button id="col-save-btn" type="button" class="btn btn-primary btn-sm" disabled>Save to draft</button>
+              </div>
+            </div>
+            <p class="muted small col-intro">
+              Drag pieces from <strong>All pieces</strong> into <strong>Pieces in this collection</strong>, and drag
+              within the right-hand list to set the order shown on the website. Removing a piece here only takes it out
+              of this collection — the piece stays in the gallery. Nothing goes live until you
+              <strong>Commit</strong> in the bar above.
+            </p>
+
+            <div class="two-pane">
+              <!-- Left: all pieces pool -->
+              <section class="pane pool-pane">
+                <h3 class="pane-title">All pieces</h3>
+                <div class="sidebar-head col-pool-head">
+                  <input id="col-search" type="search" placeholder="Search pieces…" class="search" />
+                </div>
+                <div class="sidebar-filters col-pool-filters">
+                  <select id="col-filter-category" class="filter-select" aria-label="Filter by category"></select>
+                  <select id="col-filter-theme" class="filter-select" aria-label="Filter by theme"></select>
+                  <select id="col-filter-status" class="filter-select" aria-label="Filter by status"></select>
+                  <select id="col-filter-visibility" class="filter-select" aria-label="Filter by visibility">
+                    <option value="">Visible &amp; hidden</option>
+                    <option value="visible">Visible only</option>
+                    <option value="hidden">Hidden only</option>
+                  </select>
+                  <button id="col-filter-clear" type="button" class="filter-clear" title="Clear filters" hidden>clear</button>
+                </div>
+                <div id="col-pool-count" class="filter-count"></div>
+                <div id="col-pool" class="pane-list"></div>
+              </section>
+
+              <!-- Right: members in display order -->
+              <section class="pane members-pane">
+                <h3 class="pane-title">Pieces in this collection
+                  <small class="muted">— drag to change the order shown on the website</small>
+                </h3>
+                <div id="col-members" class="pane-list members-list"></div>
+              </section>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <!-- New collection modal -->
+      <div id="col-modal" class="modal-overlay" hidden>
+        <div class="modal-card">
+          <h2>New collection</h2>
+          <label class="field">Title
+            <input id="col-new-title" type="text" placeholder="e.g. Woodland Animals" />
+          </label>
+          <label class="field">Web address <small class="muted">(auto from the title — edit if you like)</small>
+            <input id="col-new-slug" type="text" />
+          </label>
+          <label class="field">Description <small class="muted">(optional)</small>
+            <textarea id="col-new-desc" rows="3" placeholder="A short line shown on the collection card and page."></textarea>
+          </label>
+          <label class="field">Display order <small class="muted">(lower shows first)</small>
+            <input id="col-new-order" type="number" step="10" />
+          </label>
+          <div class="field">Hero image <small class="muted">(required — shown on the collection card &amp; page)</small>
+            <label class="btn btn-ghost btn-sm upload-btn col-hero-btn">Choose image…
+              <input id="col-new-hero" type="file" accept="image/*" hidden />
+            </label>
+            <span id="col-new-hero-name" class="muted small"></span>
+          </div>
+          <p id="col-new-error" class="error" hidden></p>
+          <div class="actions col-modal-actions">
+            <button id="col-new-cancel" type="button" class="btn btn-ghost btn-sm">Cancel</button>
+            <button id="col-new-create" type="button" class="btn btn-primary btn-sm">Create collection</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /collections-tab -->
 
     <!-- Events tab -->
     <div id="events-tab" hidden>

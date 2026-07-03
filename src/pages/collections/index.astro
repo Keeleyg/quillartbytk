@@ -2,13 +2,14 @@
 import Base from '@/layouts/Base.astro';
 import CollectionCard from '@/components/CollectionCard.astro';
 import { getCollection } from 'astro:content';
-import { visibleIdSet } from '@/lib/products';
+import { renderableMemberCount, hasRenderableMembers } from '@/lib/collections';
 
+const allProducts = await getCollection('products');
 const allCollections = await getCollection('collections');
-const sorted = allCollections.sort((a, b) => a.data.order - b.data.order);
-
-// Only count members that are still visible (not hidden).
-const visible = visibleIdSet(await getCollection('products'));
+// Hide collections with no renderable members; sort the rest by order.
+const sorted = allCollections
+  .filter((col) => hasRenderableMembers(col, allProducts))
+  .sort((a, b) => a.data.order - b.data.order);
 ---
 
 <Base title="Collections" description="Browse curated collections of handmade quilled paper art.">
@@ -22,7 +23,7 @@ const visible = visibleIdSet(await getCollection('products'));
             title={col.data.title}
             description={col.data.description}
             hero={col.data.hero}
-            memberCount={col.data.members.filter((id) => visible.has(id)).length}
+            memberCount={renderableMemberCount(col, allProducts)}
           />
         ))}
       </div>

@@ -4,12 +4,12 @@ import ProductGrid from '@/components/ProductGrid.astro';
 import CollectionCard from '@/components/CollectionCard.astro';
 import { getCollection } from 'astro:content';
 import { resolveProductImage, url } from '@/lib/images';
-import { isVisible, visibleIdSet } from '@/lib/products';
+import { isVisible } from '@/lib/products';
+import { renderableMemberCount, hasRenderableMembers } from '@/lib/collections';
 
 // Fetch products + collections
 const allProducts = await getCollection('products');
 const allCollections = await getCollection('collections');
-const visible = visibleIdSet(allProducts);
 
 // Visible pieces (not hidden)
 const published = allProducts
@@ -41,8 +41,9 @@ if (picked.length === 0) {
   picked = auto;
 }
 
-// Top 3 collections by order
+// Top 3 collections by order — skip empty ones (never show a blank tile)
 const topCollections = allCollections
+  .filter((col) => hasRenderableMembers(col, allProducts))
   .sort((a, b) => a.data.order - b.data.order)
   .slice(0, 3);
 
@@ -173,7 +174,7 @@ const processLabels = ['Laying out the letters', 'Building up the details', 'Den
             title={col.data.title}
             description={col.data.description}
             hero={col.data.hero}
-            memberCount={col.data.members.filter((id) => visible.has(id)).length}
+            memberCount={renderableMemberCount(col, allProducts)}
           />
         ))}
       </div>

@@ -3,14 +3,18 @@ import Base from '@/layouts/Base.astro';
 import ProductGrid from '@/components/ProductGrid.astro';
 import { getCollection, render } from 'astro:content';
 import { resolveCollectionImage } from '@/lib/images';
-import { isVisible } from '@/lib/products';
+import { renderableMembers, hasRenderableMembers } from '@/lib/collections';
 
 export async function getStaticPaths() {
   const collections = await getCollection('collections');
-  return collections.map((col) => ({
-    params: { slug: col.data.slug },
-    props: { collection: col },
-  }));
+  const products = await getCollection('products');
+  // Empty collections (no renderable members) get no page at all — they 404.
+  return collections
+    .filter((col) => hasRenderableMembers(col, products))
+    .map((col) => ({
+      params: { slug: col.data.slug },
+      props: { collection: col },
+    }));
 }
 
 const { collection } = Astro.props;
@@ -22,11 +26,10 @@ const gallerySrcs = data.gallery.map((g: string) =>
   resolveCollectionImage(g, data.slug)
 );
 
-// Resolve member products (skip missing ones silently — P103/P104 may not exist yet)
+// Resolve member products in members-array order (the admin tab's order IS the
+// site order). Missing/unpublished (P103/P104) and hidden pieces are skipped.
 const allProducts = await getCollection('products');
-const memberProducts = data.members
-  .map((pid: string) => allProducts.find((p) => p.data.id === pid))
-  .filter((p): p is NonNullable<typeof p> => Boolean(p) && isVisible(p!));
+const memberProducts = renderableMembers(collection, allProducts);
 ---
 
 <Base title={data.title} description={data.description} ogImage={heroSrc}>

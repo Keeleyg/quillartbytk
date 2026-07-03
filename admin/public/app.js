@@ -89,35 +89,47 @@ async function boot() {
   buildStatusSelect();
   buildCollectionSelect();
   buildFilters();
+  buildColFilters();
   await loadProductList();
   await refreshDraft();
   await refreshSyncStatus();
 }
-function buildFilters() {
-  $('#filter-category').innerHTML =
+/* Shared product filtering — the Gallery tab and the Collections pool use the
+   SAME predicate and the SAME option set, so they behave identically and any
+   future filter change applies to both. */
+function fillProductFilterSelects(catSel, themeSel, statusSel) {
+  catSel.innerHTML =
     '<option value="">All categories</option>' + meta.categories.map((c) => `<option value="${c}">${c}</option>`).join('');
-  $('#filter-theme').innerHTML =
+  themeSel.innerHTML =
     '<option value="">All themes</option>' + meta.themes.map((t) => `<option value="${t}">${t}</option>`).join('');
-  $('#filter-status').innerHTML =
+  statusSel.innerHTML =
     '<option value="">All statuses</option>' + meta.statuses.map((s) => `<option value="${s}">${s}</option>`).join('');
-  ['#filter-category', '#filter-theme', '#filter-status', '#filter-visibility'].forEach((sel) =>
-    $(sel).addEventListener('change', applyFilters));
 }
-function applyFilters() {
-  const q = $('#search').value.toLowerCase().trim();
-  const cat = $('#filter-category').value;
-  const theme = $('#filter-theme').value;
-  const status = $('#filter-status').value;
-  const vis = $('#filter-visibility').value;
-  let list = products;
+function filterProducts(list, { q, cat, theme, status, vis }) {
   if (q) list = list.filter((p) => p.title.toLowerCase().includes(q) || p.id.toLowerCase().includes(q) || p.category.includes(q));
   if (cat) list = list.filter((p) => p.category === cat);
   if (theme) list = list.filter((p) => (p.themes || []).includes(theme));
   if (status) list = list.filter((p) => p.status === status);
   if (vis === 'visible') list = list.filter((p) => !p.hidden);
   else if (vis === 'hidden') list = list.filter((p) => p.hidden);
+  return list;
+}
+function buildFilters() {
+  fillProductFilterSelects($('#filter-category'), $('#filter-theme'), $('#filter-status'));
+  ['#filter-category', '#filter-theme', '#filter-status', '#filter-visibility'].forEach((sel) =>
+    $(sel).addEventListener('change', applyFilters));
+}
+function applyFilters() {
+  const crit = {
+    q: $('#search').value.toLowerCase().trim(),
+    cat: $('#filter-category').value,
+    theme: $('#filter-theme').value,
+    status: $('#filter-status').value,
+    vis: $('#filter-visibility').value,
+  };
+  const list = filterProducts(products, crit);
   renderProductList(list);
-  const active = !!(q || cat || theme || status || vis);
+  const active = !!(crit.q || crit.cat || crit.theme || crit.status || crit.vis);
   $('#filter-clear').hidden = !active;
   $('#filter-count').textContent = active ? `Showing ${list.length} of ${products.length}` : '';
 }
@@ -192,6 +204,7 @@ $('#commit-btn').addEventListener('click', async () => {
     $('#empty-state').hidden = false;
     await loadProductList();
     await resetEventsView();
+    await resetCollectionsView();
     await refreshDraft();
     await refreshSyncStatus();
   } catch (e) {
@@ -216,6 +229,7 @@ $('#discard-btn').addEventListener('click', async () => {
     $('#empty-state').hidden = false;
     await loadProductList();
     await resetEventsView();
+    await resetCollectionsView();
     await refreshDraft();
   } catch (e) {
     alert('Discard failed:\n\n' + e.message);
@@ -262,6 +276,7 @@ $('#sync-btn').addEventListener('click', async () => {
       $('#empty-state').hidden = false;
       await loadProductList();
       if (events !== null) await loadEventList();
+      await resetCollectionsView();
       await refreshDraft();
       alert(
         r.message + '\n\n' +
@@ -689,15 +704,22 @@ function escapeHtml(s) {
 /* ================= Tabs ================= */
 function showTab(name) {
   $('#gallery-tab').hidden = name !== 'gallery';
+  $('#collections-tab').hidden = name !== 'collections';
   $('#events-tab').hidden = name !== 'events';
   $('#orders-tab').hidden = name !== 'orders';
   $('#tab-gallery').classList.toggle('active', name === 'gallery');
+  $('#tab-collections').classList.toggle('active', name === 'collections');
   $('#tab-events').classList.toggle('active', name === 'events');
   $('#tab-orders').classList.toggle('active', name === 'orders');
+  if (name === 'collections') {
+    if (collections === null) loadCollectionList();
+    else { renderCollectionList(); if (currentCollection) renderColWorkspace(); }
+  }
   if (name === 'events' && events === null) loadEventList();
   if (name === 'orders') loadOrders();
 }
 $('#tab-gallery').addEventListener('click', () => showTab('gallery'));
+$('#tab-collections').addEventListener('click', () => showTab('collections'));
 $('#tab-events').addEventListener('click', () => showTab('events'));
 $('#tab-orders').addEventListener('click', () => showTab('orders'));
 
@@ -825,6 +847,402 @@ $('#event-form').addEventListener('submit', async (e) => {
     btn.disabled = false;
   }
 });
+
+/* ================= Collections editor ================= */
+let collections = null;         // list from /api/collections
+let currentCollection = null;   // the selected collection object
+let colMembers = [];            // working copy of member IDs (order = site order)
+let colBaseline = '';           // JSON of last-saved members, for dirty detection
+let colDrag = null;             // active drag: { source: 'pool' | 'member', id }
+let colDropTarget = null;       // { index, after } computed during dragover
+let colNewHero = null;          // File chosen for a new collection's hero
+let colSlugEdited = false;      // has the user hand-edited the new-collection slug?
+
+function slugifyClient(s) {
+  return String(s).toLowerCase().trim()
+    .replace(/['"’]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+function productsById() {
+  const m = new Map();
+  products.forEach((p) => m.set(p.id, p));
+  return m;
+}
+function renderableCount(memberIds, byId) {
+  return memberIds.filter((id) => { const p = byId.get(id); return p && !p.hidden; }).length;
+}
+function colDirty() {
+  return JSON.stringify(colMembers) !== colBaseline;
+}
+function confirmDiscardColIfDirty() {
+  if (currentCollection && colDirty()) {
+    return confirm('You have unsaved changes to this collection. Discard them?');
+  }
+  return true;
+}
+function setColStatus(msg, kind) {
+  const el = $('#col-save-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'save-status ' + (kind || '');
+}
+function updateColSaveButton() {
+  const btn = $('#col-save-btn');
+  if (btn) btn.disabled = !colDirty();
+}
+
+/* ---- Collections filters (reuse the Gallery predicate + option set) ---- */
+function buildColFilters() {
+  fillProductFilterSelects($('#col-filter-category'), $('#col-filter-theme'), $('#col-filter-status'));
+  ['#col-filter-category', '#col-filter-theme', '#col-filter-status', '#col-filter-visibility'].forEach((sel) =>
+    $(sel).addEventListener('change', applyColFilters));
+  $('#col-search').addEventListener('input', applyColFilters);
+  $('#col-filter-clear').addEventListener('click', () => {
+    $('#col-search').value = '';
+    $('#col-filter-category').value = '';
+    $('#col-filter-theme').value = '';
+    $('#col-filter-status').value = '';
+    $('#col-filter-visibility').value = '';
+    applyColFilters();
+  });
+}
+function applyColFilters() {
+  const crit = {
+    q: $('#col-search').value.toLowerCase().trim(),
+    cat: $('#col-filter-category').value,
+    theme: $('#col-filter-theme').value,
+    status: $('#col-filter-status').value,
+    vis: $('#col-filter-visibility').value,
+  };
+  const list = filterProducts(products, crit);
+  renderColPool(list);
+  const active = !!(crit.q || crit.cat || crit.theme || crit.status || crit.vis);
+  $('#col-filter-clear').hidden = !active;
+  $('#col-pool-count').textContent = active
+    ? `Showing ${list.length} of ${products.length}`
+    : `${products.length} pieces`;
+}
+
+/* ---- Collection list (selector) ---- */
+async function loadCollectionList() {
+  collections = await api('/api/collections');
+  renderCollectionList();
+}
+async function resetCollectionsView() {
+  currentCollection = null;
+  colMembers = [];
+  colBaseline = '';
+  $('#col-workspace').hidden = true;
+  $('#col-empty-state').hidden = false;
+  if (collections !== null) await loadCollectionList();
+}
+function renderCollectionList() {
+  const wrap = $('#collection-list');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const byId = productsById();
+  (collections || []).forEach((col) => {
+    const shown = renderableCount(col.members, byId);
+    const btn = document.createElement('button');
+    btn.className = 'product-item' + (currentCollection && currentCollection.slug === col.slug ? ' active' : '') + (shown === 0 ? ' is-hidden' : '');
+    btn.dataset.slug = col.slug;
+    const sub = shown === 0
+      ? '<span class="pi-tag hidden">hidden on site (empty)</span>'
+      : `${shown} shown on site`;
+    btn.innerHTML = `
+      <span>
+        <span class="pi-title">${escapeHtml(col.title)} <span class="muted">(${col.members.length})</span></span><br/>
+        <span class="pi-meta">${sub}</span>
+      </span>`;
+    btn.addEventListener('click', () => selectCollection(col.slug));
+    wrap.appendChild(btn);
+  });
+}
+
+function selectCollection(slug) {
+  if (!confirmDiscardColIfDirty()) return;
+  currentCollection = (collections || []).find((c) => c.slug === slug);
+  if (!currentCollection) return;
+  colMembers = [...currentCollection.members];
+  colBaseline = JSON.stringify(colMembers);
+  $('#col-empty-state').hidden = true;
+  $('#col-workspace').hidden = false;
+  $('#col-title').textContent = currentCollection.title;
+  renderCollectionList();
+  renderColWorkspace();
+  setColStatus('', '');
+  updateColSaveButton();
+}
+
+function renderColWorkspace() {
+  renderColMembers();
+  applyColFilters(); // renders the pool (reflects current membership dimming)
+  const byId = productsById();
+  const shown = renderableCount(colMembers, byId);
+  const metaText = `${colMembers.length} piece${colMembers.length === 1 ? '' : 's'} · ${shown} shown on the website`
+    + (shown === 0 ? ' · hidden while empty' : '');
+  $('#col-meta').textContent = metaText;
+}
+
+/* ---- Left pane: the pool of all pieces ---- */
+function renderColPool(list) {
+  const wrap = $('#col-pool');
+  wrap.innerHTML = '';
+  if (!list.length) {
+    wrap.innerHTML = '<p class="filter-count">No pieces match.</p>';
+    return;
+  }
+  const memberSet = new Set(colMembers);
+  list.forEach((p) => {
+    const inCol = memberSet.has(p.id);
+    const row = document.createElement('div');
+    row.className = 'col-row' + (inCol ? ' in-collection' : '');
+    row.dataset.id = p.id;
+    row.draggable = !inCol;
+    const thumb = p.mainUrl ? `<img src="${p.mainUrl}" alt="" loading="lazy" />` : '<span class="col-row-noimg">no img</span>';
+    const tags = `${p.hidden ? '<span class="pi-tag hidden">hidden</span>' : ''}${inCol ? '<span class="pi-tag featured">in collection</span>' : ''}`;
+    row.innerHTML = `
+      ${thumb}
+      <span class="col-row-main">
+        <span class="col-row-title">${escapeHtml(p.title)} ${tags}</span>
+        <span class="col-row-meta"><span class="status-dot s-${p.status}"></span>${p.id} · ${p.category}</span>
+      </span>
+      ${inCol ? '<span class="muted small">✓ added</span>' : '<button type="button" class="row-btn add">＋ Add</button>'}`;
+    if (!inCol) {
+      row.querySelector('.add').addEventListener('click', () => addMember(p.id));
+      row.addEventListener('dragstart', (ev) => {
+        colDrag = { source: 'pool', id: p.id };
+        ev.dataTransfer.setData('text/plain', p.id);
+        ev.dataTransfer.effectAllowed = 'copy';
+      });
+      row.addEventListener('dragend', () => { colDrag = null; clearDropMarkers(); });
+    }
+    wrap.appendChild(row);
+  });
+}
+
+/* ---- Right pane: members in display order ---- */
+function renderColMembers() {
+  const wrap = $('#col-members');
+  wrap.innerHTML = '';
+  if (!colMembers.length) {
+    wrap.innerHTML = '<div class="members-empty">No pieces yet. Drag from “All pieces”, or click “＋ Add”. An empty collection stays hidden on the website until it has a piece.</div>';
+    return;
+  }
+  const byId = productsById();
+  colMembers.forEach((id, index) => {
+    const p = byId.get(id);
+    const row = document.createElement('div');
+    row.dataset.id = id;
+    row.draggable = true;
+    if (p) {
+      row.className = 'col-row';
+      const thumb = p.mainUrl ? `<img src="${p.mainUrl}" alt="" loading="lazy" />` : '<span class="col-row-noimg">no img</span>';
+      const tag = p.hidden ? '<span class="pi-tag hidden">hidden — won’t show on site</span>' : '';
+      row.innerHTML = `
+        <span class="col-drag-handle" title="Drag to reorder">⠿</span>
+        ${thumb}
+        <span class="col-row-main">
+          <span class="col-row-title">${escapeHtml(p.title)} ${tag}</span>
+          <span class="col-row-meta"><span class="status-dot s-${p.status}"></span>${p.id} · ${p.category}</span>
+        </span>
+        <button type="button" class="row-btn remove" title="Removes from this collection only — the piece stays in the gallery">Remove</button>`;
+    } else {
+      row.className = 'col-row orphan';
+      row.innerHTML = `
+        <span class="col-drag-handle" title="Drag to reorder">⠿</span>
+        <span class="col-row-noimg">—</span>
+        <span class="col-row-main">
+          <span class="col-row-title">${escapeHtml(id)} <span class="pi-tag hidden">awaiting photos</span></span>
+          <span class="col-row-meta">No published piece yet — kept in order, hidden on the site</span>
+        </span>
+        <button type="button" class="row-btn remove" title="Removes from this collection only">Remove</button>`;
+    }
+    row.querySelector('.remove').addEventListener('click', () => removeMember(id));
+    attachMemberDrag(row, index);
+    wrap.appendChild(row);
+  });
+}
+
+function attachMemberDrag(row, index) {
+  row.addEventListener('dragstart', (ev) => {
+    colDrag = { source: 'member', id: row.dataset.id };
+    ev.dataTransfer.setData('text/plain', row.dataset.id);
+    ev.dataTransfer.effectAllowed = 'move';
+    row.classList.add('dragging');
+  });
+  row.addEventListener('dragend', () => { row.classList.remove('dragging'); colDrag = null; colDropTarget = null; clearDropMarkers(); });
+  row.addEventListener('dragover', (ev) => {
+    if (!colDrag) return;
+    ev.preventDefault();
+    ev.dataTransfer.dropEffect = colDrag.source === 'pool' ? 'copy' : 'move';
+    const rect = row.getBoundingClientRect();
+    const after = (ev.clientY - rect.top) > rect.height / 2;
+    clearDropMarkers();
+    row.classList.add(after ? 'drop-after' : 'drop-before');
+    colDropTarget = { index, after };
+  });
+  row.addEventListener('dragleave', () => row.classList.remove('drop-before', 'drop-after'));
+  row.addEventListener('drop', (ev) => { ev.preventDefault(); ev.stopPropagation(); handleMemberDrop(); });
+}
+
+function clearDropMarkers() {
+  $('#col-members').querySelectorAll('.drop-before, .drop-after')
+    .forEach((el) => el.classList.remove('drop-before', 'drop-after'));
+}
+
+// Container-level drop zone: catches drops in the empty area (append to end).
+(function setupMembersDropZone() {
+  const z = $('#col-members');
+  if (!z) return;
+  z.addEventListener('dragover', (e) => {
+    if (!colDrag) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = colDrag.source === 'pool' ? 'copy' : 'move';
+    if (e.target === z) { clearDropMarkers(); colDropTarget = null; } // over empty space → append
+    z.classList.add('drop-active');
+  });
+  z.addEventListener('dragleave', (e) => { if (e.target === z) z.classList.remove('drop-active'); });
+  z.addEventListener('drop', (e) => { e.preventDefault(); z.classList.remove('drop-active'); handleMemberDrop(); });
+})();
+
+function handleMemberDrop() {
+  if (!colDrag) return;
+  const { source, id } = colDrag;
+  let insertAt = colDropTarget ? colDropTarget.index + (colDropTarget.after ? 1 : 0) : colMembers.length;
+  if (source === 'member') {
+    const cur = colMembers.indexOf(id);
+    if (cur < 0) { colDrag = null; colDropTarget = null; return; }
+    colMembers.splice(cur, 1);
+    if (cur < insertAt) insertAt--;
+    colMembers.splice(insertAt, 0, id);
+  } else { // from the pool
+    if (colMembers.includes(id)) { colDrag = null; colDropTarget = null; clearDropMarkers(); return; }
+    if (insertAt < 0) insertAt = 0;
+    if (insertAt > colMembers.length) insertAt = colMembers.length;
+    colMembers.splice(insertAt, 0, id);
+  }
+  colDrag = null;
+  colDropTarget = null;
+  afterMemberChange();
+}
+
+function addMember(id) {
+  if (colMembers.includes(id)) return;
+  colMembers.push(id);
+  afterMemberChange();
+}
+function removeMember(id) {
+  colMembers = colMembers.filter((x) => x !== id);
+  afterMemberChange();
+}
+function afterMemberChange() {
+  renderColWorkspace();
+  updateColSaveButton();
+  setColStatus(colDirty() ? 'Unsaved changes — click “Save to draft”.' : '', colDirty() ? 'busy' : '');
+}
+
+/* ---- Save members ---- */
+$('#col-save-btn').addEventListener('click', async () => {
+  if (!currentCollection) return;
+  const btn = $('#col-save-btn');
+  btn.disabled = true;
+  setColStatus('Saving to draft…', 'busy');
+  try {
+    const r = await api('/api/collections/' + currentCollection.slug, { method: 'PUT', body: { members: colMembers } });
+    colMembers = r.members;
+    colBaseline = JSON.stringify(colMembers);
+    currentCollection.members = [...colMembers];
+    const idx = (collections || []).findIndex((c) => c.slug === currentCollection.slug);
+    if (idx >= 0) collections[idx].members = [...colMembers];
+    if (r.draft) renderDraft(r.draft);
+    renderCollectionList();
+    renderColWorkspace();
+    setColStatus('Saved to draft.', 'ok');
+  } catch (e) {
+    setColStatus(e.message, 'err');
+  } finally {
+    updateColSaveButton();
+  }
+});
+
+/* ---- New collection modal ---- */
+$('#col-new-btn').addEventListener('click', openColModal);
+function openColModal() {
+  colSlugEdited = false;
+  colNewHero = null;
+  $('#col-new-title').value = '';
+  $('#col-new-slug').value = '';
+  $('#col-new-desc').value = '';
+  const maxOrder = (collections || []).reduce((m, c) => Math.max(m, c.order || 0), 0);
+  $('#col-new-order').value = maxOrder + 10;
+  $('#col-new-hero').value = '';
+  $('#col-new-hero-name').textContent = '';
+  $('#col-new-error').hidden = true;
+  $('#col-modal').hidden = false;
+  $('#col-new-title').focus();
+}
+function closeColModal() { $('#col-modal').hidden = true; }
+$('#col-new-cancel').addEventListener('click', closeColModal);
+$('#col-modal').addEventListener('click', (e) => { if (e.target.id === 'col-modal') closeColModal(); });
+$('#col-new-slug').addEventListener('input', () => { colSlugEdited = true; });
+$('#col-new-title').addEventListener('input', () => {
+  if (!colSlugEdited) $('#col-new-slug').value = slugifyClient($('#col-new-title').value);
+});
+$('#col-new-hero').addEventListener('change', () => {
+  const f = $('#col-new-hero').files[0];
+  colNewHero = f || null;
+  $('#col-new-hero-name').textContent = f ? f.name : '';
+});
+$('#col-new-create').addEventListener('click', async () => {
+  const err = $('#col-new-error');
+  err.hidden = true;
+  const title = $('#col-new-title').value.trim();
+  const slug = slugifyClient($('#col-new-slug').value || title);
+  const showErr = (m) => { err.textContent = m; err.hidden = false; };
+  if (!title) return showErr('Please enter a title.');
+  if (!slug) return showErr('Please enter a valid web address.');
+  if ((collections || []).some((c) => c.slug === slug)) return showErr('A collection with that web address already exists.');
+  if (!colNewHero) return showErr('Please choose a hero image.');
+  const btn = $('#col-new-create');
+  btn.disabled = true;
+  btn.textContent = 'Creating…';
+  try {
+    const heroDataBase64 = await fileToBase64(colNewHero);
+    const orderVal = $('#col-new-order').value;
+    const r = await api('/api/collections', {
+      method: 'POST',
+      body: {
+        title, slug,
+        description: $('#col-new-desc').value.trim(),
+        order: orderVal === '' ? undefined : Number(orderVal),
+        heroFilename: colNewHero.name,
+        heroDataBase64,
+      },
+    });
+    if (r.draft) renderDraft(r.draft);
+    closeColModal();
+    await loadCollectionList();
+    await refreshMeta();
+    selectCollection(r.slug);
+  } catch (e) {
+    showErr(e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Create collection';
+  }
+});
+
+// Refresh cached meta so the Gallery tab's Collection dropdown includes new ones.
+async function refreshMeta() {
+  try {
+    const m = await api('/api/meta');
+    meta.collections = m.collections;
+    buildCollectionSelect();
+  } catch { /* non-fatal */ }
+}
 
 /* ================= Orders / checkout holds ================= */
 const ordersList = $('#orders-list');
