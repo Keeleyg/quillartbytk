@@ -9,7 +9,7 @@ status: order
 hidden: false
 featured: false
 collection: null
-commission_example: false
+commission_example: true
 multi_frame: false
 palette_variants: []
 frame_options: []

@@ -5,7 +5,7 @@ category: framed
 themes:
   - flowers
   - names
-status: sold
+status: order
 hidden: false
 featured: false
 collection: commissions
