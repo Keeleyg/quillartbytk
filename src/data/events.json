@@ -2,7 +2,8 @@
   {
     "id": "001",
     "name": "Maleny Handmade & Artisan Christmas Markets",
-    "date": "2026-11-28",
+    "date": "2026-11-14",
+    "endDate": "2026-11-15",
     "venue": "Maleny Community Centre",
     "stallNumber": "",
     "url": "https://www.facebook.com/malenyhandmademarkets",
@@ -27,7 +28,7 @@
     "date": "2026-07-04",
     "endDate": "2026-07-05",
     "venue": "Maleny Community Centre",
-    "stallNumber": "",
+    "stallNumber": "Centre of main hall",
     "url": "https://www.facebook.com/malenyhandmademarkets",
     "status": "confirmed",
     "hidden": false,
