@@ -5,7 +5,7 @@ category: framed
 themes:
   - misc
 status: sold
-hidden: true
+hidden: false
 featured: false
 collection: null
 commission_example: false
