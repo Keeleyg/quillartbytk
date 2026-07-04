@@ -5,7 +5,7 @@ category: framed
 themes:
   - animals
   - names
-status: sold
+status: order
 hidden: false
 featured: false
 collection: null
