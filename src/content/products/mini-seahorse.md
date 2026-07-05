@@ -4,7 +4,7 @@ title: Mini Quilled Seahorse
 category: framed
 themes:
   - nautical
-status: available
+status: sold
 hidden: false
 featured: false
 collection: mini-sea-creatures
