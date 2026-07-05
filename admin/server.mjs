@@ -287,23 +287,46 @@ async function readCollection(slug) {
 function formatMembersLine(members) {
   return members.length ? `members: [${members.join(', ')}]` : 'members: []';
 }
-/**
- * Replace ONLY the `members:` line inside a collection file's frontmatter,
- * leaving every other field, the key order, the YAML style (flow-array,
- * unquoted IDs) and the markdown body byte-for-byte untouched. This keeps
- * diffs to the single line that changed and guarantees an unchanged save is
- * a no-op (round-trip identical, orphan IDs like P103/P104 preserved).
- */
-function setCollectionMembersRaw(raw, members) {
-  const line = formatMembersLine(members);
-  // Isolate the frontmatter block so a `---` or `members:` in the body is safe.
+/** Split a collection file into its frontmatter block and markdown body so we
+ *  can edit each surgically. `body` is everything after the closing `---`. */
+function splitCollectionFile(raw) {
   const fm = raw.match(/^(﻿?---[ \t]*\r?\n)([\s\S]*?)(\r?\n---[ \t]*(?:\r?\n|$))([\s\S]*)$/);
   if (!fm) throw new Error('Collection file has no frontmatter block.');
   const [, open, front, close, body] = fm;
-  // Matches flow (`members: [..]` / `members: []`) or block (`members:\n  - X`).
-  const memberRe = /^members:[ \t]*(?:\[[^\]]*\])?[ \t]*(?:\r?\n[ \t]+-[^\n]*)*/m;
-  if (!memberRe.test(front)) throw new Error('No members field to update in this collection.');
-  return open + front.replace(memberRe, line) + close + body;
+  return { open, front, close, body };
+}
+/** Body section in the files' hand-authored style: a blank line, the prose,
+ *  then a trailing newline — using the file's own line ending (CRLF on the
+ *  Windows working tree). An empty body collapses to a single newline. */
+function formatCollectionBody(text, nl = '\n') {
+  const body = String(text).replace(/\r\n/g, '\n').trim();
+  return body ? nl + body.split('\n').join(nl) + nl : nl;
+}
+/**
+ * Apply member / description / body edits to a collection file with SURGICAL
+ * edits: only the fields passed are rewritten (each in the file's existing YAML
+ * style), and everything else — key order, untouched fields, the body — stays
+ * byte-for-byte identical. Callers pass a field only when it actually changed,
+ * so a no-op save is a true no-op (orphan IDs like P103/P104 preserved).
+ */
+function applyCollectionEdits(raw, { members, description, body }) {
+  const { open, front, close, body: body0 } = splitCollectionFile(raw);
+  const nl = raw.includes('\r\n') ? '\r\n' : '\n';
+  let nextFront = front;
+  if (members !== undefined) {
+    // Matches flow (`members: [..]` / `members: []`) or block (`members:\n  - X`).
+    const memberRe = /^members:[ \t]*(?:\[[^\]]*\])?[ \t]*(?:\r?\n[ \t]+-[^\r\n]*)*/m;
+    if (!memberRe.test(nextFront)) throw new Error('No members field to update in this collection.');
+    nextFront = nextFront.replace(memberRe, formatMembersLine(members));
+  }
+  if (description !== undefined) {
+    // [^\r\n]* stops before the line ending so CRLF is preserved on this line.
+    const descRe = /^description:[^\r\n]*/m;
+    if (!descRe.test(nextFront)) throw new Error('No description field to update in this collection.');
+    nextFront = nextFront.replace(descRe, `description: ${yamlDoubleQuote(description)}`);
+  }
+  const nextBody = body !== undefined ? formatCollectionBody(body, nl) : body0;
+  return open + nextFront + close + nextBody;
 }
 function yamlDoubleQuote(s) {
   return '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
@@ -1070,6 +1093,7 @@ app.get('/api/collections', requireAuth, async (_req, res) => {
       slug,
       title: c.data.title ?? slug,
       description: c.data.description ?? '',
+      body: (c.body ?? '').trim(),
       order: typeof c.data.order === 'number' ? c.data.order : 100,
       hero: c.data.hero ?? '',
       members: Array.isArray(c.data.members) ? c.data.members.map(String) : [],
@@ -1079,21 +1103,23 @@ app.get('/api/collections', requireAuth, async (_req, res) => {
   res.json(items);
 });
 
-// Save a collection's members (order + membership). Nothing else is touched;
-// an unchanged save is a byte-for-byte no-op and orphan IDs are preserved.
+// Save a collection's members, short description and/or page body. Each field
+// is only written when it actually changed, so an unchanged save is a
+// byte-for-byte no-op and orphan IDs (P103/P104) are preserved.
 app.put('/api/collections/:slug', requireAuth, async (req, res) => {
   try {
     await ensureDraft();
     const slug = req.params.slug;
     const c = await readCollection(slug);
     if (!c) return res.status(404).json({ error: 'Collection not found' });
-    if (!Array.isArray(req.body?.members)) return res.status(400).json({ error: 'members must be an array' });
+    const b = req.body || {};
+    if (!Array.isArray(b.members)) return res.status(400).json({ error: 'members must be an array' });
 
-    // Normalise: trim, keep order, drop blanks, dedupe (first wins). Any P-ID is
-    // allowed — including IDs with no published product yet (e.g. P103/P104).
+    // Normalise members: trim, keep order, drop blanks, dedupe (first wins). Any
+    // P-ID is allowed — including IDs with no published product yet.
     const seen = new Set();
     const members = [];
-    for (const raw of req.body.members) {
+    for (const raw of b.members) {
       const id = String(raw).trim();
       if (!id || seen.has(id)) continue;
       if (!/^P\d{3,}$/.test(id)) return res.status(400).json({ error: `Not a valid piece ID: ${id}` });
@@ -1101,12 +1127,29 @@ app.put('/api/collections/:slug', requireAuth, async (req, res) => {
       members.push(id);
     }
 
-    const next = setCollectionMembersRaw(c.raw, members);
-    if (next !== c.raw) {
-      await writeFile(c.file, next, 'utf8');
-      await commitDraft(`Update ${c.data.title ?? slug} collection`, [`src/content/collections/${slug}/index.md`]);
+    // Short card description: single-line scalar. Page body: markdown paragraph(s).
+    const description = typeof b.description === 'string'
+      ? b.description.replace(/\s+/g, ' ').trim()
+      : (c.data.description ?? '');
+    const body = typeof b.body === 'string'
+      ? b.body.replace(/\r\n/g, '\n').trim()
+      : (c.body ?? '').trim();
+
+    // Only hand changed fields to the surgical editor so untouched ones stay
+    // byte-identical.
+    const edits = {};
+    if (JSON.stringify(members) !== JSON.stringify((c.data.members ?? []).map(String))) edits.members = members;
+    if (description !== (c.data.description ?? '')) edits.description = description;
+    if (body !== (c.body ?? '').replace(/\r\n/g, '\n').trim()) edits.body = body;
+
+    if (Object.keys(edits).length) {
+      const next = applyCollectionEdits(c.raw, edits);
+      if (next !== c.raw) {
+        await writeFile(c.file, next, 'utf8');
+        await commitDraft(`Update ${c.data.title ?? slug} collection`, [`src/content/collections/${slug}/index.md`]);
+      }
     }
-    res.json({ ok: true, slug, members, draft: await draftStatus() });
+    res.json({ ok: true, slug, members, description, body, draft: await draftStatus() });
   } catch (err) {
     res.status(500).json({ error: String(err.message || err) });
   }

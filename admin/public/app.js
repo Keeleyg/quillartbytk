@@ -853,6 +853,8 @@ let collections = null;         // list from /api/collections
 let currentCollection = null;   // the selected collection object
 let colMembers = [];            // working copy of member IDs (order = site order)
 let colBaseline = '';           // JSON of last-saved members, for dirty detection
+let colDescBaseline = '';       // last-saved short summary (frontmatter description)
+let colBodyBaseline = '';       // last-saved page description (markdown body)
 let colDrag = null;             // active drag: { source: 'pool' | 'member', id }
 let colDropTarget = null;       // { index, after } computed during dragover
 let colNewHero = null;          // File chosen for a new collection's hero
@@ -874,7 +876,9 @@ function renderableCount(memberIds, byId) {
   return memberIds.filter((id) => { const p = byId.get(id); return p && !p.hidden; }).length;
 }
 function colDirty() {
-  return JSON.stringify(colMembers) !== colBaseline;
+  return JSON.stringify(colMembers) !== colBaseline
+    || ($('#col-desc').value.trim() !== colDescBaseline)
+    || ($('#col-body').value.replace(/\r\n/g, '\n').trim() !== colBodyBaseline);
 }
 function confirmDiscardColIfDirty() {
   if (currentCollection && colDirty()) {
@@ -934,6 +938,10 @@ async function resetCollectionsView() {
   currentCollection = null;
   colMembers = [];
   colBaseline = '';
+  colDescBaseline = '';
+  colBodyBaseline = '';
+  $('#col-desc').value = '';
+  $('#col-body').value = '';
   $('#col-workspace').hidden = true;
   $('#col-empty-state').hidden = false;
   if (collections !== null) await loadCollectionList();
@@ -967,6 +975,11 @@ function selectCollection(slug) {
   if (!currentCollection) return;
   colMembers = [...currentCollection.members];
   colBaseline = JSON.stringify(colMembers);
+  // Wording fields (page description = markdown body; short summary = frontmatter)
+  colDescBaseline = (currentCollection.description || '').trim();
+  colBodyBaseline = (currentCollection.body || '').replace(/\r\n/g, '\n').trim();
+  $('#col-desc').value = colDescBaseline;
+  $('#col-body').value = colBodyBaseline;
   $('#col-empty-state').hidden = true;
   $('#col-workspace').hidden = false;
   $('#col-title').textContent = currentCollection.title;
@@ -975,6 +988,14 @@ function selectCollection(slug) {
   setColStatus('', '');
   updateColSaveButton();
 }
+
+// Typing in the wording fields marks the collection dirty (like editing members).
+['#col-desc', '#col-body'].forEach((sel) =>
+  $(sel).addEventListener('input', () => {
+    if (!currentCollection) return;
+    updateColSaveButton();
+    setColStatus(colDirty() ? 'Unsaved changes — click “Save to draft”.' : '', colDirty() ? 'busy' : '');
+  }));
 
 function renderColWorkspace() {
   renderColMembers();
@@ -1144,19 +1165,31 @@ function afterMemberChange() {
   setColStatus(colDirty() ? 'Unsaved changes — click “Save to draft”.' : '', colDirty() ? 'busy' : '');
 }
 
-/* ---- Save members ---- */
+/* ---- Save members, description and page body ---- */
 $('#col-save-btn').addEventListener('click', async () => {
   if (!currentCollection) return;
   const btn = $('#col-save-btn');
   btn.disabled = true;
   setColStatus('Saving to draft…', 'busy');
   try {
-    const r = await api('/api/collections/' + currentCollection.slug, { method: 'PUT', body: { members: colMembers } });
+    const payload = {
+      members: colMembers,
+      description: $('#col-desc').value.trim(),
+      body: $('#col-body').value,
+    };
+    const r = await api('/api/collections/' + currentCollection.slug, { method: 'PUT', body: payload });
     colMembers = r.members;
     colBaseline = JSON.stringify(colMembers);
+    colDescBaseline = (r.description || '').trim();
+    colBodyBaseline = (r.body || '').replace(/\r\n/g, '\n').trim();
+    $('#col-desc').value = colDescBaseline;
+    $('#col-body').value = colBodyBaseline;
+    // Reflect the saved values back into the cached collection list.
     currentCollection.members = [...colMembers];
+    currentCollection.description = colDescBaseline;
+    currentCollection.body = colBodyBaseline;
     const idx = (collections || []).findIndex((c) => c.slug === currentCollection.slug);
-    if (idx >= 0) collections[idx].members = [...colMembers];
+    if (idx >= 0) collections[idx] = { ...collections[idx], members: [...colMembers], description: colDescBaseline, body: colBodyBaseline };
     if (r.draft) renderDraft(r.draft);
     renderCollectionList();
     renderColWorkspace();
