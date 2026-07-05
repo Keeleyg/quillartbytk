@@ -10,5 +10,5 @@ themes: [nautical]
 order: 70
 ---
 
-Eight nautical-themed pieces in matching rope-edged white shadow-box
+Nautical-themed pieces in matching rope-edged shadow-box
 frames. Mix and match for a coastal feature wall.

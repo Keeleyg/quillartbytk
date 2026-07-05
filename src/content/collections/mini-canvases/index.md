@@ -9,6 +9,6 @@ themes: [misc]
 order: 50
 ---
 
-Twelve miniature quilled designs on small stretched canvases, each
+Miniature quilled designs on small stretched canvases, each
 displayed on its own wooden easel. Perfect desk gifts, shelf accents, or
 small wall groupings.

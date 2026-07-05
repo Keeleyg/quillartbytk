@@ -9,5 +9,5 @@ themes: [nautical]
 order: 60
 ---
 
-Three small framed sea creatures in matching white frames. Often sold as
+Small framed sea creatures in matching frames. Often sold as
 a coordinated trio.

@@ -9,5 +9,5 @@ themes: [flowers, australiana]
 order: 30
 ---
 
-Three native Australian plants with printed scientific name labels.
+Native Australian plants with printed scientific name labels.
 Available individually or as a triptych.
