@@ -5,7 +5,7 @@ category: framed
 themes:
   - nautical
 status: available
-hidden: false
+hidden: true
 featured: false
 collection: mini-sea-creatures
 commission_example: false
