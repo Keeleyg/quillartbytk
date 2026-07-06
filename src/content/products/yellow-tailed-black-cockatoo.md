@@ -7,7 +7,7 @@ themes:
   - australiana
 status: available
 hidden: false
-featured: false
+featured: true
 collection: aussie-birds
 commission_example: false
 multi_frame: false

@@ -6,7 +6,7 @@ themes:
   - names
 status: order
 hidden: false
-featured: false
+featured: true
 collection: commissions
 commission_example: true
 multi_frame: false

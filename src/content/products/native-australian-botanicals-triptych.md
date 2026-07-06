@@ -7,10 +7,10 @@ themes:
   - australiana
 status: sold
 hidden: false
-featured: false
+featured: true
 collection: native-botanicals
 commission_example: false
-multi_frame: true
+multi_frame: false
 palette_variants: []
 frame_options: []
 price: 100

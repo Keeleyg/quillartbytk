@@ -7,13 +7,13 @@ themes:
   - insects
 status: sold
 hidden: false
-featured: true
+featured: false
 collection: null
 commission_example: false
-multi_frame: true
+multi_frame: false
 palette_variants: []
 frame_options: []
-price: 50
+price: 100
 sale_price: null
 lead_time: null
 images:

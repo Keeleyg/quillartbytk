@@ -7,7 +7,7 @@ themes:
   - australiana
 status: sold
 hidden: false
-featured: true
+featured: false
 collection: native-bees
 commission_example: false
 multi_frame: false
