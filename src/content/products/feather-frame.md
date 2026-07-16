@@ -32,6 +32,6 @@ notes:
 ---
 A quilled feather in graduated red themed colour scheme. 
 Other colours available upon request. 
-Blue is currently sold but get in touch if you are interested. 
+Blue has found a home, but get in touch if you are interested. 
 Presented in a white shadow box frae. 
 Size 23x18cm

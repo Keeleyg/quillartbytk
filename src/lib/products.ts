@@ -33,7 +33,7 @@ export function visibleIdSet(products: Product[]): Set<string> {
 /** How the price should read in listings and on the detail page. */
 export function priceLabel(p: Product): string {
   const { status, price } = p.data;
-  if (status === 'sold') return 'Sold';
+  if (status === 'sold') return 'Enquire';
   if (price != null) return `$${price}`;
   if (status === 'order') return 'Made to order';
   return 'Inquire';

@@ -20,7 +20,7 @@ const productHref = url(`/products/${slug}`);
 
 const onSale = status === 'available' && price != null && salePrice != null;
 const priceDisplay =
-  status === 'sold' ? 'Sold' : price != null ? `$${price}` : status === 'order' ? 'Made to order' : 'Inquire';
+  status === 'sold' ? 'Enquire' : price != null ? `$${price}` : status === 'order' ? 'Made to order' : 'Inquire';
 
 // What the buyer actually pays (sale price wins when on sale).
 const effectivePrice = onSale ? salePrice : price;

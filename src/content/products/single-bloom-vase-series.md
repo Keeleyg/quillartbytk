@@ -47,6 +47,6 @@ with two delicate paper flowers and curling green tendrils. Available in
 multiple flower colours: blue, magenta/purple, red, and yellow (see
 additional photos). Each is mounted in a clean white shadow-box frame;
 vases are deliberately rendered as flat white silhouettes so the
-dimensional quilled blooms above sit forward as the focal point. Sold
+dimensional quilled blooms above sit forward as the focal point. Offered
 individually or as a coordinated set of two or four. Please specify your
 preferred colour(s) when ordering.

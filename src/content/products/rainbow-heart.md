@@ -26,5 +26,5 @@ confidence: high
 ---
 A heart-shaped composition built entirely from tightly rolled pastel
 paper coils in a full rainbow spectrum. 
-Large Heart art is sold. Mini still available
+Large Heart art has found a home. Mini still available
 Presented in a small white shadow box frame 10x10cm

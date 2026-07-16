@@ -25,5 +25,5 @@ confidence: high
 A pair of black-and-white quilled cat portraits in matching black
 frames. Each shows a different kitten pose in a clean single-line
 silhouette style.
-One sold. One available. See photos
+One has found a home. One available. See photos
 Black shadow box frame sized 165x115mm
