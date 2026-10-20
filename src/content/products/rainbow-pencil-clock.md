@@ -14,7 +14,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 75
-sale_price: 0
+sale_price: 60
 lead_time: null
 images:
   main: ../../../images/P005/main.jpg
