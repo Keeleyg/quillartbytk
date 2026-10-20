@@ -33,5 +33,17 @@
     "status": "confirmed",
     "hidden": false,
     "description": "Handmade, unique, quirky\nFind something to suit your personality or buy a gift or simply take something home with you that is handmade in Maleny and surrounding areas."
+  },
+  {
+    "id": "004",
+    "name": "Christmas In Cooroy",
+    "date": "2026-12-11",
+    "endDate": "",
+    "venue": "Cooroy Butter Factory Arts Centre",
+    "stallNumber": "",
+    "url": "",
+    "status": "confirmed",
+    "hidden": false,
+    "description": "4pm - 8pm"
   }
 ]
