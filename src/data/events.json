@@ -7,7 +7,7 @@
     "venue": "Maleny Community Centre",
     "stallNumber": "",
     "url": "https://www.facebook.com/malenyhandmademarkets",
-    "status": "tentative",
+    "status": "cancelled",
     "hidden": false,
     "description": "Handmade, unique, quirky\nFind something to suit your personality or buy a gift or simply take something home with you that is handmade in Maleny and surrounding areas."
   },
@@ -45,5 +45,17 @@
     "status": "confirmed",
     "hidden": false,
     "description": "4pm - 8pm"
+  },
+  {
+    "id": "005",
+    "name": "Caloundra Handmade Market",
+    "date": "2026-12-12",
+    "endDate": "",
+    "venue": "Caloundra Indoor Bowls Club, 55 Burke Street, Golden Beach",
+    "stallNumber": "",
+    "url": "",
+    "status": "confirmed",
+    "hidden": false,
+    "description": "open from 8am - 1pm"
   }
 ]
