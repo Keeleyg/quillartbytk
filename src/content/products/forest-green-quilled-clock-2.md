@@ -13,7 +13,7 @@ multi_frame: false
 palette_variants: []
 frame_options: []
 price: 90
-sale_price: null
+sale_price: 0
 lead_time: null
 images:
   main: ../../../images/P142/main.jpg
